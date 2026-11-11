@@ -1,0 +1,616 @@
+# WORLDWEAVE — MASTER DEVELOPMENT PROMPT
+## Obiettivo: realizzazione completa della versione 1.0
+
+Agisci come un team di sviluppo software senior composto da:
+
+- Software Architect
+- Senior Backend Developer
+- Senior Frontend Developer
+- Database Engineer
+- UI/UX Designer
+- DevOps Engineer
+- QA Engineer
+- Application Security Engineer
+
+Il tuo incarico è progettare, sviluppare, verificare e consegnare **WORLDWEAVE 1.0**, una piattaforma web completa per la creazione, organizzazione e collaborazione nella costruzione di universi narrativi fantasy.
+
+Non devi realizzare un prototipo, una demo, una landing page o un MVP.
+
+Devi realizzare un'applicazione software completa, utilizzabile e distribuibile autonomamente.
+
+---
+
+# 1. DOCUMENTAZIONE E SPECIFICHE VINCOLANTI
+
+Sono stati forniti i documenti del pacchetto WORLDWEAVE M0.
+
+Prima di scrivere codice:
+
+1. Individua tutti i documenti disponibili.
+2. Leggi integralmente README.md, PRODUCT.md, ARCHITECTURE.md, DATABASE.md, API_SPEC.md, PERMISSIONS.md, COLLABORATION.md, STORAGE_AND_IMPORT_EXPORT.md, DESIGN_SYSTEM.md, TEST_STRATEGY.md e ROADMAP.md.
+3. Leggi tutti gli ADR.
+4. Ricostruisci i requisiti funzionali e tecnici.
+5. Identifica dipendenze, vincoli, requisiti di sicurezza e criteri di accettazione.
+6. Crea una matrice di tracciabilità tra requisiti M0, funzionalità, implementazione e test.
+
+Le specifiche M0 sono la fonte normativa del progetto.
+
+In caso di conflitto, non inventare una soluzione: documenta il conflitto e applica le decisioni architetturali già approvate.
+
+Non eliminare, semplificare o reinterpretare arbitrariamente requisiti M0.
+
+# 2. OBIETTIVO DEL PRODOTTO
+
+WORLDWEAVE è un ambiente di worldbuilding fantasy che consente agli utenti di creare e gestire universi narrativi complessi.
+
+La piattaforma deve integrare:
+
+- gestione degli universi;
+- gestione di società, popoli e culture;
+- enciclopedia narrativa strutturata;
+- documentazione e cronache;
+- relazioni tra entità;
+- mappe interattive;
+- cronologie storiche;
+- collaborazione multiutente;
+- gestione di ruoli e permessi;
+- importazione ed esportazione dei contenuti.
+
+L'esperienza deve essere coerente, elegante, immersiva e funzionale.
+
+L'interfaccia deve comunicare l'atmosfera di un archivio fantasy editoriale, senza compromettere leggibilità, accessibilità e usabilità.
+
+Non creare un'interfaccia generica da dashboard amministrativa.
+
+# 3. ARCHITETTURA OBBLIGATORIA
+
+Realizza un modular monolith. Non utilizzare microservizi.
+
+## Frontend
+
+- React
+- TypeScript con strict: true
+- Vite
+- Tailwind CSS
+- shadcn/ui personalizzato
+- TanStack Query
+- React Router
+- React Hook Form
+- Zod
+- TipTap
+- Yjs per la collaborazione sui documenti
+- Cytoscape.js per i grafi
+- Leaflet per le mappe, con coordinate normalizzate e CRS.Simple quando richiesto
+- Vitest
+- React Testing Library
+- Playwright
+
+## Backend
+
+- Python
+- FastAPI
+- Pydantic
+- SQLAlchemy 2.x
+- Alembic
+- PostgreSQL
+- WebSocket
+- pytest
+
+## Infrastruttura
+
+- Docker Compose
+- PostgreSQL
+- Redis opzionale, esclusivamente per cache o coordinamento effimero
+- Filesystem locale
+- Architettura predisposta per un futuro adapter S3-compatible
+- Caddy o Nginx per il reverse proxy e TLS
+- SMTP opzionale, con possibilità di copiare un link di invito quando SMTP non è configurato.
+
+Non introdurre servizi SaaS obbligatori.
+
+La piattaforma deve poter essere installata e gestita autonomamente.
+
+## Regole architetturali
+
+- PostgreSQL è la fonte autorevole dei dati strutturati.
+- Markdown è un formato di importazione ed esportazione, non un archivio canonico parallelo.
+- Gli identificativi devono essere UUID opachi.
+- Tutte le date e gli orari devono essere gestiti in UTC.
+- Le API devono utilizzare il prefisso /api/v1.
+- JSON in snake_case.
+- Paginazione coerente.
+- Errori API con schema stabile.
+- Nessuno stack trace nelle risposte al client.
+- Le righe appartenenti a un universo devono essere correttamente isolate tramite universe_id.
+- Utilizzare vincoli e transazioni database per garantire l'integrità.
+
+# 4. FUNZIONALITÀ OBBLIGATORIE
+
+Implementa tutte le aree funzionali previste dalle specifiche.
+
+## A. Universe Management
+
+- Creazione e gestione degli universi.
+- Modifica delle informazioni generali.
+- Eliminazione con procedure sicure.
+- Configurazioni specifiche per universo.
+- Gestione dei membri.
+- Ruoli e permessi.
+- Visibilità e isolamento dei dati.
+- Audit delle operazioni rilevanti.
+
+## B. Society
+
+Sistema per creare e organizzare:
+
+- Popoli.
+- Razze e specie.
+- Culture.
+- Civiltà.
+- Organizzazioni.
+- Fazioni.
+- Religioni e sistemi di credenze.
+- Lingue.
+- Strutture politiche.
+- Gerarchie sociali.
+- Tradizioni.
+- Usanze.
+- Rapporti tra società.
+
+Le entità devono essere collegate secondo il modello dati approvato.
+
+## C. Codex
+
+Enciclopedia strutturata dell'universo.
+
+Deve supportare le tipologie di contenuto previste dalle specifiche, le relazioni tra entità, ricerca, filtri, collegamenti interni, metadati e revisioni.
+
+Prevedere un'esperienza di consultazione e modifica efficace anche con universi molto grandi.
+
+## D. Chronicle
+
+Sistema di documentazione narrativa.
+
+Deve includere:
+
+- Editor avanzato basato su TipTap.
+- Documenti strutturati.
+- Organizzazione dei contenuti.
+- Collegamenti tra documenti e Codex.
+- Revisioni.
+- Recupero delle versioni precedenti.
+- Collaborazione realtime tramite Yjs.
+- Persistenza durevole degli aggiornamenti.
+
+Non dichiarare implementata la collaborazione finché non sono verificati persistenza, recupero, autorizzazione e gestione delle disconnessioni.
+
+## E. Nexus
+
+Sistema per rappresentare le relazioni tra entità.
+
+- Grafi interattivi.
+- Collegamenti tra personaggi, luoghi, organizzazioni ed eventi.
+- Visualizzazione delle relazioni.
+- Filtri.
+- Navigazione.
+- Rispetto dei permessi di accesso.
+
+Utilizzare Cytoscape.js.
+
+## F. Atlas
+
+Sistema cartografico.
+
+- Creazione e gestione delle mappe.
+- Caricamento di immagini cartografiche.
+- Coordinate normalizzate.
+- Posizionamento di luoghi e punti di interesse.
+- Livelli e marcatori.
+- Collegamento dei luoghi con le entità del Codex.
+- Navigazione e gestione delle mappe.
+
+Non implementare funzionalità GIS avanzate o generazione procedurale non previste dalle specifiche.
+
+## G. Chronos
+
+Sistema per la gestione delle cronologie.
+
+- Calendari e sistemi temporali dell'universo.
+- Eventi storici.
+- Cronologie.
+- Relazioni tra eventi.
+- Collegamento con personaggi, luoghi e documenti.
+- Visualizzazione temporale.
+- Gestione di date e periodi secondo le specifiche.
+
+## H. Collaboration
+
+- Collaborazione multiutente.
+- Inviti.
+- Membership.
+- Gestione dei ruoli.
+- Permessi granulari.
+- Aggiornamenti realtime dove previsti.
+- Gestione dei conflitti.
+- Revoca dei permessi.
+- Autorizzazione delle room realtime.
+- Persistenza degli aggiornamenti.
+
+# 5. AUTENTICAZIONE E SICUREZZA
+
+Implementa un sistema reale di autenticazione e gestione delle sessioni.
+
+Ruoli previsti:
+
+- Owner
+- Admin
+- Editor
+- Contributor
+- Viewer
+
+La gestione dei permessi deve seguire il principio deny-by-default.
+
+Il backend deve essere sempre autoritativo.
+
+Non affidare mai la sicurezza ai controlli frontend.
+
+Implementa:
+
+- Session lifecycle.
+- Session revocation.
+- Protezione delle sessioni.
+- Autorizzazione per risorsa.
+- Isolamento tra universi.
+- Gestione sicura degli inviti.
+- Scadenza e utilizzo singolo dei token.
+- Validazione degli upload.
+- Protezione da path traversal.
+- Protezione da stored XSS.
+- Protezione CSRF se si utilizzano cookie.
+- Validazione degli input.
+- Rate limiting per le operazioni sensibili, ove previsto.
+- Logging di sicurezza senza esporre segreti.
+
+Esegui test specifici per:
+
+1. Cross-universe IDOR.
+2. API non autenticata.
+3. Revoca sessioni.
+4. Privilege escalation.
+5. Modifiche non autorizzate da Viewer.
+6. Accesso a room realtime non autorizzate.
+7. Revoca dei permessi durante una sessione.
+8. Upload malevoli.
+9. Stored XSS.
+10. CSRF, se applicabile.
+11. Riutilizzo e scadenza degli inviti.
+12. Leakage tramite ricerca e grafi.
+
+# 6. STORAGE E IMPORT/EXPORT
+
+Implementa il modello ibrido previsto da M0.
+
+PostgreSQL deve mantenere i dati strutturati e le revisioni.
+
+Markdown deve essere supportato come formato portabile.
+
+## Export
+
+- Esportazione dei contenuti dell'universo.
+- Markdown.
+- YAML frontmatter.
+- Stable IDs.
+- Struttura di cartelle coerente.
+- Rispetto dei permessi.
+- Archivi scaricabili.
+
+## Import
+
+- Importazione Markdown.
+- Validazione dei contenuti.
+- Dry-run.
+- Report degli errori.
+- Gestione dei conflitti.
+- Anteprima delle modifiche.
+- Nessuna sovrascrittura silenziosa.
+
+L'export dei contenuti utente deve essere distinto dal backup operativo del database.
+
+# 7. DESIGN E USER EXPERIENCE
+
+Crea un design system completo e coerente.
+
+Identità visiva:
+
+- Fantasy editoriale.
+- Elegante.
+- Immersiva.
+- Professionale.
+- Raffinata.
+- Non infantile.
+- Non eccessivamente decorativa.
+
+Implementa:
+
+- Design tokens.
+- Tema scuro e chiaro.
+- Tipografia coerente.
+- Palette cromatica.
+- Componenti riutilizzabili.
+- Navigazione principale.
+- Sidebar.
+- Breadcrumb.
+- Command palette.
+- Dialog e modali.
+- Form.
+- Tabelle.
+- Menu contestuali.
+- Toast e notifiche.
+- Stati di caricamento.
+- Stati vuoti.
+- Errori.
+- Conferme delle operazioni distruttive.
+
+La piattaforma deve essere responsive per desktop, tablet e dispositivi mobili.
+
+Accessibilità:
+
+- Navigazione da tastiera.
+- Focus visibile.
+- Contrasto adeguato.
+- Semantica corretta.
+- Supporto reduced motion.
+- Etichette accessibili.
+
+Non creare pulsanti decorativi senza funzionalità.
+
+Ogni azione visibile deve essere realmente implementata oppure chiaramente disabilitata con una spiegazione.
+
+# 8. ROADMAP OBBLIGATORIA M1–M9
+
+Sviluppa il progetto attraverso queste milestone, nell'ordine indicato.
+
+## M1 — Foundation
+
+- Monorepo.
+- Docker Compose.
+- Frontend shell.
+- Backend FastAPI.
+- PostgreSQL.
+- Alembic.
+- CI.
+- Autenticazione e sessioni.
+- Health e readiness.
+- Logging strutturato.
+
+## M2 — Design System & App Shell
+
+- Design tokens.
+- Temi.
+- Component library.
+- Layout.
+- Navigazione.
+- Command palette.
+- Stati UI.
+- Responsive.
+- Accessibilità.
+
+## M3 — Universe & Society
+
+- CRUD universi.
+- Membership.
+- Inviti.
+- Ruoli.
+- Autorizzazioni.
+- Visibilità.
+- Audit.
+
+## M4 — Codex
+
+Implementazione completa dell'enciclopedia strutturata.
+
+## M5 — Chronicle
+
+Editor, documenti, revisioni e funzionalità previste.
+
+## M6 — Nexus
+
+Grafi, relazioni e navigazione.
+
+## M7 — Atlas & Chronos
+
+Mappe, luoghi, cronologie e sistemi temporali.
+
+## M8 — Real-time Collaboration
+
+Yjs, persistenza, autorizzazioni realtime, recupero e gestione delle disconnessioni.
+
+## M9 — Release Hardening
+
+- Security review.
+- Test completi.
+- Test E2E.
+- Performance.
+- Backup.
+- Restore.
+- Documentazione.
+- Verifica distribuzione.
+- Preparazione release 1.0.
+
+# 9. REGOLA FONDAMENTALE: MILESTONE GATE
+
+Non passare alla milestone successiva senza aver completato e verificato quella corrente.
+
+Per ogni milestone:
+
+1. Leggi i requisiti.
+2. Definisci un piano di implementazione.
+3. Identifica i file interessati.
+4. Implementa le funzionalità.
+5. Esegui test automatici.
+6. Esegui typecheck.
+7. Esegui lint.
+8. Esegui build.
+9. Correggi gli errori.
+10. Verifica manualmente le funzionalità principali.
+11. Aggiorna la documentazione.
+12. Aggiorna la matrice dei requisiti.
+13. Produci un rapporto di accettazione.
+
+Una milestone è completata soltanto quando tutti i suoi criteri di accettazione sono soddisfatti.
+
+Se un test fallisce, correggi il problema prima di proseguire.
+
+Non segnare un test come superato se non è stato realmente eseguito.
+
+Non inventare risultati.
+
+Non sostituire test reali con descrizioni teoriche.
+
+# 10. REGOLE DI SVILUPPO PER EVITARE ERRORI
+
+Queste regole sono obbligatorie.
+
+- Leggi un file prima di modificarlo.
+- Modifica soltanto i file pertinenti alla task corrente.
+- Evita riscritture integrali non necessarie.
+- Non sovrascrivere ripetutamente lo stesso file senza modifiche sostanziali.
+- Non creare implementazioni duplicate.
+- Non introdurre dipendenze senza verificarne compatibilità e necessità.
+- Non lasciare TODO per funzionalità obbligatorie.
+- Non usare dati fittizi per simulare funzionalità complete.
+- Non lasciare endpoint vuoti.
+- Non creare pulsanti che non eseguono azioni.
+- Non nascondere errori.
+- Non disabilitare TypeScript strict.
+- Non ridurre i test per far passare artificialmente la build.
+- Non modificare le specifiche M0 per adattarle a un'implementazione incompleta.
+- Non eliminare file di documentazione.
+- Non introdurre servizi AI, RAG, embeddings o vector database.
+
+Se trovi un problema architetturale, documentalo prima di modificare una decisione vincolante.
+
+Mantieni il codice modulare, leggibile e manutenibile.
+
+# 11. DOCUMENTAZIONE TECNICA
+
+Mantieni aggiornata una documentazione completa.
+
+Crea e aggiorna almeno:
+
+- README.md
+- docs/ARCHITECTURE.md
+- docs/DATABASE.md
+- docs/API.md
+- docs/SECURITY.md
+- docs/DEPLOYMENT.md
+- docs/BACKUP_RESTORE.md
+- docs/USER_GUIDE.md
+- docs/ADMIN_GUIDE.md
+- docs/COMPONENT_LIBRARY.md
+- docs/TESTING.md
+- docs/IMPLEMENTATION_STATUS.md
+- docs/REQUIREMENTS_TRACEABILITY.md
+- docs/MILESTONE_ACCEPTANCE.md
+- docs/DECISIONS.md
+
+Documenta ogni decisione tecnica significativa.
+
+# 12. DISTRIBUZIONE FINALE
+
+La consegna deve essere progettata per Windows 10/11 con Docker Desktop.
+
+Il progetto deve poter essere estratto nella cartella:
+
+K:\WORLDWEAVE_M0
+
+Deve essere presente uno script:
+
+Avvia-WORLDWEAVE.ps1
+
+Questo script deve:
+
+1. Verificare la presenza di Docker.
+2. Verificare che Docker Desktop sia operativo.
+3. Controllare la configurazione.
+4. Preparare le variabili d'ambiente se mancanti.
+5. Avviare i container.
+6. Attendere che i servizi siano pronti.
+7. Verificare gli health check.
+8. Aprire il browser all'indirizzo locale dell'applicazione.
+
+Prevedi anche:
+
+- Ferma-WORLDWEAVE.ps1
+- Backup-WORLDWEAVE.ps1
+- Ripristina-WORLDWEAVE.ps1
+
+Non cancellare volumi o dati durante l'arresto normale.
+
+Non includere password, chiavi o segreti reali nell'archivio.
+
+Il sistema deve funzionare anche senza account Replit, senza dipendere dai servizi cloud della piattaforma.
+
+# 13. CONSEGNA FINALE OBBLIGATORIA
+
+Al completamento di M9 devi produrre:
+
+1. Repository completo.
+2. Codice frontend.
+3. Codice backend.
+4. Database e migrazioni.
+5. Docker Compose.
+6. Script PowerShell.
+7. Test automatici.
+8. Documentazione completa.
+9. File di configurazione di esempio.
+10. Archivio ZIP scaricabile.
+
+Nome archivio:
+
+WORLDWEAVE_1.0_COMPLETE.zip
+
+Lo ZIP deve contenere una cartella principale WORLDWEAVE_M0 con tutti i file necessari.
+
+Escludi:
+
+- node_modules;
+- cache;
+- file temporanei;
+- segreti;
+- credenziali;
+- dati personali;
+- file di build inutili.
+
+Includi tutto ciò che serve per ricostruire e avviare il progetto.
+
+Prima della consegna:
+
+- verifica l'integrità dell'archivio;
+- verifica che non manchino file;
+- verifica una build pulita;
+- verifica le migrazioni da database vuoto;
+- verifica Docker Compose;
+- verifica avvio e arresto;
+- verifica backup e ripristino;
+- esegui tutti i test previsti.
+
+Non dichiarare completata la versione 1.0 finché non sono superati tutti i gate M1–M9.
+
+# 14. MODALITÀ OPERATIVA
+
+Inizia immediatamente con la lettura e l'analisi delle specifiche M0.
+
+Non limitarti a restituire un piano o una proposta architetturale.
+
+Dopo aver creato il piano, procedi concretamente con lo sviluppo.
+
+Lavora in modo autonomo, rispettando l'ordine delle milestone.
+
+Non chiedere conferma per ogni singolo file o attività ordinaria.
+
+Se incontri una scelta tecnica non specificata, seleziona la soluzione più coerente con M0, documentala e procedi.
+
+Se una limitazione della piattaforma impedisce una verifica, dichiarala esplicitamente e non simulare il risultato.
+
+**OBIETTIVO FINALE: CONSEGNARE WORLDWEAVE 1.0 COMPLETO, FUNZIONANTE, TESTATO, DOCUMENTATO E SCARICABILE IN UN UNICO ARCHIVIO ZIP.**

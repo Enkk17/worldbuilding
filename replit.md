@@ -1,45 +1,62 @@
-# [Project name]
+# WORLDWEAVE
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+WORLDWEAVE is a self-hostable collaborative workspace for creating and organizing fictional universes. The M0 specification pack is the product and architecture source of truth in `docs/specifications/WORLDWEAVE_M0/`.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm --filter @workspace/worldweave run dev` — run the React/Vite web artifact (managed workflow supplies `PORT` and `BASE_PATH`)
+- `uv sync --locked` — install the pinned Python environment
+- `uv run --locked alembic -c backend/alembic.ini upgrade head` — apply FastAPI database migrations
+- `uv run --locked python -m pytest` — run backend tests
+- `pnpm run typecheck` — typecheck all workspace TypeScript
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate client and validation types from OpenAPI
+- Required backend env: `DATABASE_URL`; local self-hosting settings are in `.env.example`
+- Standalone Windows scripts: `Avvia-WORLDWEAVE.ps1`, `Ferma-WORLDWEAVE.ps1`, `Backup-WORLDWEAVE.ps1`, `Ripristina-WORLDWEAVE.ps1`
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Web: React, strict TypeScript, Vite, Tailwind CSS, TanStack Query, Wouter, React Hook Form, Zod
+- API: Python 3.13, FastAPI, Pydantic 2, SQLAlchemy 2.x, Alembic, PostgreSQL
+- Python dependency lock: `pyproject.toml` and `uv.lock`
+- TypeScript API contract: `lib/api-spec/openapi.yaml`, generated client in `lib/api-client-react`, generated schemas in `lib/api-zod`
+- Self-hosted runtime: Docker Compose, PostgreSQL, Caddy
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/worldweave/` — web UI
+- `backend/core/` — database, settings, security, errors, rate limit
+- `backend/modules/identity/` — account and session flows
+- `backend/migrations/` — Alembic schema history
+- `backend/tests/` — direct Python tests
+- `infra/` — Docker build and Windows operations scripts
+- `docs/` — user, operations, architecture, traceability, and status documentation
+- `docs/specifications/WORLDWEAVE_M0/` — preserved normative source specifications
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Preserve the M0 modular-monolith and self-hosted architecture; do not replace FastAPI/SQLAlchemy with the workspace's starter Express/Drizzle service.
+- Use PostgreSQL as the authoritative store; Markdown remains the interchange format.
+- Use UUIDv4 consistently, bootstrap-only signup by default, and server-side sessions with hashed opaque tokens.
+- No AI, embeddings, vector database, analytics, or mandatory SaaS service in v1.0.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+WORLDWEAVE will cover universe and Society management, the Codex encyclopedia, Chronicle documents, Nexus relation graphs, Atlas maps, Chronos calendars/timelines, collaboration, and portable import/export. Only the M1 account foundation is implemented at this stage; see `docs/IMPLEMENTATION_STATUS.md`.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+No separate preferences recorded.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- The API artifact route is `/api`; API endpoints use `/api/v1`. Keep the OpenAPI base `/api` and do not change `info.title` from `Api`.
+- After OpenAPI changes, regenerate client and Zod code before using new hooks or schemas.
+- API mutations require `ww_csrf`; the generated `custom-fetch` reads the CSRF cookie and sends the header.
+- Do not expose the local HTTP Compose deployment publicly. Configure HTTPS and `COOKIE_SECURE=true` before public access.
+- The normal stop script preserves the database volume; restore is destructive and requires a typed confirmation.
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- M0 source requirements: `docs/specifications/WORLDWEAVE_M0/`
+- Current milestone gates: `docs/MILESTONE_ACCEPTANCE.md`
+- Workspace conventions: `.local/skills/pnpm-workspace/SKILL.md`

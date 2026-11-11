@@ -1,0 +1,15 @@
+FROM node:24.22.1-alpine3.22 AS build
+
+WORKDIR /workspace
+RUN corepack enable && corepack prepare pnpm@10.26.1 --activate
+COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm run typecheck:libs
+ENV PORT=24452
+ENV BASE_PATH=/
+RUN pnpm --filter @workspace/worldweave run build
+
+FROM caddy:2.10.2-alpine
+COPY --from=build /workspace/artifacts/worldweave/dist/public /srv
+COPY infra/Caddyfile /etc/caddy/Caddyfile
+EXPOSE 80 443

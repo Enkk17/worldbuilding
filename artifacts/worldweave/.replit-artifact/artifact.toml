@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "WORLDWEAVE"
+description = "A collaborative, self-hostable fantasy worldbuilding workspace for structured universes, narrative documents, maps, timelines, and relationships."
+version = "1.0.0"
+id = "artifacts/worldweave"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24452
+
+[services.development]
+run = "pnpm --filter @workspace/worldweave run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/worldweave", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/worldweave/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24452"
+BASE_PATH = "/"

@@ -1,0 +1,15 @@
+.git
+.local
+.conversation
+.cache
+.pythonlibs
+.venv
+node_modules
+**/node_modules
+**/.pytest_cache
+**/__pycache__
+**/*.py[cod]
+**/*.tsbuildinfo
+**/dist
+backups
+.env

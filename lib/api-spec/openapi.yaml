@@ -3,20 +3,22 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: WORLDWEAVE M1 foundation API. PostgreSQL-backed, session-authenticated endpoints.
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+    description: Health and readiness operations
+  - name: auth
+    description: Account and revocable session operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
+      description: Confirms that the API process is running.
       responses:
         "200":
           description: Healthy
@@ -24,13 +26,215 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /readyz:
+    get:
+      operationId: readinessCheck
+      tags: [health]
+      summary: Readiness check
+      description: Confirms that required dependencies are ready.
+      responses:
+        "200":
+          description: Ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessStatus"
+        "503":
+          description: A required dependency is unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/auth/register:
+    post:
+      operationId: registerAccount
+      tags: [auth]
+      summary: Register an account
+      description: Creates an account when instance registration policy permits and starts a session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationInput"
+      responses:
+        "201":
+          description: Account created and authenticated.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Secure, HttpOnly, SameSite session cookie.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          description: Invalid registration data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Open registration is disabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: An account with this email already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/auth/login:
+    post:
+      operationId: loginAccount
+      tags: [auth]
+      summary: Log in
+      description: Verifies credentials, rotates the session, and starts a new session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Authenticated account.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Secure, HttpOnly, SameSite session cookie.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "401":
+          description: Invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/auth/logout:
+    post:
+      operationId: logoutAccount
+      tags: [auth]
+      summary: Log out
+      description: Revokes the current server-side session and clears its cookie.
+      security:
+        - sessionCookie: []
+      responses:
+        "204":
+          description: Session revoked.
+  /v1/auth/me:
+    get:
+      operationId: getCurrentAccount
+      tags: [auth]
+      summary: Get the current account
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Current authenticated account.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "401":
+          description: No valid session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
 components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: ww_session
   schemas:
     HealthStatus:
       type: object
       properties:
         status:
           type: string
-      required:
-        - status
-
+          const: healthy
+      required: [status]
+    ReadinessStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          const: ready
+        checks:
+          type: object
+          properties:
+            database:
+              type: string
+              const: ready
+          required: [database]
+      required: [status, checks]
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+            request_id:
+              type: string
+          required: [code, message, request_id]
+      required: [error]
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required: [id, email, display_name, created_at]
+    RegistrationInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          format: password
+          minLength: 12
+          maxLength: 128
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 80
+      required: [email, password, display_name]
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+      required: [email, password]

@@ -1,0 +1,54 @@
+name: WORLDWEAVE checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine3.22
+        env:
+          POSTGRES_DB: worldweave_test
+          POSTGRES_USER: worldweave
+          POSTGRES_PASSWORD: worldweave
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U worldweave -d worldweave_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://worldweave:worldweave@localhost:5432/worldweave_test
+      REGISTRATION_MODE: bootstrap_only
+      COOKIE_SECURE: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.1
+          cache: pnpm
+      - name: Enable the pinned pnpm version
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck and build the web app
+        run: |
+          pnpm run typecheck
+          PORT=24452 BASE_PATH=/ pnpm --filter @workspace/worldweave run build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.13.11
+      - name: Install uv
+        run: python -m pip install uv==0.13.4
+      - name: Install pinned Python dependencies
+        run: uv sync --locked
+      - name: Apply migrations to a clean PostgreSQL database
+        run: uv run --locked alembic -c backend/alembic.ini upgrade head
+      - name: Run backend tests
+        run: uv run --locked python -m pytest
