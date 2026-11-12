@@ -13,9 +13,13 @@ import {
   useLogoutAccount,
   useReadinessCheck,
   useRegisterAccount,
+  useListUniverses,
+  useCreateUniverse,
   type Account,
+  type UniverseResponse,
 } from '@workspace/api-client-react';
-import { ArrowDownRight, ArrowRight, BookOpen, Check, KeyRound, LogOut, ShieldCheck } from 'lucide-react';
+import UniverseDetail from '@/pages/UniverseDetail';
+import { ArrowDownRight, ArrowRight, BookOpen, Check, KeyRound, LogOut, Plus, ShieldCheck } from 'lucide-react';
 import { Link, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, useForm } from '@/components/ui/form';
@@ -277,6 +281,32 @@ function AccountHome() {
   const [logoutError, setLogoutError] = useState('');
   const signedIn = Boolean(account.data);
 
+  const { data: universeList, refetch: refetchUniverses } = useListUniverses();
+  const createUniverse = useCreateUniverse();
+
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newUniName, setNewUniName] = useState('');
+  const [newUniDesc, setNewUniDesc] = useState('');
+  const [createError, setCreateError] = useState('');
+
+  const handleCreateUniverse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUniName.trim()) return;
+    setCreateError('');
+    try {
+      const created = await createUniverse.mutateAsync({
+        data: { name: newUniName.trim(), description: newUniDesc.trim() || undefined },
+      });
+      await refetchUniverses();
+      setShowCreateForm(false);
+      setNewUniName('');
+      setNewUniDesc('');
+      setLocation(`/universes/${created.id}`);
+    } catch (err: any) {
+      setCreateError(err?.data?.error?.message || err?.message || 'Could not create universe.');
+    }
+  };
+
   const signOut = async () => {
     setLogoutError('');
     try {
@@ -373,19 +403,119 @@ function AccountHome() {
         {logoutError && <p className="mt-4 text-sm text-[#9b4a36]" role="alert" data-testid="status-logout-error">{logoutError}</p>}
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.55fr_.8fr]">
-          <section className="relative min-h-[290px] overflow-hidden border border-[#d9d1c2] bg-[#f8f4e9] p-7 sm:p-10" data-testid="content-empty-workspace">
-            <div className="absolute -right-12 -top-20 h-64 w-64 rounded-full border border-[#c5b894]/30" />
-            <div className="absolute -right-2 -top-10 h-44 w-44 rounded-full border border-dashed border-[#c5b894]/35" />
-            <div className="relative max-w-[470px]">
-              <p className="ww-kicker text-[#9b4a36]">Your first-run state</p>
-              <h2 className="ww-display mt-5 text-[40px] leading-[.98] text-[#30463b]">An atlas begins<br />with a blank leaf.</h2>
-              <p className="mt-5 max-w-[370px] text-[13px] leading-6 text-[#68746a]">There are no universes in this workspace yet. This foundation is ready for what comes next; nothing has been added on your behalf.</p>
-              <div className="mt-7 inline-flex items-center gap-2 border-b border-[#b9a894] pb-1 text-[11px] text-[#778076]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#a4523b]" /> Empty by design
+          <div className="space-y-6">
+            {/* Create Universe Form / Banner */}
+            <div className="border border-[#d9d1c2] bg-[#f8f4e9] p-6 sm:p-7">
+              <div className="flex items-center justify-between border-b border-[#ded7ca] pb-3">
+                <p className="ww-kicker text-[#9b4a36]">Canon Archives</p>
+                <button
+                  onClick={() => setShowCreateForm(!showCreateForm)}
+                  className="ww-button inline-flex items-center gap-1.5 border border-[#294238] bg-[#294238] px-3 py-1.5 text-xs font-semibold text-[#f7f2e7] hover:bg-[#38574a]"
+                  data-testid="button-toggle-create-universe"
+                >
+                  <BookOpen size={13} /> {showCreateForm ? 'Close form' : '+ New Universe'}
+                </button>
               </div>
+
+              {showCreateForm && (
+                <form onSubmit={handleCreateUniverse} className="mt-5 space-y-4 rounded border border-[#ded7ca] bg-white/70 p-5" data-testid="form-create-universe">
+                  <h3 className="font-serif text-lg text-[#253a32]">Create a New Universe</h3>
+                  <div>
+                    <label className="block text-xs font-semibold text-[#34473d]">Universe Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Eldoria, The Astral Frontier"
+                      value={newUniName}
+                      onChange={(e) => setNewUniName(e.target.value)}
+                      className="mt-1 w-full rounded border border-[#d5cebf] bg-[#faf7ef] px-3 py-2 text-xs text-[#253a32] focus:border-[#9b4a36] focus:outline-none"
+                      data-testid="input-universe-name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-[#34473d]">Description (optional)</label>
+                    <textarea
+                      rows={2}
+                      placeholder="A short premise or setting summary..."
+                      value={newUniDesc}
+                      onChange={(e) => setNewUniDesc(e.target.value)}
+                      className="mt-1 w-full rounded border border-[#d5cebf] bg-[#faf7ef] px-3 py-2 text-xs text-[#253a32] focus:border-[#9b4a36] focus:outline-none"
+                      data-testid="input-universe-desc"
+                    />
+                  </div>
+                  {createError && (
+                    <p className="text-xs text-[#9b4a36]" role="alert">{createError}</p>
+                  )}
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="submit"
+                      disabled={createUniverse.isPending}
+                      className="ww-button bg-[#294238] px-4 py-2 text-xs font-semibold text-[#f7f2e7] hover:bg-[#38574a]"
+                      data-testid="button-submit-create-universe"
+                    >
+                      {createUniverse.isPending ? 'Creating…' : 'Create Universe'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateForm(false)}
+                      className="border border-[#c9c1b2] px-3 py-2 text-xs text-[#53655b]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Universes List */}
+              {universeList?.items && universeList.items.length > 0 ? (
+                <div className="mt-5 space-y-3" data-testid="list-universes">
+                  {universeList.items.map((u: UniverseResponse) => (
+                    <div
+                      key={u.id}
+                      className="flex flex-col justify-between gap-4 border border-[#ded7ca] bg-white/70 p-4 transition-all hover:border-[#9b4a36] hover:shadow-sm sm:flex-row sm:items-center"
+                      data-testid={`card-universe-${u.id}`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-serif text-lg font-medium text-[#253a32]">{u.name}</h3>
+                          <span className="rounded bg-[#294238]/10 px-2 py-0.5 text-[10px] font-semibold text-[#294238] capitalize">
+                            {u.role}
+                          </span>
+                          <span className="rounded bg-[#ded7ca]/50 px-1.5 py-0.5 text-[10px] text-[#6e786f] uppercase">
+                            {u.status}
+                          </span>
+                        </div>
+                        {u.description && (
+                          <p className="mt-1 line-clamp-2 text-xs text-[#657168]">{u.description}</p>
+                        )}
+                        <span className="mt-1 block font-mono text-[10px] text-[#899087]">folio: {u.slug}</span>
+                      </div>
+                      <Link
+                        href={`/universes/${u.id}`}
+                        className="ww-button inline-flex items-center gap-1.5 self-start border border-[#294238] px-3.5 py-2 text-xs font-semibold text-[#294238] hover:bg-[#294238] hover:text-[#f7f2e7] sm:self-auto"
+                        data-testid={`link-enter-universe-${u.id}`}
+                      >
+                        Enter Archive <ArrowRight size={13} />
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-5 text-center py-8">
+                  <p className="font-serif text-2xl text-[#30463b]">An atlas begins with a blank leaf.</p>
+                  <p className="mt-2 text-xs text-[#68746a]">There are no universes in this workspace yet. Create your first canon to begin.</p>
+                  {!showCreateForm && (
+                    <button
+                      onClick={() => setShowCreateForm(true)}
+                      className="ww-button mt-4 inline-flex items-center gap-2 bg-[#294238] px-4 py-2 text-xs font-semibold text-[#f7f2e7] hover:bg-[#38574a]"
+                    >
+                      <Plus size={14} /> Create your first universe
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-            <span className="absolute bottom-7 right-8 ww-kicker text-[#9a8d72]">folio 001 / awaiting ink</span>
-          </section>
+          </div>
           <aside className="border border-[#d9d1c2] bg-[#f7f3e9]/75 p-6 sm:p-7">
             <div className="flex items-center justify-between border-b border-[#ded7ca] pb-4">
               <p className="ww-kicker text-[#9b4a36]">Account record</p><Check size={15} className="text-[#63836a]" />
@@ -426,6 +556,7 @@ function Router() {
         <Route path="/" component={AccountHome} />
         <Route path="/register"><AuthPage register /></Route>
         <Route path="/login"><AuthPage /></Route>
+        <Route path="/universes/:id"><Frame mode="home"><UniverseDetail /></Frame></Route>
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>

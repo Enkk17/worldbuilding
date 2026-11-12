@@ -5,19 +5,31 @@ import logging
 import time
 import uuid
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from sqlalchemy import text
+from sqlalchemy import select, text
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from backend.core.config import Settings
 from backend.core.database import build_engine, build_session_factory
 from backend.core.errors import ApiError
-from backend.core.models import Base
+from backend.core.models import AccountSession, Base
+from backend.core.security import token_hash
 from backend.modules.identity.router import router as identity_router
+from backend.modules.universes.router import router as universes_router
+from backend.modules.codex.router import router as codex_router
+from backend.modules.chronicle.router import router as chronicle_router
+from backend.modules.collaboration.manager import CollaborationManager
+from backend.modules.collaboration.router import router as collaboration_router
+from backend.modules.atlas.router import router as atlas_router
+from backend.modules.chronos.router import router as chronos_router
+
+UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
+CSRF_EXEMPT_PATHS = frozenset({"/api/v1/auth/login", "/api/v1/auth/register"})
 
 
 class JsonFormatter(logging.Formatter):
@@ -60,10 +72,19 @@ def create_app(
     async def lifespan(application: FastAPI):
         database_engine = engine or build_engine(app_settings.database_url)
         application.state.database_engine = database_engine
-        application.state.session_factory = build_session_factory(database_engine)
-        yield
-        if engine is None:
-            database_engine.dispose()
+        session_factory = build_session_factory(database_engine)
+        application.state.session_factory = session_factory
+        collaboration_manager = CollaborationManager(
+            settings=app_settings, session_factory=session_factory
+        )
+        application.state.collaboration_manager = collaboration_manager
+        await collaboration_manager.start()
+        try:
+            yield
+        finally:
+            await collaboration_manager.shutdown()
+            if engine is None:
+                database_engine.dispose()
 
     app = FastAPI(
         title="WORLDWEAVE API",
@@ -75,12 +96,78 @@ def create_app(
     )
     app.state.settings = app_settings
     app.include_router(identity_router)
+    app.include_router(universes_router)
+    app.include_router(codex_router)
+    app.include_router(chronicle_router)
+    app.include_router(collaboration_router)
+    app.include_router(atlas_router)
+    app.include_router(chronos_router)
 
     @app.middleware("http")
     async def request_context(request: Request, call_next):
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
         started = time.perf_counter()
+
+        if (
+            request.method in UNSAFE_METHODS
+            and request.url.path.startswith("/api/v1")
+            and request.url.path not in CSRF_EXEMPT_PATHS
+        ):
+            session_token = request.cookies.get("ww_session")
+            if session_token:
+                csrf_cookie = request.cookies.get("ww_csrf", "")
+                csrf_header = request.headers.get("x-csrf-token", "")
+                csrf_valid = bool(
+                    csrf_cookie and csrf_header and csrf_cookie == csrf_header
+                )
+                factory = getattr(request.app.state, "session_factory", None)
+                if csrf_valid and factory is not None:
+                    with factory() as session:
+                        record = session.scalar(
+                            select(AccountSession).where(
+                                AccountSession.token_hash == token_hash(session_token),
+                                AccountSession.revoked_at.is_(None),
+                                AccountSession.expires_at
+                                > datetime.now(timezone.utc),
+                            )
+                        )
+                        if record is not None:
+                            csrf_valid = token_hash(csrf_header) == record.csrf_hash
+                        else:
+                            csrf_valid = False
+                if not csrf_valid:
+                    response = JSONResponse(
+                        status_code=403,
+                        content={
+                            "error": {
+                                "code": "csrf_rejected",
+                                "message": "CSRF verification failed.",
+                                "details": {},
+                                "request_id": request_id,
+                            }
+                        },
+                    )
+                    duration_ms = round((time.perf_counter() - started) * 1000, 2)
+                    response.headers["X-Request-ID"] = request_id
+                    response.headers["X-Content-Type-Options"] = "nosniff"
+                    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+                    response.headers["X-Frame-Options"] = "DENY"
+                    response.headers["Content-Security-Policy"] = (
+                        "default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+                    )
+                    logger.warning(
+                        "csrf_rejected",
+                        extra={
+                            "request_id": request_id,
+                            "method": request.method,
+                            "path": request.url.path,
+                            "status_code": 403,
+                            "duration_ms": duration_ms,
+                        },
+                    )
+                    return response
+
         response = await call_next(request)
         duration_ms = round((time.perf_counter() - started) * 1000, 2)
         response.headers["X-Request-ID"] = request_id

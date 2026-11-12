@@ -64,3 +64,887 @@ export interface LoginInput {
   password: string;
 }
 
+export interface UniverseResponse {
+  id: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  description?: string | null;
+  owner_user_id: string;
+  role?: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UniverseListResponse {
+  items: UniverseResponse[];
+  total: number;
+}
+
+export interface UniverseCreate {
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  name: string;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     * @nullable
+     */
+  slug?: string | null;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  description?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type UniverseUpdateSettingsJson = { [key: string]: unknown } | null;
+
+export interface UniverseUpdate {
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  description?: string | null;
+  /** @nullable */
+  settings_json?: UniverseUpdateSettingsJson;
+  /** @nullable */
+  cover_asset_id?: string | null;
+}
+
+export interface MemberResponse {
+  id: string;
+  user_id: string;
+  email: string;
+  display_name: string;
+  role: string;
+  status: string;
+  joined_at: string;
+}
+
+export type MemberUpdateRole = typeof MemberUpdateRole[keyof typeof MemberUpdateRole];
+
+
+export const MemberUpdateRole = {
+  admin: 'admin',
+  editor: 'editor',
+  contributor: 'contributor',
+  viewer: 'viewer',
+} as const;
+
+export interface MemberUpdate {
+  role: MemberUpdateRole;
+}
+
+export type InvitationCreateRole = typeof InvitationCreateRole[keyof typeof InvitationCreateRole];
+
+
+export const InvitationCreateRole = {
+  admin: 'admin',
+  editor: 'editor',
+  contributor: 'contributor',
+  viewer: 'viewer',
+} as const;
+
+export interface InvitationCreate {
+  email: string;
+  role?: InvitationCreateRole;
+}
+
+export interface InvitationResponse {
+  id: string;
+  universe_id: string;
+  email: string;
+  role: string;
+  expires_at: string;
+  created_at: string;
+  /** @nullable */
+  invitation_token?: string | null;
+}
+
+export interface AuditLogResponse {
+  id: string;
+  universe_id: string;
+  /** @nullable */
+  actor_user_id?: string | null;
+  action: string;
+  target_type: string;
+  /** @nullable */
+  target_id?: string | null;
+  created_at: string;
+}
+
+export type ActivityEventResponseMetadataJson = { [key: string]: unknown };
+
+export interface ActivityEventResponse {
+  id: string;
+  universe_id: string;
+  actor_user_id: string;
+  event_type: string;
+  target_type: string;
+  /** @nullable */
+  target_id?: string | null;
+  metadata_json: ActivityEventResponseMetadataJson;
+  created_at: string;
+}
+
+export type EntityTypeResponseSchemaJson = { [key: string]: unknown };
+
+export interface EntityTypeResponse {
+  id: string;
+  universe_id: string;
+  key: string;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  schema_json: EntityTypeResponseSchemaJson;
+  /** @nullable */
+  icon?: string | null;
+  /** @nullable */
+  color?: string | null;
+  is_system: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type EntityTypeCreateSchemaJson = { [key: string]: unknown };
+
+export interface EntityTypeCreate {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  key: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  name: string;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  description?: string | null;
+  schema_json?: EntityTypeCreateSchemaJson;
+  /**
+     * @maxLength 64
+     * @nullable
+     */
+  icon?: string | null;
+  /**
+     * @maxLength 32
+     * @nullable
+     */
+  color?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type EntityTypeUpdateSchemaJson = { [key: string]: unknown } | null;
+
+export interface EntityTypeUpdate {
+  /**
+     * @maxLength 80
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  description?: string | null;
+  /** @nullable */
+  schema_json?: EntityTypeUpdateSchemaJson;
+  /**
+     * @maxLength 64
+     * @nullable
+     */
+  icon?: string | null;
+  /**
+     * @maxLength 32
+     * @nullable
+     */
+  color?: string | null;
+}
+
+export interface RelationTypeResponse {
+  id: string;
+  universe_id: string;
+  key: string;
+  label: string;
+  /** @nullable */
+  inverse_label?: string | null;
+  /** @nullable */
+  description?: string | null;
+  allowed_source_types: string[];
+  allowed_target_types: string[];
+  is_directional: boolean;
+  is_symmetric: boolean;
+  created_at: string;
+}
+
+export interface RelationTypeCreate {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  key: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  label: string;
+  /**
+     * @maxLength 80
+     * @nullable
+     */
+  inverse_label?: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  description?: string | null;
+  allowed_source_types?: string[];
+  allowed_target_types?: string[];
+  is_directional?: boolean;
+  is_symmetric?: boolean;
+}
+
+export type EntityResponseCustomFields = { [key: string]: unknown };
+
+export interface EntityResponse {
+  id: string;
+  universe_id: string;
+  entity_type_id: string;
+  entity_type_key: string;
+  entity_type_name: string;
+  title: string;
+  slug: string;
+  /** @nullable */
+  summary?: string | null;
+  custom_fields: EntityResponseCustomFields;
+  status: string;
+  visibility: string;
+  created_by: string;
+  updated_by: string;
+  version: number;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EntityListResponse {
+  items: EntityResponse[];
+  total: number;
+}
+
+export type EntityCreateCustomFields = { [key: string]: unknown };
+
+export interface EntityCreate {
+  entity_type_key: string;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  title: string;
+  /**
+     * @maxLength 200
+     * @nullable
+     */
+  slug?: string | null;
+  /**
+     * @maxLength 1000
+     * @nullable
+     */
+  summary?: string | null;
+  custom_fields?: EntityCreateCustomFields;
+  status?: string;
+  visibility?: string;
+  tags?: string[];
+}
+
+/**
+ * @nullable
+ */
+export type EntityUpdateCustomFields = { [key: string]: unknown } | null;
+
+export interface EntityUpdate {
+  /**
+     * @minLength 1
+     * @maxLength 200
+     * @nullable
+     */
+  title?: string | null;
+  /**
+     * @maxLength 1000
+     * @nullable
+     */
+  summary?: string | null;
+  /** @nullable */
+  custom_fields?: EntityUpdateCustomFields;
+  /** @nullable */
+  status?: string | null;
+  /** @nullable */
+  visibility?: string | null;
+  /** @nullable */
+  tags?: string[] | null;
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export type EntityRelationResponseAttributesJson = { [key: string]: unknown };
+
+export interface EntityRelationResponse {
+  id: string;
+  universe_id: string;
+  source_entity_id: string;
+  source_entity_title: string;
+  relation_type_id: string;
+  relation_type_key: string;
+  relation_label: string;
+  target_entity_id: string;
+  target_entity_title: string;
+  attributes_json: EntityRelationResponseAttributesJson;
+  created_by: string;
+  created_at: string;
+}
+
+export type EntityRelationCreateAttributesJson = { [key: string]: unknown };
+
+export interface EntityRelationCreate {
+  source_entity_id: string;
+  relation_type_key: string;
+  target_entity_id: string;
+  attributes_json?: EntityRelationCreateAttributesJson;
+}
+
+export interface GraphNode {
+  id: string;
+  title: string;
+  entity_type_key: string;
+  entity_type_name: string;
+  /** @nullable */
+  summary?: string | null;
+  /** @nullable */
+  color?: string | null;
+  /** @nullable */
+  icon?: string | null;
+}
+
+export interface GraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  relation_type_key: string;
+  label: string;
+  /** @nullable */
+  inverse_label?: string | null;
+}
+
+export interface GraphResponse {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+export interface DocumentPermissions {
+  can_edit: boolean;
+  can_delete: boolean;
+  can_restore: boolean;
+  can_comment: boolean;
+  can_review: boolean;
+}
+
+export interface DocumentBreadcrumb {
+  id: string;
+  title: string;
+  document_type: string;
+}
+
+export interface DocumentEntityLinkResponse {
+  entity_id: string;
+  title: string;
+  slug: string;
+  entity_type_key: string;
+  entity_type_name: string;
+  label: string;
+  link_kind: string;
+  mention_count: number;
+  entity_deleted: boolean;
+}
+
+export type DocumentSummaryDocumentType = typeof DocumentSummaryDocumentType[keyof typeof DocumentSummaryDocumentType];
+
+
+export const DocumentSummaryDocumentType = {
+  collection: 'collection',
+  work: 'work',
+  part: 'part',
+  chapter: 'chapter',
+  scene: 'scene',
+  note: 'note',
+} as const;
+
+export type DocumentSummaryStatus = typeof DocumentSummaryStatus[keyof typeof DocumentSummaryStatus];
+
+
+export const DocumentSummaryStatus = {
+  draft: 'draft',
+  review: 'review',
+  published: 'published',
+  archived: 'archived',
+} as const;
+
+export type DocumentSummaryVisibility = typeof DocumentSummaryVisibility[keyof typeof DocumentSummaryVisibility];
+
+
+export const DocumentSummaryVisibility = {
+  universe: 'universe',
+  restricted: 'restricted',
+  draft: 'draft',
+  private: 'private',
+} as const;
+
+export interface DocumentSummary {
+  id: string;
+  universe_id: string;
+  /** @nullable */
+  parent_id?: string | null;
+  document_type: DocumentSummaryDocumentType;
+  title: string;
+  slug: string;
+  status: DocumentSummaryStatus;
+  visibility: DocumentSummaryVisibility;
+  sort_order: number;
+  created_by: string;
+  updated_by: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+  excerpt?: string;
+  has_children?: boolean;
+}
+
+export type DocumentResponseContentJson = { [key: string]: unknown };
+
+export type DocumentResponse = DocumentSummary & {
+  content_json: DocumentResponseContentJson;
+  current_revision_number?: number;
+  revision_count?: number;
+  breadcrumbs?: DocumentBreadcrumb[];
+  entity_links?: DocumentEntityLinkResponse[];
+  permissions: DocumentPermissions;
+};
+
+export interface DocumentListResponse {
+  items: DocumentSummary[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export type DocumentTreeNode = DocumentSummary & {
+  children: DocumentTreeNode[];
+};
+
+export interface DocumentTreeResponse {
+  items: DocumentTreeNode[];
+  total: number;
+}
+
+export type CollaborationTicketResponseProtocol = typeof CollaborationTicketResponseProtocol[keyof typeof CollaborationTicketResponseProtocol];
+
+
+export const CollaborationTicketResponseProtocol = {
+  'yjs-websocket-v1': 'yjs-websocket-v1',
+} as const;
+
+export type CollaborationTicketResponseRole = typeof CollaborationTicketResponseRole[keyof typeof CollaborationTicketResponseRole];
+
+
+export const CollaborationTicketResponseRole = {
+  owner: 'owner',
+  admin: 'admin',
+  editor: 'editor',
+  contributor: 'contributor',
+  viewer: 'viewer',
+} as const;
+
+export interface CollaborationTicketResponse {
+  /**
+     * @minLength 32
+     * @maxLength 4096
+     */
+  ticket: string;
+  document_id: string;
+  universe_id: string;
+  websocket_path: string;
+  protocol: CollaborationTicketResponseProtocol;
+  /** Unix timestamp in seconds. */
+  expires_at: number;
+  can_write: boolean;
+  role: CollaborationTicketResponseRole;
+  display_name: string;
+  collab_generation: number;
+}
+
+export type DocumentCreateDocumentType = typeof DocumentCreateDocumentType[keyof typeof DocumentCreateDocumentType];
+
+
+export const DocumentCreateDocumentType = {
+  collection: 'collection',
+  work: 'work',
+  part: 'part',
+  chapter: 'chapter',
+  scene: 'scene',
+  note: 'note',
+} as const;
+
+/**
+ * @nullable
+ */
+export type DocumentCreateContentJson = { [key: string]: unknown } | null;
+
+export type DocumentCreateStatus = typeof DocumentCreateStatus[keyof typeof DocumentCreateStatus];
+
+
+export const DocumentCreateStatus = {
+  draft: 'draft',
+  review: 'review',
+  published: 'published',
+  archived: 'archived',
+} as const;
+
+export type DocumentCreateVisibility = typeof DocumentCreateVisibility[keyof typeof DocumentCreateVisibility];
+
+
+export const DocumentCreateVisibility = {
+  universe: 'universe',
+  restricted: 'restricted',
+  draft: 'draft',
+  private: 'private',
+} as const;
+
+export interface DocumentCreate {
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  title: string;
+  document_type?: DocumentCreateDocumentType;
+  /** @nullable */
+  parent_id?: string | null;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     * @nullable
+     */
+  slug?: string | null;
+  /** @nullable */
+  content_json?: DocumentCreateContentJson;
+  status?: DocumentCreateStatus;
+  visibility?: DocumentCreateVisibility;
+  sort_order?: number;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  change_summary?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type DocumentUpdateDocumentType = typeof DocumentUpdateDocumentType[keyof typeof DocumentUpdateDocumentType] | null;
+
+
+export const DocumentUpdateDocumentType = {
+  collection: 'collection',
+  work: 'work',
+  part: 'part',
+  chapter: 'chapter',
+  scene: 'scene',
+  note: 'note',
+} as const;
+
+/**
+ * @nullable
+ */
+export type DocumentUpdateContentJson = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type DocumentUpdateStatus = typeof DocumentUpdateStatus[keyof typeof DocumentUpdateStatus] | null;
+
+
+export const DocumentUpdateStatus = {
+  draft: 'draft',
+  review: 'review',
+  published: 'published',
+  archived: 'archived',
+} as const;
+
+/**
+ * @nullable
+ */
+export type DocumentUpdateVisibility = typeof DocumentUpdateVisibility[keyof typeof DocumentUpdateVisibility] | null;
+
+
+export const DocumentUpdateVisibility = {
+  universe: 'universe',
+  restricted: 'restricted',
+  draft: 'draft',
+  private: 'private',
+} as const;
+
+export interface DocumentUpdate {
+  /**
+     * @minLength 1
+     * @maxLength 200
+     * @nullable
+     */
+  title?: string | null;
+  /** @nullable */
+  document_type?: DocumentUpdateDocumentType;
+  /** @nullable */
+  parent_id?: string | null;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     * @nullable
+     */
+  slug?: string | null;
+  /** @nullable */
+  content_json?: DocumentUpdateContentJson;
+  /** @nullable */
+  status?: DocumentUpdateStatus;
+  /** @nullable */
+  visibility?: DocumentUpdateVisibility;
+  /** @nullable */
+  sort_order?: number | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  change_summary?: string | null;
+  checkpoint?: boolean;
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export interface DocumentRestoreRequest {
+  /**
+     * @minimum 1
+     * @nullable
+     */
+  expected_version?: number | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  change_summary?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type DocumentRevisionResponseContentJson = { [key: string]: unknown } | null;
+
+export type DocumentRevisionResponseSource = typeof DocumentRevisionResponseSource[keyof typeof DocumentRevisionResponseSource];
+
+
+export const DocumentRevisionResponseSource = {
+  manual: 'manual',
+  checkpoint: 'checkpoint',
+  publish: 'publish',
+  restore: 'restore',
+  import: 'import',
+} as const;
+
+export interface DocumentRevisionResponse {
+  id: string;
+  document_id: string;
+  revision_number: number;
+  /** @nullable */
+  content_json?: DocumentRevisionResponseContentJson;
+  /** @nullable */
+  markdown_snapshot?: string | null;
+  /** @nullable */
+  change_summary?: string | null;
+  source: DocumentRevisionResponseSource;
+  created_by: string;
+  created_at: string;
+}
+
+export interface DocumentRevisionListResponse {
+  items: DocumentRevisionResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+/**
+ * @nullable
+ */
+export type CommentCreateAnchorJson = { [key: string]: unknown } | null;
+
+export interface CommentCreate {
+  /**
+     * @minLength 1
+     * @maxLength 5000
+     */
+  body: string;
+  /** @nullable */
+  parent_comment_id?: string | null;
+  /** @nullable */
+  anchor_json?: CommentCreateAnchorJson;
+}
+
+export interface CommentUpdate {
+  /**
+     * @minLength 1
+     * @maxLength 5000
+     */
+  body: string;
+}
+
+/**
+ * @nullable
+ */
+export type CommentResponseAnchorJson = { [key: string]: unknown } | null;
+
+export interface CommentResponse {
+  id: string;
+  universe_id: string;
+  target_type: string;
+  target_id: string;
+  /** @nullable */
+  parent_comment_id?: string | null;
+  body: string;
+  /** @nullable */
+  anchor_json?: CommentResponseAnchorJson;
+  created_by: string;
+  author_display_name: string;
+  created_at: string;
+  /** @nullable */
+  edited_at?: string | null;
+}
+
+export interface CommentListResponse {
+  items: CommentResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export type ListEntitiesParams = {
+type?: string;
+status?: string;
+q?: string;
+limit?: number;
+};
+
+export type GetNexusGraphParams = {
+focus_entity_id?: string;
+depth?: number;
+limit?: number;
+};
+
+export type ListDocumentsParams = {
+parent_id?: string;
+root_only?: boolean;
+type?: ListDocumentsType;
+status?: ListDocumentsStatus;
+q?: string;
+sort?: string;
+order?: ListDocumentsOrder;
+/**
+ * @minimum 1
+ * @maximum 200
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+
+export type ListDocumentsType = typeof ListDocumentsType[keyof typeof ListDocumentsType];
+
+
+export const ListDocumentsType = {
+  collection: 'collection',
+  work: 'work',
+  part: 'part',
+  chapter: 'chapter',
+  scene: 'scene',
+  note: 'note',
+} as const;
+
+export type ListDocumentsStatus = typeof ListDocumentsStatus[keyof typeof ListDocumentsStatus];
+
+
+export const ListDocumentsStatus = {
+  draft: 'draft',
+  review: 'review',
+  published: 'published',
+  archived: 'archived',
+} as const;
+
+export type ListDocumentsOrder = typeof ListDocumentsOrder[keyof typeof ListDocumentsOrder];
+
+
+export const ListDocumentsOrder = {
+  asc: 'asc',
+  desc: 'desc',
+} as const;
+
+export type ListDocumentRevisionsParams = {
+include_content?: boolean;
+/**
+ * @minimum 1
+ * @maximum 200
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+
+export type ListEntityDocumentsParams = {
+/**
+ * @minimum 1
+ * @maximum 200
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+
+export type ListDocumentCommentsParams = {
+/**
+ * @minimum 1
+ * @maximum 500
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+

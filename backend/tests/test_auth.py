@@ -38,7 +38,7 @@ def test_session_logout_requires_csrf_and_revokes_server_record(client):
     csrf_token = client.cookies.get("ww_csrf")
     assert csrf_token
 
-    denied = client.post("/api/v1/auth/logout")
+    denied = client.post("/api/v1/auth/logout", headers={"x-csrf-token": ""})
     assert denied.status_code == 403
     assert denied.json()["error"]["code"] == "csrf_rejected"
 

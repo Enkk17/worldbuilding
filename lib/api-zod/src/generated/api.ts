@@ -97,3 +97,1488 @@ export const GetCurrentAccountResponse = zod.object({
 })
 
 
+/**
+ * @summary List universes for current user
+ */
+export const listUniversesResponseItemsItemRoleDefault = `viewer`;
+
+export const ListUniversesResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "owner_user_id": zod.string().uuid(),
+  "role": zod.string().default(listUniversesResponseItemsItemRoleDefault),
+  "status": zod.string(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Create a new universe
+ */
+export const createUniverseBodyNameMax = 120;
+
+export const createUniverseBodySlugMax = 120;
+
+export const createUniverseBodyDescriptionMax = 2000;
+
+
+
+export const CreateUniverseBody = zod.object({
+  "name": zod.string().min(1).max(createUniverseBodyNameMax),
+  "slug": zod.string().min(1).max(createUniverseBodySlugMax).nullish(),
+  "description": zod.string().max(createUniverseBodyDescriptionMax).nullish()
+})
+
+export const createUniverseResponseRoleDefault = `viewer`;
+
+export const CreateUniverseResponse = zod.object({
+  "id": zod.string().uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "owner_user_id": zod.string().uuid(),
+  "role": zod.string().default(createUniverseResponseRoleDefault),
+  "status": zod.string(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get universe details
+ */
+export const GetUniverseParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const getUniverseResponseRoleDefault = `viewer`;
+
+export const GetUniverseResponse = zod.object({
+  "id": zod.string().uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "owner_user_id": zod.string().uuid(),
+  "role": zod.string().default(getUniverseResponseRoleDefault),
+  "status": zod.string(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update universe settings
+ */
+export const UpdateUniverseParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const updateUniverseBodyNameMax = 120;
+
+export const updateUniverseBodyDescriptionMax = 2000;
+
+
+
+export const UpdateUniverseBody = zod.object({
+  "name": zod.string().max(updateUniverseBodyNameMax).nullish(),
+  "description": zod.string().max(updateUniverseBodyDescriptionMax).nullish(),
+  "settings_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "cover_asset_id": zod.string().uuid().nullish()
+})
+
+export const updateUniverseResponseRoleDefault = `viewer`;
+
+export const UpdateUniverseResponse = zod.object({
+  "id": zod.string().uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "owner_user_id": zod.string().uuid(),
+  "role": zod.string().default(updateUniverseResponseRoleDefault),
+  "status": zod.string(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Archive universe
+ */
+export const ArchiveUniverseParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const archiveUniverseResponseRoleDefault = `viewer`;
+
+export const ArchiveUniverseResponse = zod.object({
+  "id": zod.string().uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "owner_user_id": zod.string().uuid(),
+  "role": zod.string().default(archiveUniverseResponseRoleDefault),
+  "status": zod.string(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary List members in universe
+ */
+export const ListUniverseMembersParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const ListUniverseMembersResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "user_id": zod.string().uuid(),
+  "email": zod.string(),
+  "display_name": zod.string(),
+  "role": zod.string(),
+  "status": zod.string(),
+  "joined_at": zod.coerce.date()
+})
+export const ListUniverseMembersResponse = zod.array(ListUniverseMembersResponseItem)
+
+
+/**
+ * @summary Update member role
+ */
+export const UpdateMemberRoleParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "user_id": zod.coerce.string().uuid()
+})
+
+export const UpdateMemberRoleBody = zod.object({
+  "role": zod.enum(['admin', 'editor', 'contributor', 'viewer'])
+})
+
+export const UpdateMemberRoleResponse = zod.object({
+  "id": zod.string().uuid(),
+  "user_id": zod.string().uuid(),
+  "email": zod.string(),
+  "display_name": zod.string(),
+  "role": zod.string(),
+  "status": zod.string(),
+  "joined_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Remove member from universe
+ */
+export const RemoveMemberParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "user_id": zod.coerce.string().uuid()
+})
+
+export const RemoveMemberResponse = zod.void()
+
+
+/**
+ * @summary Invite member to universe
+ */
+export const CreateInvitationParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const createInvitationBodyRoleDefault = `viewer`;
+
+export const CreateInvitationBody = zod.object({
+  "email": zod.string().email(),
+  "role": zod.enum(['admin', 'editor', 'contributor', 'viewer']).default(createInvitationBodyRoleDefault)
+})
+
+export const CreateInvitationResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "email": zod.string(),
+  "role": zod.string(),
+  "expires_at": zod.coerce.date(),
+  "created_at": zod.coerce.date(),
+  "invitation_token": zod.string().nullish()
+})
+
+
+/**
+ * @summary Accept invitation
+ */
+export const AcceptInvitationParams = zod.object({
+  "token": zod.coerce.string()
+})
+
+export const acceptInvitationResponseRoleDefault = `viewer`;
+
+export const AcceptInvitationResponse = zod.object({
+  "id": zod.string().uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "owner_user_id": zod.string().uuid(),
+  "role": zod.string().default(acceptInvitationResponseRoleDefault),
+  "status": zod.string(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary List audit logs
+ */
+export const ListAuditLogsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const ListAuditLogsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "actor_user_id": zod.string().uuid().nullish(),
+  "action": zod.string(),
+  "target_type": zod.string(),
+  "target_id": zod.string().uuid().nullish(),
+  "created_at": zod.coerce.date()
+})
+export const ListAuditLogsResponse = zod.array(ListAuditLogsResponseItem)
+
+
+/**
+ * @summary List activity events
+ */
+export const ListActivityParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const ListActivityResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "actor_user_id": zod.string().uuid(),
+  "event_type": zod.string(),
+  "target_type": zod.string(),
+  "target_id": zod.string().uuid().nullish(),
+  "metadata_json": zod.record(zod.string(), zod.unknown()),
+  "created_at": zod.coerce.date()
+})
+export const ListActivityResponse = zod.array(ListActivityResponseItem)
+
+
+/**
+ * @summary List entity types
+ */
+export const ListEntityTypesParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const ListEntityTypesResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "key": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "schema_json": zod.record(zod.string(), zod.unknown()),
+  "icon": zod.string().nullish(),
+  "color": zod.string().nullish(),
+  "is_system": zod.boolean(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+export const ListEntityTypesResponse = zod.array(ListEntityTypesResponseItem)
+
+
+/**
+ * @summary Create custom entity type
+ */
+export const CreateEntityTypeParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const createEntityTypeBodyKeyMax = 64;
+
+export const createEntityTypeBodyNameMax = 80;
+
+export const createEntityTypeBodyDescriptionMax = 500;
+
+export const createEntityTypeBodyIconMax = 64;
+
+export const createEntityTypeBodyColorMax = 32;
+
+
+
+export const CreateEntityTypeBody = zod.object({
+  "key": zod.string().min(1).max(createEntityTypeBodyKeyMax),
+  "name": zod.string().min(1).max(createEntityTypeBodyNameMax),
+  "description": zod.string().max(createEntityTypeBodyDescriptionMax).nullish(),
+  "schema_json": zod.record(zod.string(), zod.unknown()).optional(),
+  "icon": zod.string().max(createEntityTypeBodyIconMax).nullish(),
+  "color": zod.string().max(createEntityTypeBodyColorMax).nullish()
+})
+
+export const CreateEntityTypeResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "key": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "schema_json": zod.record(zod.string(), zod.unknown()),
+  "icon": zod.string().nullish(),
+  "color": zod.string().nullish(),
+  "is_system": zod.boolean(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update entity type
+ */
+export const UpdateEntityTypeParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "type_id": zod.coerce.string().uuid()
+})
+
+export const updateEntityTypeBodyNameMax = 80;
+
+export const updateEntityTypeBodyDescriptionMax = 500;
+
+export const updateEntityTypeBodyIconMax = 64;
+
+export const updateEntityTypeBodyColorMax = 32;
+
+
+
+export const UpdateEntityTypeBody = zod.object({
+  "name": zod.string().max(updateEntityTypeBodyNameMax).nullish(),
+  "description": zod.string().max(updateEntityTypeBodyDescriptionMax).nullish(),
+  "schema_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "icon": zod.string().max(updateEntityTypeBodyIconMax).nullish(),
+  "color": zod.string().max(updateEntityTypeBodyColorMax).nullish()
+})
+
+export const UpdateEntityTypeResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "key": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "schema_json": zod.record(zod.string(), zod.unknown()),
+  "icon": zod.string().nullish(),
+  "color": zod.string().nullish(),
+  "is_system": zod.boolean(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary List relation types
+ */
+export const ListRelationTypesParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const ListRelationTypesResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "key": zod.string(),
+  "label": zod.string(),
+  "inverse_label": zod.string().nullish(),
+  "description": zod.string().nullish(),
+  "allowed_source_types": zod.array(zod.string()),
+  "allowed_target_types": zod.array(zod.string()),
+  "is_directional": zod.boolean(),
+  "is_symmetric": zod.boolean(),
+  "created_at": zod.coerce.date()
+})
+export const ListRelationTypesResponse = zod.array(ListRelationTypesResponseItem)
+
+
+/**
+ * @summary Create custom relation type
+ */
+export const CreateRelationTypeParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const createRelationTypeBodyKeyMax = 64;
+
+export const createRelationTypeBodyLabelMax = 80;
+
+export const createRelationTypeBodyInverseLabelMax = 80;
+
+export const createRelationTypeBodyDescriptionMax = 500;
+
+export const createRelationTypeBodyIsDirectionalDefault = true;
+export const createRelationTypeBodyIsSymmetricDefault = false;
+
+export const CreateRelationTypeBody = zod.object({
+  "key": zod.string().min(1).max(createRelationTypeBodyKeyMax),
+  "label": zod.string().min(1).max(createRelationTypeBodyLabelMax),
+  "inverse_label": zod.string().max(createRelationTypeBodyInverseLabelMax).nullish(),
+  "description": zod.string().max(createRelationTypeBodyDescriptionMax).nullish(),
+  "allowed_source_types": zod.array(zod.string()).optional(),
+  "allowed_target_types": zod.array(zod.string()).optional(),
+  "is_directional": zod.boolean().default(createRelationTypeBodyIsDirectionalDefault),
+  "is_symmetric": zod.boolean().default(createRelationTypeBodyIsSymmetricDefault)
+})
+
+export const CreateRelationTypeResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "key": zod.string(),
+  "label": zod.string(),
+  "inverse_label": zod.string().nullish(),
+  "description": zod.string().nullish(),
+  "allowed_source_types": zod.array(zod.string()),
+  "allowed_target_types": zod.array(zod.string()),
+  "is_directional": zod.boolean(),
+  "is_symmetric": zod.boolean(),
+  "created_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary List entities in universe
+ */
+export const ListEntitiesParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const listEntitiesQueryLimitDefault = 100;
+
+export const ListEntitiesQueryParams = zod.object({
+  "type": zod.coerce.string().optional(),
+  "status": zod.coerce.string().optional(),
+  "q": zod.coerce.string().optional(),
+  "limit": zod.coerce.number().int().default(listEntitiesQueryLimitDefault)
+})
+
+export const ListEntitiesResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "entity_type_id": zod.string().uuid(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "summary": zod.string().nullish(),
+  "custom_fields": zod.record(zod.string(), zod.unknown()),
+  "status": zod.string(),
+  "visibility": zod.string(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "tags": zod.array(zod.string()),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Create new entity
+ */
+export const CreateEntityParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const createEntityBodyTitleMax = 200;
+
+export const createEntityBodySlugMax = 200;
+
+export const createEntityBodySummaryMax = 1000;
+
+export const createEntityBodyStatusDefault = `active`;
+export const createEntityBodyVisibilityDefault = `universe`;
+
+export const CreateEntityBody = zod.object({
+  "entity_type_key": zod.string(),
+  "title": zod.string().min(1).max(createEntityBodyTitleMax),
+  "slug": zod.string().max(createEntityBodySlugMax).nullish(),
+  "summary": zod.string().max(createEntityBodySummaryMax).nullish(),
+  "custom_fields": zod.record(zod.string(), zod.unknown()).optional(),
+  "status": zod.string().default(createEntityBodyStatusDefault),
+  "visibility": zod.string().default(createEntityBodyVisibilityDefault),
+  "tags": zod.array(zod.string()).optional()
+})
+
+export const CreateEntityResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "entity_type_id": zod.string().uuid(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "summary": zod.string().nullish(),
+  "custom_fields": zod.record(zod.string(), zod.unknown()),
+  "status": zod.string(),
+  "visibility": zod.string(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "tags": zod.array(zod.string()),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get entity details
+ */
+export const GetEntityParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "entity_id": zod.coerce.string().uuid()
+})
+
+export const GetEntityResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "entity_type_id": zod.string().uuid(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "summary": zod.string().nullish(),
+  "custom_fields": zod.record(zod.string(), zod.unknown()),
+  "status": zod.string(),
+  "visibility": zod.string(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "tags": zod.array(zod.string()),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update entity with optimistic concurrency
+ */
+export const UpdateEntityParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "entity_id": zod.coerce.string().uuid()
+})
+
+export const updateEntityBodyTitleMax = 200;
+
+export const updateEntityBodySummaryMax = 1000;
+
+
+
+
+export const UpdateEntityBody = zod.object({
+  "title": zod.string().min(1).max(updateEntityBodyTitleMax).nullish(),
+  "summary": zod.string().max(updateEntityBodySummaryMax).nullish(),
+  "custom_fields": zod.record(zod.string(), zod.unknown()).nullish(),
+  "status": zod.string().nullish(),
+  "visibility": zod.string().nullish(),
+  "tags": zod.array(zod.string()).nullish(),
+  "expected_version": zod.number().int().min(1)
+})
+
+export const UpdateEntityResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "entity_type_id": zod.string().uuid(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "summary": zod.string().nullish(),
+  "custom_fields": zod.record(zod.string(), zod.unknown()),
+  "status": zod.string(),
+  "visibility": zod.string(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "tags": zod.array(zod.string()),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Soft-delete entity
+ */
+export const DeleteEntityParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "entity_id": zod.coerce.string().uuid()
+})
+
+export const DeleteEntityResponse = zod.void()
+
+
+/**
+ * @summary Restore deleted entity
+ */
+export const RestoreEntityParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "entity_id": zod.coerce.string().uuid()
+})
+
+export const RestoreEntityResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "entity_type_id": zod.string().uuid(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "summary": zod.string().nullish(),
+  "custom_fields": zod.record(zod.string(), zod.unknown()),
+  "status": zod.string(),
+  "visibility": zod.string(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "tags": zod.array(zod.string()),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary List incoming and outgoing relations for entity
+ */
+export const ListEntityRelationsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "entity_id": zod.coerce.string().uuid()
+})
+
+export const ListEntityRelationsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "source_entity_id": zod.string().uuid(),
+  "source_entity_title": zod.string(),
+  "relation_type_id": zod.string().uuid(),
+  "relation_type_key": zod.string(),
+  "relation_label": zod.string(),
+  "target_entity_id": zod.string().uuid(),
+  "target_entity_title": zod.string(),
+  "attributes_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "created_at": zod.coerce.date()
+})
+export const ListEntityRelationsResponse = zod.array(ListEntityRelationsResponseItem)
+
+
+/**
+ * @summary Create directed relation between entities
+ */
+export const CreateEntityRelationParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const CreateEntityRelationBody = zod.object({
+  "source_entity_id": zod.string().uuid(),
+  "relation_type_key": zod.string(),
+  "target_entity_id": zod.string().uuid(),
+  "attributes_json": zod.record(zod.string(), zod.unknown()).optional()
+})
+
+export const CreateEntityRelationResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "source_entity_id": zod.string().uuid(),
+  "source_entity_title": zod.string(),
+  "relation_type_id": zod.string().uuid(),
+  "relation_type_key": zod.string(),
+  "relation_label": zod.string(),
+  "target_entity_id": zod.string().uuid(),
+  "target_entity_title": zod.string(),
+  "attributes_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "created_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Remove relation
+ */
+export const DeleteEntityRelationParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "relation_id": zod.coerce.string().uuid()
+})
+
+export const DeleteEntityRelationResponse = zod.void()
+
+
+/**
+ * @summary Get knowledge graph nodes and edges
+ */
+export const GetNexusGraphParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const getNexusGraphQueryDepthDefault = 1;
+export const getNexusGraphQueryLimitDefault = 150;
+
+export const GetNexusGraphQueryParams = zod.object({
+  "focus_entity_id": zod.coerce.string().uuid().optional(),
+  "depth": zod.coerce.number().int().default(getNexusGraphQueryDepthDefault),
+  "limit": zod.coerce.number().int().default(getNexusGraphQueryLimitDefault)
+})
+
+export const GetNexusGraphResponse = zod.object({
+  "nodes": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "summary": zod.string().nullish(),
+  "color": zod.string().nullish(),
+  "icon": zod.string().nullish()
+})),
+  "edges": zod.array(zod.object({
+  "id": zod.string(),
+  "source": zod.string(),
+  "target": zod.string(),
+  "relation_type_key": zod.string(),
+  "label": zod.string(),
+  "inverse_label": zod.string().nullish()
+}))
+})
+
+
+/**
+ * @summary List Chronicle documents
+ */
+export const ListDocumentsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const listDocumentsQueryRootOnlyDefault = false;
+export const listDocumentsQuerySortDefault = `updated_at`;
+export const listDocumentsQueryOrderDefault = `desc`;
+export const listDocumentsQueryLimitDefault = 50;
+export const listDocumentsQueryLimitMax = 200;
+
+export const listDocumentsQueryOffsetDefault = 0;
+export const listDocumentsQueryOffsetMin = 0;
+
+
+
+export const ListDocumentsQueryParams = zod.object({
+  "parent_id": zod.coerce.string().uuid().optional(),
+  "root_only": zod.coerce.boolean().default(listDocumentsQueryRootOnlyDefault),
+  "type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']).optional(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']).optional(),
+  "q": zod.coerce.string().optional(),
+  "sort": zod.coerce.string().default(listDocumentsQuerySortDefault),
+  "order": zod.enum(['asc', 'desc']).default(listDocumentsQueryOrderDefault),
+  "limit": zod.coerce.number().int().min(1).max(listDocumentsQueryLimitMax).default(listDocumentsQueryLimitDefault),
+  "offset": zod.coerce.number().int().min(listDocumentsQueryOffsetMin).default(listDocumentsQueryOffsetDefault)
+})
+
+export const listDocumentsResponseItemsItemExcerptDefault = ``;
+export const listDocumentsResponseItemsItemHasChildrenDefault = false;
+
+export const ListDocumentsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "parent_id": zod.string().uuid().nullish(),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']),
+  "sort_order": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date(),
+  "excerpt": zod.string().default(listDocumentsResponseItemsItemExcerptDefault),
+  "has_children": zod.boolean().default(listDocumentsResponseItemsItemHasChildrenDefault)
+})),
+  "total": zod.number().int(),
+  "limit": zod.number().int(),
+  "offset": zod.number().int()
+})
+
+
+/**
+ * @summary Create a Chronicle document
+ */
+export const CreateDocumentParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const createDocumentBodyTitleMax = 200;
+
+export const createDocumentBodyDocumentTypeDefault = `chapter`;
+export const createDocumentBodySlugMax = 200;
+
+export const createDocumentBodyStatusDefault = `draft`;
+export const createDocumentBodyVisibilityDefault = `universe`;
+export const createDocumentBodySortOrderDefault = 0;
+export const createDocumentBodyChangeSummaryMax = 500;
+
+
+
+export const CreateDocumentBody = zod.object({
+  "title": zod.string().min(1).max(createDocumentBodyTitleMax),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']).default(createDocumentBodyDocumentTypeDefault),
+  "parent_id": zod.string().uuid().nullish(),
+  "slug": zod.string().min(1).max(createDocumentBodySlugMax).nullish(),
+  "content_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']).default(createDocumentBodyStatusDefault),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']).default(createDocumentBodyVisibilityDefault),
+  "sort_order": zod.number().int().default(createDocumentBodySortOrderDefault),
+  "change_summary": zod.string().max(createDocumentBodyChangeSummaryMax).nullish()
+})
+
+export const createDocumentResponseOneExcerptDefault = ``;
+export const createDocumentResponseOneHasChildrenDefault = false;
+
+export const CreateDocumentResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "parent_id": zod.string().uuid().nullish(),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']),
+  "sort_order": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date(),
+  "excerpt": zod.string().default(createDocumentResponseOneExcerptDefault),
+  "has_children": zod.boolean().default(createDocumentResponseOneHasChildrenDefault)
+}).and(zod.object({
+  "content_json": zod.record(zod.string(), zod.unknown()),
+  "current_revision_number": zod.number().int().optional(),
+  "revision_count": zod.number().int().optional(),
+  "breadcrumbs": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "title": zod.string(),
+  "document_type": zod.string()
+})).optional(),
+  "entity_links": zod.array(zod.object({
+  "entity_id": zod.string().uuid(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "label": zod.string(),
+  "link_kind": zod.string(),
+  "mention_count": zod.number().int(),
+  "entity_deleted": zod.boolean()
+})).optional(),
+  "permissions": zod.object({
+  "can_edit": zod.boolean(),
+  "can_delete": zod.boolean(),
+  "can_restore": zod.boolean(),
+  "can_comment": zod.boolean(),
+  "can_review": zod.boolean()
+})
+}))
+
+
+/**
+ * @summary Get the accessible document hierarchy
+ */
+export const GetDocumentTreeParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const getDocumentTreeResponseItemsItemOneExcerptDefault = ``;
+export const getDocumentTreeResponseItemsItemOneHasChildrenDefault = false;
+
+export const GetDocumentTreeResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "parent_id": zod.string().uuid().nullish(),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']),
+  "sort_order": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date(),
+  "excerpt": zod.string().default(getDocumentTreeResponseItemsItemOneExcerptDefault),
+  "has_children": zod.boolean().default(getDocumentTreeResponseItemsItemOneHasChildrenDefault)
+}).and(zod.object({
+  "children": zod.array(zod.unknown())
+}))),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Get a document with links, breadcrumbs, and permissions
+ */
+export const GetDocumentParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const getDocumentResponseOneExcerptDefault = ``;
+export const getDocumentResponseOneHasChildrenDefault = false;
+
+export const GetDocumentResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "parent_id": zod.string().uuid().nullish(),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']),
+  "sort_order": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date(),
+  "excerpt": zod.string().default(getDocumentResponseOneExcerptDefault),
+  "has_children": zod.boolean().default(getDocumentResponseOneHasChildrenDefault)
+}).and(zod.object({
+  "content_json": zod.record(zod.string(), zod.unknown()),
+  "current_revision_number": zod.number().int().optional(),
+  "revision_count": zod.number().int().optional(),
+  "breadcrumbs": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "title": zod.string(),
+  "document_type": zod.string()
+})).optional(),
+  "entity_links": zod.array(zod.object({
+  "entity_id": zod.string().uuid(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "label": zod.string(),
+  "link_kind": zod.string(),
+  "mention_count": zod.number().int(),
+  "entity_deleted": zod.boolean()
+})).optional(),
+  "permissions": zod.object({
+  "can_edit": zod.boolean(),
+  "can_delete": zod.boolean(),
+  "can_restore": zod.boolean(),
+  "can_comment": zod.boolean(),
+  "can_review": zod.boolean()
+})
+}))
+
+
+/**
+ * @summary Update a document with optimistic concurrency
+ */
+export const UpdateDocumentParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const updateDocumentBodyTitleMax = 200;
+
+export const updateDocumentBodySlugMax = 200;
+
+export const updateDocumentBodyChangeSummaryMax = 500;
+
+export const updateDocumentBodyCheckpointDefault = false;
+
+
+export const UpdateDocumentBody = zod.object({
+  "title": zod.string().min(1).max(updateDocumentBodyTitleMax).nullish(),
+  "document_type": zod.union([zod.literal('collection'),zod.literal('work'),zod.literal('part'),zod.literal('chapter'),zod.literal('scene'),zod.literal('note'),zod.literal(null)]).nullish(),
+  "parent_id": zod.string().uuid().nullish(),
+  "slug": zod.string().min(1).max(updateDocumentBodySlugMax).nullish(),
+  "content_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "status": zod.union([zod.literal('draft'),zod.literal('review'),zod.literal('published'),zod.literal('archived'),zod.literal(null)]).nullish(),
+  "visibility": zod.union([zod.literal('universe'),zod.literal('restricted'),zod.literal('draft'),zod.literal('private'),zod.literal(null)]).nullish(),
+  "sort_order": zod.number().int().nullish(),
+  "change_summary": zod.string().max(updateDocumentBodyChangeSummaryMax).nullish(),
+  "checkpoint": zod.boolean().default(updateDocumentBodyCheckpointDefault),
+  "expected_version": zod.number().int().min(1)
+})
+
+export const updateDocumentResponseOneExcerptDefault = ``;
+export const updateDocumentResponseOneHasChildrenDefault = false;
+
+export const UpdateDocumentResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "parent_id": zod.string().uuid().nullish(),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']),
+  "sort_order": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date(),
+  "excerpt": zod.string().default(updateDocumentResponseOneExcerptDefault),
+  "has_children": zod.boolean().default(updateDocumentResponseOneHasChildrenDefault)
+}).and(zod.object({
+  "content_json": zod.record(zod.string(), zod.unknown()),
+  "current_revision_number": zod.number().int().optional(),
+  "revision_count": zod.number().int().optional(),
+  "breadcrumbs": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "title": zod.string(),
+  "document_type": zod.string()
+})).optional(),
+  "entity_links": zod.array(zod.object({
+  "entity_id": zod.string().uuid(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "label": zod.string(),
+  "link_kind": zod.string(),
+  "mention_count": zod.number().int(),
+  "entity_deleted": zod.boolean()
+})).optional(),
+  "permissions": zod.object({
+  "can_edit": zod.boolean(),
+  "can_delete": zod.boolean(),
+  "can_restore": zod.boolean(),
+  "can_comment": zod.boolean(),
+  "can_review": zod.boolean()
+})
+}))
+
+
+/**
+ * @summary Soft-delete a document and its descendants
+ */
+export const DeleteDocumentParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const DeleteDocumentResponse = zod.void()
+
+
+/**
+ * @summary Restore a soft-deleted document
+ */
+export const RestoreDocumentParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const restoreDocumentResponseOneExcerptDefault = ``;
+export const restoreDocumentResponseOneHasChildrenDefault = false;
+
+export const RestoreDocumentResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "parent_id": zod.string().uuid().nullish(),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']),
+  "sort_order": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date(),
+  "excerpt": zod.string().default(restoreDocumentResponseOneExcerptDefault),
+  "has_children": zod.boolean().default(restoreDocumentResponseOneHasChildrenDefault)
+}).and(zod.object({
+  "content_json": zod.record(zod.string(), zod.unknown()),
+  "current_revision_number": zod.number().int().optional(),
+  "revision_count": zod.number().int().optional(),
+  "breadcrumbs": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "title": zod.string(),
+  "document_type": zod.string()
+})).optional(),
+  "entity_links": zod.array(zod.object({
+  "entity_id": zod.string().uuid(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "label": zod.string(),
+  "link_kind": zod.string(),
+  "mention_count": zod.number().int(),
+  "entity_deleted": zod.boolean()
+})).optional(),
+  "permissions": zod.object({
+  "can_edit": zod.boolean(),
+  "can_delete": zod.boolean(),
+  "can_restore": zod.boolean(),
+  "can_comment": zod.boolean(),
+  "can_review": zod.boolean()
+})
+}))
+
+
+/**
+ * Exchanges the authenticated session for a signed, document-scoped
+ * credential used to open the Yjs WebSocket room. The ticket is
+ * revalidated against durable membership, visibility, and role state
+ * while the connection is open.
+ * @summary Issue a short-lived realtime collaboration ticket
+ */
+export const GetCollaborationTicketParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const getCollaborationTicketResponseTicketMin = 32;
+export const getCollaborationTicketResponseTicketMax = 4096;
+
+
+
+export const GetCollaborationTicketResponse = zod.object({
+  "ticket": zod.string().min(getCollaborationTicketResponseTicketMin).max(getCollaborationTicketResponseTicketMax),
+  "document_id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "websocket_path": zod.string(),
+  "protocol": zod.enum(['yjs-websocket-v1']),
+  "expires_at": zod.number().int().describe('Unix timestamp in seconds.'),
+  "can_write": zod.boolean(),
+  "role": zod.enum(['owner', 'admin', 'editor', 'contributor', 'viewer']),
+  "display_name": zod.string(),
+  "collab_generation": zod.number().int()
+})
+
+
+/**
+ * @summary List document revisions
+ */
+export const ListDocumentRevisionsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const listDocumentRevisionsQueryIncludeContentDefault = false;
+export const listDocumentRevisionsQueryLimitDefault = 50;
+export const listDocumentRevisionsQueryLimitMax = 200;
+
+export const listDocumentRevisionsQueryOffsetDefault = 0;
+export const listDocumentRevisionsQueryOffsetMin = 0;
+
+
+
+export const ListDocumentRevisionsQueryParams = zod.object({
+  "include_content": zod.coerce.boolean().default(listDocumentRevisionsQueryIncludeContentDefault),
+  "limit": zod.coerce.number().int().min(1).max(listDocumentRevisionsQueryLimitMax).default(listDocumentRevisionsQueryLimitDefault),
+  "offset": zod.coerce.number().int().min(listDocumentRevisionsQueryOffsetMin).default(listDocumentRevisionsQueryOffsetDefault)
+})
+
+export const ListDocumentRevisionsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "document_id": zod.string().uuid(),
+  "revision_number": zod.number().int(),
+  "content_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "markdown_snapshot": zod.string().nullish(),
+  "change_summary": zod.string().nullish(),
+  "source": zod.enum(['manual', 'checkpoint', 'publish', 'restore', 'import']),
+  "created_by": zod.string().uuid(),
+  "created_at": zod.coerce.date()
+})),
+  "total": zod.number().int(),
+  "limit": zod.number().int(),
+  "offset": zod.number().int()
+})
+
+
+/**
+ * @summary Get one document revision
+ */
+export const GetDocumentRevisionParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid(),
+  "revision_id": zod.coerce.string().uuid()
+})
+
+export const GetDocumentRevisionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "document_id": zod.string().uuid(),
+  "revision_number": zod.number().int(),
+  "content_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "markdown_snapshot": zod.string().nullish(),
+  "change_summary": zod.string().nullish(),
+  "source": zod.enum(['manual', 'checkpoint', 'publish', 'restore', 'import']),
+  "created_by": zod.string().uuid(),
+  "created_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Restore document content from a revision
+ */
+export const RestoreDocumentRevisionParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid(),
+  "revision_id": zod.coerce.string().uuid()
+})
+
+
+export const restoreDocumentRevisionBodyChangeSummaryMax = 500;
+
+
+
+export const RestoreDocumentRevisionBody = zod.object({
+  "expected_version": zod.number().int().min(1).nullish(),
+  "change_summary": zod.string().max(restoreDocumentRevisionBodyChangeSummaryMax).nullish()
+})
+
+export const restoreDocumentRevisionResponseOneExcerptDefault = ``;
+export const restoreDocumentRevisionResponseOneHasChildrenDefault = false;
+
+export const RestoreDocumentRevisionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "parent_id": zod.string().uuid().nullish(),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']),
+  "sort_order": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date(),
+  "excerpt": zod.string().default(restoreDocumentRevisionResponseOneExcerptDefault),
+  "has_children": zod.boolean().default(restoreDocumentRevisionResponseOneHasChildrenDefault)
+}).and(zod.object({
+  "content_json": zod.record(zod.string(), zod.unknown()),
+  "current_revision_number": zod.number().int().optional(),
+  "revision_count": zod.number().int().optional(),
+  "breadcrumbs": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "title": zod.string(),
+  "document_type": zod.string()
+})).optional(),
+  "entity_links": zod.array(zod.object({
+  "entity_id": zod.string().uuid(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "label": zod.string(),
+  "link_kind": zod.string(),
+  "mention_count": zod.number().int(),
+  "entity_deleted": zod.boolean()
+})).optional(),
+  "permissions": zod.object({
+  "can_edit": zod.boolean(),
+  "can_delete": zod.boolean(),
+  "can_restore": zod.boolean(),
+  "can_comment": zod.boolean(),
+  "can_review": zod.boolean()
+})
+}))
+
+
+/**
+ * @summary List entity links resolved from document mentions
+ */
+export const ListDocumentLinksParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const ListDocumentLinksResponseItem = zod.object({
+  "entity_id": zod.string().uuid(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "entity_type_key": zod.string(),
+  "entity_type_name": zod.string(),
+  "label": zod.string(),
+  "link_kind": zod.string(),
+  "mention_count": zod.number().int(),
+  "entity_deleted": zod.boolean()
+})
+export const ListDocumentLinksResponse = zod.array(ListDocumentLinksResponseItem)
+
+
+/**
+ * @summary List documents mentioning an entity
+ */
+export const ListEntityDocumentsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "entity_id": zod.coerce.string().uuid()
+})
+
+export const listEntityDocumentsQueryLimitDefault = 50;
+export const listEntityDocumentsQueryLimitMax = 200;
+
+export const listEntityDocumentsQueryOffsetDefault = 0;
+export const listEntityDocumentsQueryOffsetMin = 0;
+
+
+
+export const ListEntityDocumentsQueryParams = zod.object({
+  "limit": zod.coerce.number().int().min(1).max(listEntityDocumentsQueryLimitMax).default(listEntityDocumentsQueryLimitDefault),
+  "offset": zod.coerce.number().int().min(listEntityDocumentsQueryOffsetMin).default(listEntityDocumentsQueryOffsetDefault)
+})
+
+export const listEntityDocumentsResponseItemsItemExcerptDefault = ``;
+export const listEntityDocumentsResponseItemsItemHasChildrenDefault = false;
+
+export const ListEntityDocumentsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "parent_id": zod.string().uuid().nullish(),
+  "document_type": zod.enum(['collection', 'work', 'part', 'chapter', 'scene', 'note']),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "status": zod.enum(['draft', 'review', 'published', 'archived']),
+  "visibility": zod.enum(['universe', 'restricted', 'draft', 'private']),
+  "sort_order": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "updated_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date(),
+  "excerpt": zod.string().default(listEntityDocumentsResponseItemsItemExcerptDefault),
+  "has_children": zod.boolean().default(listEntityDocumentsResponseItemsItemHasChildrenDefault)
+})),
+  "total": zod.number().int(),
+  "limit": zod.number().int(),
+  "offset": zod.number().int()
+})
+
+
+/**
+ * @summary List comments on a document
+ */
+export const ListDocumentCommentsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const listDocumentCommentsQueryLimitDefault = 100;
+export const listDocumentCommentsQueryLimitMax = 500;
+
+export const listDocumentCommentsQueryOffsetDefault = 0;
+export const listDocumentCommentsQueryOffsetMin = 0;
+
+
+
+export const ListDocumentCommentsQueryParams = zod.object({
+  "limit": zod.coerce.number().int().min(1).max(listDocumentCommentsQueryLimitMax).default(listDocumentCommentsQueryLimitDefault),
+  "offset": zod.coerce.number().int().min(listDocumentCommentsQueryOffsetMin).default(listDocumentCommentsQueryOffsetDefault)
+})
+
+export const ListDocumentCommentsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "target_type": zod.string(),
+  "target_id": zod.string().uuid(),
+  "parent_comment_id": zod.string().uuid().nullish(),
+  "body": zod.string(),
+  "anchor_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "created_by": zod.string().uuid(),
+  "author_display_name": zod.string(),
+  "created_at": zod.coerce.date(),
+  "edited_at": zod.coerce.date().nullish()
+})),
+  "total": zod.number().int(),
+  "limit": zod.number().int(),
+  "offset": zod.number().int()
+})
+
+
+/**
+ * @summary Comment on a document
+ */
+export const CreateDocumentCommentParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid()
+})
+
+export const createDocumentCommentBodyBodyMax = 5000;
+
+
+
+export const CreateDocumentCommentBody = zod.object({
+  "body": zod.string().min(1).max(createDocumentCommentBodyBodyMax),
+  "parent_comment_id": zod.string().uuid().nullish(),
+  "anchor_json": zod.record(zod.string(), zod.unknown()).nullish()
+})
+
+export const CreateDocumentCommentResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "target_type": zod.string(),
+  "target_id": zod.string().uuid(),
+  "parent_comment_id": zod.string().uuid().nullish(),
+  "body": zod.string(),
+  "anchor_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "created_by": zod.string().uuid(),
+  "author_display_name": zod.string(),
+  "created_at": zod.coerce.date(),
+  "edited_at": zod.coerce.date().nullish()
+})
+
+
+/**
+ * @summary Edit a document comment
+ */
+export const UpdateDocumentCommentParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid(),
+  "comment_id": zod.coerce.string().uuid()
+})
+
+export const updateDocumentCommentBodyBodyMax = 5000;
+
+
+
+export const UpdateDocumentCommentBody = zod.object({
+  "body": zod.string().min(1).max(updateDocumentCommentBodyBodyMax)
+})
+
+export const UpdateDocumentCommentResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "target_type": zod.string(),
+  "target_id": zod.string().uuid(),
+  "parent_comment_id": zod.string().uuid().nullish(),
+  "body": zod.string(),
+  "anchor_json": zod.record(zod.string(), zod.unknown()).nullish(),
+  "created_by": zod.string().uuid(),
+  "author_display_name": zod.string(),
+  "created_at": zod.coerce.date(),
+  "edited_at": zod.coerce.date().nullish()
+})
+
+
+/**
+ * @summary Delete a document comment
+ */
+export const DeleteDocumentCommentParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "document_id": zod.coerce.string().uuid(),
+  "comment_id": zod.coerce.string().uuid()
+})
+
+export const DeleteDocumentCommentResponse = zod.void()
+
+

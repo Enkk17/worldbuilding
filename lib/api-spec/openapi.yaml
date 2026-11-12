@@ -12,6 +12,18 @@ tags:
     description: Health and readiness operations
   - name: auth
     description: Account and revocable session operations
+  - name: universes
+    description: Universe and society operations
+  - name: codex
+    description: Codex entities, relationships, and nexus graph operations
+  - name: chronicle
+    description: Chronicle documents, revisions, comments, and cross-links
+  - name: collaboration
+    description: Short-lived credentials for realtime document collaboration
+  - name: atlas
+    description: Image maps, normalized markers, and polygon overlays
+  - name: chronos
+    description: Custom calendar systems, eras, and timeline events
 paths:
   /healthz:
     get:
@@ -148,12 +160,1897 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+  /v1/universes:
+    get:
+      operationId: listUniverses
+      tags: [universes]
+      summary: List universes for current user
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: List of accessible universes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniverseListResponse"
+    post:
+      operationId: createUniverse
+      tags: [universes]
+      summary: Create a new universe
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UniverseCreate"
+      responses:
+        "201":
+          description: Universe created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniverseResponse"
+  /v1/universes/{universe_id}:
+    get:
+      operationId: getUniverse
+      tags: [universes]
+      summary: Get universe details
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Universe details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniverseResponse"
+        "404":
+          description: Universe not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    patch:
+      operationId: updateUniverse
+      tags: [universes]
+      summary: Update universe settings
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UniverseUpdate"
+      responses:
+        "200":
+          description: Universe updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniverseResponse"
+  /v1/universes/{universe_id}/archive:
+    post:
+      operationId: archiveUniverse
+      tags: [universes]
+      summary: Archive universe
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Universe archived.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniverseResponse"
+  /v1/universes/{universe_id}/members:
+    get:
+      operationId: listUniverseMembers
+      tags: [universes]
+      summary: List members in universe
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: List of members.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemberResponse"
+  /v1/universes/{universe_id}/members/{user_id}:
+    patch:
+      operationId: updateMemberRole
+      tags: [universes]
+      summary: Update member role
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberUpdate"
+      responses:
+        "200":
+          description: Member role updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberResponse"
+    delete:
+      operationId: removeMember
+      tags: [universes]
+      summary: Remove member from universe
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Member removed.
+  /v1/universes/{universe_id}/invitations:
+    post:
+      operationId: createInvitation
+      tags: [universes]
+      summary: Invite member to universe
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvitationCreate"
+      responses:
+        "201":
+          description: Invitation created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitationResponse"
+  /v1/invitations/{token}/accept:
+    post:
+      operationId: acceptInvitation
+      tags: [universes]
+      summary: Accept invitation
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invitation accepted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniverseResponse"
+  /v1/universes/{universe_id}/audit-logs:
+    get:
+      operationId: listAuditLogs
+      tags: [universes]
+      summary: List audit logs
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Audit logs list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditLogResponse"
+  /v1/universes/{universe_id}/activity:
+    get:
+      operationId: listActivity
+      tags: [universes]
+      summary: List activity events
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Activity events list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityEventResponse"
+  /v1/universes/{universe_id}/entity-types:
+    get:
+      operationId: listEntityTypes
+      tags: [codex]
+      summary: List entity types
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: List of entity types.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EntityTypeResponse"
+    post:
+      operationId: createEntityType
+      tags: [codex]
+      summary: Create custom entity type
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntityTypeCreate"
+      responses:
+        "201":
+          description: Entity type created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityTypeResponse"
+  /v1/universes/{universe_id}/entity-types/{type_id}:
+    patch:
+      operationId: updateEntityType
+      tags: [codex]
+      summary: Update entity type
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntityTypeUpdate"
+      responses:
+        "200":
+          description: Entity type updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityTypeResponse"
+  /v1/universes/{universe_id}/relation-types:
+    get:
+      operationId: listRelationTypes
+      tags: [codex]
+      summary: List relation types
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: List of relation types.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RelationTypeResponse"
+    post:
+      operationId: createRelationType
+      tags: [codex]
+      summary: Create custom relation type
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RelationTypeCreate"
+      responses:
+        "201":
+          description: Relation type created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelationTypeResponse"
+  /v1/universes/{universe_id}/entities:
+    get:
+      operationId: listEntities
+      tags: [codex]
+      summary: List entities in universe
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+      responses:
+        "200":
+          description: List of entities.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityListResponse"
+    post:
+      operationId: createEntity
+      tags: [codex]
+      summary: Create new entity
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntityCreate"
+      responses:
+        "201":
+          description: Entity created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityResponse"
+  /v1/universes/{universe_id}/entities/{entity_id}:
+    get:
+      operationId: getEntity
+      tags: [codex]
+      summary: Get entity details
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Entity details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityResponse"
+    patch:
+      operationId: updateEntity
+      tags: [codex]
+      summary: Update entity with optimistic concurrency
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntityUpdate"
+      responses:
+        "200":
+          description: Entity updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityResponse"
+        "409":
+          description: Version conflict.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteEntity
+      tags: [codex]
+      summary: Soft-delete entity
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Entity deleted.
+  /v1/universes/{universe_id}/entities/{entity_id}/restore:
+    post:
+      operationId: restoreEntity
+      tags: [codex]
+      summary: Restore deleted entity
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Entity restored.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityResponse"
+  /v1/universes/{universe_id}/entities/{entity_id}/relations:
+    get:
+      operationId: listEntityRelations
+      tags: [codex]
+      summary: List incoming and outgoing relations for entity
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: List of relations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EntityRelationResponse"
+  /v1/universes/{universe_id}/relations:
+    post:
+      operationId: createEntityRelation
+      tags: [codex]
+      summary: Create directed relation between entities
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntityRelationCreate"
+      responses:
+        "201":
+          description: Relation created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityRelationResponse"
+  /v1/universes/{universe_id}/relations/{relation_id}:
+    delete:
+      operationId: deleteEntityRelation
+      tags: [codex]
+      summary: Remove relation
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: relation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Relation removed.
+  /v1/universes/{universe_id}/graph:
+    get:
+      operationId: getNexusGraph
+      tags: [codex]
+      summary: Get knowledge graph nodes and edges
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: focus_entity_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: depth
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 150
+      responses:
+        "200":
+          description: Graph structure.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GraphResponse"
+  /v1/universes/{universe_id}/documents:
+    get:
+      operationId: listDocuments
+      tags: [chronicle]
+      summary: List Chronicle documents
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: parent_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: root_only
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [collection, work, part, chapter, scene, note]
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [draft, review, published, archived]
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            default: updated_at
+        - name: order
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Accessible documents.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentListResponse"
+    post:
+      operationId: createDocument
+      tags: [chronicle]
+      summary: Create a Chronicle document
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentCreate"
+      responses:
+        "201":
+          description: Document created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentResponse"
+        "403":
+          description: Role cannot create documents.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Parent document not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: Invalid hierarchy or content payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/tree:
+    get:
+      operationId: getDocumentTree
+      tags: [chronicle]
+      summary: Get the accessible document hierarchy
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: universe_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Document tree.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentTreeResponse"
+        "413":
+          description: The accessible tree exceeds the supported size.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}:
+    get:
+      operationId: getDocument
+      tags: [chronicle]
+      summary: Get a document with links, breadcrumbs, and permissions
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Document details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentResponse"
+        "404":
+          description: Document not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    patch:
+      operationId: updateDocument
+      tags: [chronicle]
+      summary: Update a document with optimistic concurrency
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentUpdate"
+      responses:
+        "200":
+          description: Document updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentResponse"
+        "403":
+          description: Role cannot edit this document.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Document not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Version conflict or invalid hierarchy state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: Invalid content or hierarchy payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteDocument
+      tags: [chronicle]
+      summary: Soft-delete a document and its descendants
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "204":
+          description: Document deleted.
+        "404":
+          description: Document not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Descendants are not accessible to the actor.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}/restore:
+    post:
+      operationId: restoreDocument
+      tags: [chronicle]
+      summary: Restore a soft-deleted document
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Document restored.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentResponse"
+        "404":
+          description: Deleted document or parent not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Parent is still deleted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}/collaboration-ticket:
+    get:
+      operationId: getCollaborationTicket
+      tags: [collaboration]
+      summary: Issue a short-lived realtime collaboration ticket
+      description: |
+        Exchanges the authenticated session for a signed, document-scoped
+        credential used to open the Yjs WebSocket room. The ticket is
+        revalidated against durable membership, visibility, and role state
+        while the connection is open.
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Collaboration ticket.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaborationTicketResponse"
+        "401":
+          description: Authentication is required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Universe or document not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}/revisions:
+    get:
+      operationId: listDocumentRevisions
+      tags: [chronicle]
+      summary: List document revisions
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - name: include_content
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Revision history.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentRevisionListResponse"
+        "404":
+          description: Document not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}/revisions/{revision_id}:
+    get:
+      operationId: getDocumentRevision
+      tags: [chronicle]
+      summary: Get one document revision
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - $ref: "#/components/parameters/RevisionId"
+      responses:
+        "200":
+          description: Revision details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentRevisionResponse"
+        "404":
+          description: Revision not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}/restore/{revision_id}:
+    post:
+      operationId: restoreDocumentRevision
+      tags: [chronicle]
+      summary: Restore document content from a revision
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - $ref: "#/components/parameters/RevisionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentRestoreRequest"
+      responses:
+        "200":
+          description: Revision restored into a new revision.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentResponse"
+        "404":
+          description: Revision not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Version conflict.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}/links:
+    get:
+      operationId: listDocumentLinks
+      tags: [chronicle]
+      summary: List entity links resolved from document mentions
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Visible entity links.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocumentEntityLinkResponse"
+        "404":
+          description: Document not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/entities/{entity_id}/documents:
+    get:
+      operationId: listEntityDocuments
+      tags: [chronicle]
+      summary: List documents mentioning an entity
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Documents mentioning the entity.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentListResponse"
+        "404":
+          description: Entity not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}/comments:
+    get:
+      operationId: listDocumentComments
+      tags: [chronicle]
+      summary: List comments on a document
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Document comments.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentListResponse"
+        "404":
+          description: Document not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: createDocumentComment
+      tags: [chronicle]
+      summary: Comment on a document
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentCreate"
+      responses:
+        "201":
+          description: Comment created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentResponse"
+        "403":
+          description: Role cannot comment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Document not found or not visible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: Invalid comment payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/documents/{document_id}/comments/{comment_id}:
+    patch:
+      operationId: updateDocumentComment
+      tags: [chronicle]
+      summary: Edit a document comment
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - $ref: "#/components/parameters/CommentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentUpdate"
+      responses:
+        "200":
+          description: Comment updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentResponse"
+        "403":
+          description: Actor may not edit this comment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Comment not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteDocumentComment
+      tags: [chronicle]
+      summary: Delete a document comment
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UniverseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - $ref: "#/components/parameters/CommentId"
+      responses:
+        "204":
+          description: Comment deleted.
+        "403":
+          description: Actor may not delete this comment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Comment not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/assets:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+    post:
+      operationId: uploadUniverseAsset
+      tags: [atlas]
+      summary: Upload a map image
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Image uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetResponse"
+        "413":
+          description: Upload exceeds the configured limit.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "415":
+          description: Unsupported image format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/assets/{asset_id}:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/AssetId"
+    get:
+      operationId: getUniverseAssetMetadata
+      tags: [atlas]
+      summary: Get uploaded image metadata
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Image metadata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetResponse"
+        "404":
+          description: Asset not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/assets/{asset_id}:
+    parameters:
+      - $ref: "#/components/parameters/AssetId"
+    get:
+      operationId: downloadAssetFile
+      tags: [atlas]
+      summary: Download an uploaded map image
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Image bytes.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Asset not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/maps:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+    get:
+      operationId: listUniverseMaps
+      tags: [atlas]
+      summary: List maps in a universe
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Maps.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapListResponse"
+    post:
+      operationId: createUniverseMap
+      tags: [atlas]
+      summary: Create a map
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MapCreate"
+      responses:
+        "201":
+          description: Map created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapResponse"
+  /v1/universes/{universe_id}/maps/{map_id}:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/MapId"
+    get:
+      operationId: getUniverseMap
+      tags: [atlas]
+      summary: Get a map
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Map details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapResponse"
+    patch:
+      operationId: updateUniverseMap
+      tags: [atlas]
+      summary: Update a map
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MapUpdate"
+      responses:
+        "200":
+          description: Map updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapResponse"
+    delete:
+      operationId: deleteUniverseMap
+      tags: [atlas]
+      summary: Delete a map and its overlays
+      security:
+        - sessionCookie: []
+      responses:
+        "204":
+          description: Map deleted.
+  /v1/universes/{universe_id}/maps/{map_id}/markers:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/MapId"
+    get:
+      operationId: listMapMarkers
+      tags: [atlas]
+      summary: List map markers
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Markers.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapMarkerListResponse"
+    post:
+      operationId: createMapMarker
+      tags: [atlas]
+      summary: Add a normalized map marker
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MapMarkerCreate"
+      responses:
+        "201":
+          description: Marker created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapMarkerResponse"
+  /v1/universes/{universe_id}/maps/{map_id}/markers/{marker_id}:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/MapId"
+      - $ref: "#/components/parameters/MarkerId"
+    patch:
+      operationId: updateMapMarker
+      tags: [atlas]
+      summary: Update a map marker
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MapMarkerUpdate"
+      responses:
+        "200":
+          description: Marker updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapMarkerResponse"
+    delete:
+      operationId: deleteMapMarker
+      tags: [atlas]
+      summary: Delete a map marker
+      security:
+        - sessionCookie: []
+      responses:
+        "204":
+          description: Marker deleted.
+  /v1/universes/{universe_id}/maps/{map_id}/regions:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/MapId"
+    get:
+      operationId: listMapRegions
+      tags: [atlas]
+      summary: List map regions
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Regions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapRegionListResponse"
+    post:
+      operationId: createMapRegion
+      tags: [atlas]
+      summary: Add a normalized polygon overlay
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MapRegionCreate"
+      responses:
+        "201":
+          description: Region created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapRegionResponse"
+  /v1/universes/{universe_id}/calendars:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+    get:
+      operationId: listUniverseCalendars
+      tags: [chronos]
+      summary: List custom calendars
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Calendars.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarListResponse"
+    post:
+      operationId: createUniverseCalendar
+      tags: [chronos]
+      summary: Create a custom calendar
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarCreate"
+      responses:
+        "201":
+          description: Calendar created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarResponse"
+  /v1/universes/{universe_id}/calendars/{calendar_id}:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/CalendarId"
+    get:
+      operationId: getUniverseCalendar
+      tags: [chronos]
+      summary: Get a custom calendar
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Calendar details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarResponse"
+    patch:
+      operationId: updateUniverseCalendar
+      tags: [chronos]
+      summary: Update a calendar
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarUpdate"
+      responses:
+        "200":
+          description: Calendar updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarResponse"
+        "409":
+          description: Calendar rules are immutable after events exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/calendars/{calendar_id}/eras:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/CalendarId"
+    get:
+      operationId: listCalendarEras
+      tags: [chronos]
+      summary: List calendar eras
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Eras.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EraListResponse"
+    post:
+      operationId: createCalendarEra
+      tags: [chronos]
+      summary: Create a calendar era
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EraCreate"
+      responses:
+        "201":
+          description: Era created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EraResponse"
+  /v1/universes/{universe_id}/calendars/{calendar_id}/eras/{era_id}:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/CalendarId"
+      - $ref: "#/components/parameters/EraId"
+    patch:
+      operationId: updateCalendarEra
+      tags: [chronos]
+      summary: Update a calendar era
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EraUpdate"
+      responses:
+        "200":
+          description: Era updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EraResponse"
+    delete:
+      operationId: deleteCalendarEra
+      tags: [chronos]
+      summary: Delete a calendar era
+      security:
+        - sessionCookie: []
+      responses:
+        "204":
+          description: Era deleted.
+  /v1/universes/{universe_id}/timeline-events:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+    get:
+      operationId: listTimelineEvents
+      tags: [chronos]
+      summary: List events in day-index order
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: calendar_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 200 }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 500, default: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Timeline events.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimelineEventListResponse"
+    post:
+      operationId: createTimelineEvent
+      tags: [chronos]
+      summary: Create a date-aware timeline event
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimelineEventCreate"
+      responses:
+        "201":
+          description: Event created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimelineEventResponse"
+  /v1/universes/{universe_id}/timeline-events/{event_id}:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/EventId"
+    get:
+      operationId: getTimelineEvent
+      tags: [chronos]
+      summary: Get a timeline event
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Event details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimelineEventResponse"
+    patch:
+      operationId: updateTimelineEvent
+      tags: [chronos]
+      summary: Update a timeline event
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimelineEventUpdate"
+      responses:
+        "200":
+          description: Event updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimelineEventResponse"
+    delete:
+      operationId: deleteTimelineEvent
+      tags: [chronos]
+      summary: Delete a timeline event
+      security:
+        - sessionCookie: []
+      responses:
+        "204":
+          description: Event deleted.
 components:
   securitySchemes:
     sessionCookie:
       type: apiKey
       in: cookie
       name: ww_session
+  parameters:
+    UniverseId:
+      name: universe_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DocumentId:
+      name: document_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RevisionId:
+      name: revision_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CommentId:
+      name: comment_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     HealthStatus:
       type: object
@@ -238,3 +2135,979 @@ components:
           minLength: 1
           maxLength: 128
       required: [email, password]
+    UniverseResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        owner_user_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          default: viewer
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, name, slug, owner_user_id, status, created_at, updated_at]
+    UniverseListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UniverseResponse"
+        total:
+          type: integer
+      required: [items, total]
+    UniverseCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 120
+          nullable: true
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+      required: [name]
+    UniverseUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          nullable: true
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+        settings_json:
+          type: object
+          additionalProperties: true
+          nullable: true
+        cover_asset_id:
+          type: string
+          format: uuid
+          nullable: true
+    MemberResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        display_name:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
+        joined_at:
+          type: string
+          format: date-time
+      required: [id, user_id, email, display_name, role, status, joined_at]
+    MemberUpdate:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin, editor, contributor, viewer]
+      required: [role]
+    InvitationCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, editor, contributor, viewer]
+          default: viewer
+      required: [email]
+    InvitationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        role:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        invitation_token:
+          type: string
+          nullable: true
+      required: [id, universe_id, email, role, expires_at, created_at]
+    AuditLogResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        actor_user_id:
+          type: string
+          format: uuid
+          nullable: true
+        action:
+          type: string
+        target_type:
+          type: string
+        target_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, universe_id, action, target_type, created_at]
+    ActivityEventResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        actor_user_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+        target_type:
+          type: string
+        target_id:
+          type: string
+          format: uuid
+          nullable: true
+        metadata_json:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, universe_id, actor_user_id, event_type, target_type, metadata_json, created_at]
+    EntityTypeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        schema_json:
+          type: object
+          additionalProperties: true
+        icon:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        is_system:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, universe_id, key, name, schema_json, is_system, created_at, updated_at]
+    EntityTypeCreate:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 64
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        schema_json:
+          type: object
+          additionalProperties: true
+        icon:
+          type: string
+          maxLength: 64
+          nullable: true
+        color:
+          type: string
+          maxLength: 32
+          nullable: true
+      required: [key, name]
+    EntityTypeUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 80
+          nullable: true
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        schema_json:
+          type: object
+          additionalProperties: true
+          nullable: true
+        icon:
+          type: string
+          maxLength: 64
+          nullable: true
+        color:
+          type: string
+          maxLength: 32
+          nullable: true
+    RelationTypeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        label:
+          type: string
+        inverse_label:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        allowed_source_types:
+          type: array
+          items:
+            type: string
+        allowed_target_types:
+          type: array
+          items:
+            type: string
+        is_directional:
+          type: boolean
+        is_symmetric:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required: [id, universe_id, key, label, allowed_source_types, allowed_target_types, is_directional, is_symmetric, created_at]
+    RelationTypeCreate:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 64
+        label:
+          type: string
+          minLength: 1
+          maxLength: 80
+        inverse_label:
+          type: string
+          maxLength: 80
+          nullable: true
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        allowed_source_types:
+          type: array
+          items:
+            type: string
+        allowed_target_types:
+          type: array
+          items:
+            type: string
+        is_directional:
+          type: boolean
+          default: true
+        is_symmetric:
+          type: boolean
+          default: false
+      required: [key, label]
+    EntityResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        entity_type_id:
+          type: string
+          format: uuid
+        entity_type_key:
+          type: string
+        entity_type_name:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+        summary:
+          type: string
+          nullable: true
+        custom_fields:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+        visibility:
+          type: string
+        created_by:
+          type: string
+          format: uuid
+        updated_by:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, universe_id, entity_type_id, entity_type_key, entity_type_name, title, slug, custom_fields, status, visibility, created_by, updated_by, version, tags, created_at, updated_at]
+    EntityListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntityResponse"
+        total:
+          type: integer
+      required: [items, total]
+    EntityCreate:
+      type: object
+      properties:
+        entity_type_key:
+          type: string
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        slug:
+          type: string
+          maxLength: 200
+          nullable: true
+        summary:
+          type: string
+          maxLength: 1000
+          nullable: true
+        custom_fields:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+          default: active
+        visibility:
+          type: string
+          default: universe
+        tags:
+          type: array
+          items:
+            type: string
+      required: [entity_type_key, title]
+    EntityUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          nullable: true
+        summary:
+          type: string
+          maxLength: 1000
+          nullable: true
+        custom_fields:
+          type: object
+          additionalProperties: true
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        visibility:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+          nullable: true
+        expected_version:
+          type: integer
+          minimum: 1
+      required: [expected_version]
+    EntityRelationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        source_entity_id:
+          type: string
+          format: uuid
+        source_entity_title:
+          type: string
+        relation_type_id:
+          type: string
+          format: uuid
+        relation_type_key:
+          type: string
+        relation_label:
+          type: string
+        target_entity_id:
+          type: string
+          format: uuid
+        target_entity_title:
+          type: string
+        attributes_json:
+          type: object
+          additionalProperties: true
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+      required: [id, universe_id, source_entity_id, source_entity_title, relation_type_id, relation_type_key, relation_label, target_entity_id, target_entity_title, attributes_json, created_by, created_at]
+    EntityRelationCreate:
+      type: object
+      properties:
+        source_entity_id:
+          type: string
+          format: uuid
+        relation_type_key:
+          type: string
+        target_entity_id:
+          type: string
+          format: uuid
+        attributes_json:
+          type: object
+          additionalProperties: true
+      required: [source_entity_id, relation_type_key, target_entity_id]
+    GraphNode:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        entity_type_key:
+          type: string
+        entity_type_name:
+          type: string
+        summary:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+      required: [id, title, entity_type_key, entity_type_name]
+    GraphEdge:
+      type: object
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        target:
+          type: string
+        relation_type_key:
+          type: string
+        label:
+          type: string
+        inverse_label:
+          type: string
+          nullable: true
+      required: [id, source, target, relation_type_key, label]
+    GraphResponse:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/GraphNode"
+        edges:
+          type: array
+          items:
+            $ref: "#/components/schemas/GraphEdge"
+      required: [nodes, edges]
+    DocumentPermissions:
+      type: object
+      properties:
+        can_edit:
+          type: boolean
+        can_delete:
+          type: boolean
+        can_restore:
+          type: boolean
+        can_comment:
+          type: boolean
+        can_review:
+          type: boolean
+      required: [can_edit, can_delete, can_restore, can_comment, can_review]
+    DocumentBreadcrumb:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        document_type:
+          type: string
+      required: [id, title, document_type]
+    DocumentEntityLinkResponse:
+      type: object
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        slug:
+          type: string
+        entity_type_key:
+          type: string
+        entity_type_name:
+          type: string
+        label:
+          type: string
+        link_kind:
+          type: string
+        mention_count:
+          type: integer
+        entity_deleted:
+          type: boolean
+      required: [entity_id, title, slug, entity_type_key, entity_type_name, label, link_kind, mention_count, entity_deleted]
+    DocumentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+        document_type:
+          type: string
+          enum: [collection, work, part, chapter, scene, note]
+        title:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum: [draft, review, published, archived]
+        visibility:
+          type: string
+          enum: [universe, restricted, draft, private]
+        sort_order:
+          type: integer
+        created_by:
+          type: string
+          format: uuid
+        updated_by:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        excerpt:
+          type: string
+          default: ""
+        has_children:
+          type: boolean
+          default: false
+      required: [id, universe_id, document_type, title, slug, status, visibility, sort_order, created_by, updated_by, version, created_at, updated_at]
+    DocumentResponse:
+      allOf:
+        - $ref: "#/components/schemas/DocumentSummary"
+        - type: object
+          properties:
+            content_json:
+              type: object
+              additionalProperties: true
+            current_revision_number:
+              type: integer
+            revision_count:
+              type: integer
+            breadcrumbs:
+              type: array
+              items:
+                $ref: "#/components/schemas/DocumentBreadcrumb"
+            entity_links:
+              type: array
+              items:
+                $ref: "#/components/schemas/DocumentEntityLinkResponse"
+            permissions:
+              $ref: "#/components/schemas/DocumentPermissions"
+          required: [content_json, permissions]
+    DocumentListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentSummary"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+      required: [items, total, limit, offset]
+    DocumentTreeNode:
+      allOf:
+        - $ref: "#/components/schemas/DocumentSummary"
+        - type: object
+          properties:
+            children:
+              type: array
+              items:
+                $ref: "#/components/schemas/DocumentTreeNode"
+          required: [children]
+    DocumentTreeResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentTreeNode"
+        total:
+          type: integer
+      required: [items, total]
+    CollaborationTicketResponse:
+      type: object
+      properties:
+        ticket:
+          type: string
+          minLength: 32
+          maxLength: 4096
+        document_id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        websocket_path:
+          type: string
+        protocol:
+          type: string
+          enum: [yjs-websocket-v1]
+        expires_at:
+          type: integer
+          description: Unix timestamp in seconds.
+        can_write:
+          type: boolean
+        role:
+          type: string
+          enum: [owner, admin, editor, contributor, viewer]
+        display_name:
+          type: string
+        collab_generation:
+          type: integer
+      required:
+        - ticket
+        - document_id
+        - universe_id
+        - websocket_path
+        - protocol
+        - expires_at
+        - can_write
+        - role
+        - display_name
+        - collab_generation
+    DocumentCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        document_type:
+          type: string
+          enum: [collection, work, part, chapter, scene, note]
+          default: chapter
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 200
+          nullable: true
+        content_json:
+          type: object
+          additionalProperties: true
+          nullable: true
+        status:
+          type: string
+          enum: [draft, review, published, archived]
+          default: draft
+        visibility:
+          type: string
+          enum: [universe, restricted, draft, private]
+          default: universe
+        sort_order:
+          type: integer
+          default: 0
+        change_summary:
+          type: string
+          maxLength: 500
+          nullable: true
+      required: [title]
+    DocumentUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          nullable: true
+        document_type:
+          type: string
+          enum: [collection, work, part, chapter, scene, note]
+          nullable: true
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 200
+          nullable: true
+        content_json:
+          type: object
+          additionalProperties: true
+          nullable: true
+        status:
+          type: string
+          enum: [draft, review, published, archived]
+          nullable: true
+        visibility:
+          type: string
+          enum: [universe, restricted, draft, private]
+          nullable: true
+        sort_order:
+          type: integer
+          nullable: true
+        change_summary:
+          type: string
+          maxLength: 500
+          nullable: true
+        checkpoint:
+          type: boolean
+          default: false
+        expected_version:
+          type: integer
+          minimum: 1
+      required: [expected_version]
+    DocumentRestoreRequest:
+      type: object
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1
+          nullable: true
+        change_summary:
+          type: string
+          maxLength: 500
+          nullable: true
+    DocumentRevisionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        document_id:
+          type: string
+          format: uuid
+        revision_number:
+          type: integer
+        content_json:
+          type: object
+          additionalProperties: true
+          nullable: true
+        markdown_snapshot:
+          type: string
+          nullable: true
+        change_summary:
+          type: string
+          nullable: true
+        source:
+          type: string
+          enum: [manual, checkpoint, publish, restore, import]
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+      required: [id, document_id, revision_number, source, created_by, created_at]
+    DocumentRevisionListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentRevisionResponse"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+      required: [items, total, limit, offset]
+    CommentCreate:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        parent_comment_id:
+          type: string
+          format: uuid
+          nullable: true
+        anchor_json:
+          type: object
+          additionalProperties: true
+          nullable: true
+      required: [body]
+    CommentUpdate:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required: [body]
+    CommentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        target_type:
+          type: string
+        target_id:
+          type: string
+          format: uuid
+        parent_comment_id:
+          type: string
+          format: uuid
+          nullable: true
+        body:
+          type: string
+        anchor_json:
+          type: object
+          additionalProperties: true
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+        author_display_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        edited_at:
+          type: string
+          format: date-time
+          nullable: true
+      required: [id, universe_id, target_type, target_id, body, created_by, author_display_name, created_at]
+    CommentListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommentResponse"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+      required: [items, total, limit, offset]

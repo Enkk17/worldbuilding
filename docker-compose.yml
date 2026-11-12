@@ -40,6 +40,10 @@ services:
       REGISTRATION_MODE: ${REGISTRATION_MODE:-bootstrap_only}
       SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-30}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      MEDIA_ROOT: ${MEDIA_ROOT:-/var/lib/worldweave/media}
+      MAX_ASSET_BYTES: ${MAX_ASSET_BYTES:-10485760}
+    volumes:
+      - worldweave_media:${MEDIA_ROOT:-/var/lib/worldweave/media}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -78,5 +82,6 @@ services:
 
 volumes:
   worldweave_postgres:
+  worldweave_media:
   caddy_data:
   caddy_config:

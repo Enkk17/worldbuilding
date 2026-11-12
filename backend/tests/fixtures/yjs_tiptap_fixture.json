@@ -1,0 +1,328 @@
+{
+  "tiptap": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Chronicle"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Bold",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " italic",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " link",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://example.com/lore"
+                }
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " and "
+          },
+          {
+            "type": "entityMention",
+            "attrs": {
+              "entityId": "11111111-1111-4111-8111-111111111111",
+              "label": "Aster Vale"
+            }
+          },
+          {
+            "type": "hardBreak"
+          },
+          {
+            "type": "text",
+            "text": "after break"
+          }
+        ]
+      },
+      {
+        "type": "bulletList",
+        "content": [
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "First"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Second"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "orderedList",
+        "attrs": {
+          "start": 3
+        },
+        "content": [
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Third"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "blockquote",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quoted"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "codeBlock",
+        "attrs": {
+          "language": "python"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "print(\"lore\")"
+          }
+        ]
+      },
+      {
+        "type": "horizontalRule"
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "src": "https://example.com/map.png",
+          "alt": "Map",
+          "title": "Map title"
+        }
+      }
+    ]
+  },
+  "round_trip": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Chronicle"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Bold",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " italic",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " link",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://example.com/lore"
+                }
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " and "
+          },
+          {
+            "type": "entityMention",
+            "attrs": {
+              "entityId": "11111111-1111-4111-8111-111111111111",
+              "label": "Aster Vale"
+            }
+          },
+          {
+            "type": "hardBreak"
+          },
+          {
+            "type": "text",
+            "text": "after break"
+          }
+        ]
+      },
+      {
+        "type": "bulletList",
+        "content": [
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "First"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Second"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "orderedList",
+        "attrs": {
+          "start": 3
+        },
+        "content": [
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Third"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "blockquote",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quoted"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "codeBlock",
+        "attrs": {
+          "language": "python"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "print(\"lore\")"
+          }
+        ]
+      },
+      {
+        "type": "horizontalRule"
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "src": "https://example.com/map.png",
+          "alt": "Map",
+          "title": "Map title"
+        }
+      }
+    ]
+  },
+  "update_base64": "ATKQotivDwAHAQdjb250ZW50AwdoZWFkaW5nBwCQotivDwAGBACQotivDwEJQ2hyb25pY2xlKACQotivDwAFbGV2ZWwBfQKHkKLYrw8AAwlwYXJhZ3JhcGgHAJCi2K8PDAYGAJCi2K8PDQRib2xkAnt9hJCi2K8PDgRCb2xkhpCi2K8PEgRib2xkBG51bGyGkKLYrw8TBml0YWxpYwJ7fYSQotivDxQHIGl0YWxpY4aQotivDxsGaXRhbGljBG51bGyGkKLYrw8cBGxpbmsjeyJocmVmIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9sb3JlIn2EkKLYrw8dBSBsaW5rhpCi2K8PIgRsaW5rBG51bGyEkKLYrw8jBSBhbmQgh5Ci2K8PDQMNZW50aXR5TWVudGlvbigAkKLYrw8pCGVudGl0eUlkAXckMTExMTExMTEtMTExMS00MTExLTgxMTEtMTExMTExMTExMTExKACQotivDykFbGFiZWwBdwpBc3RlciBWYWxlh5Ci2K8PKQMJaGFyZEJyZWFrh5Ci2K8PLAYEAJCi2K8PLQthZnRlciBicmVha4eQotivDwwDCmJ1bGxldExpc3QHAJCi2K8POQMIbGlzdEl0ZW0HAJCi2K8POgMJcGFyYWdyYXBoBwCQotivDzsGBACQotivDzwFRmlyc3SHkKLYrw86AwhsaXN0SXRlbQcAkKLYrw9CAwlwYXJhZ3JhcGgHAJCi2K8PQwYEAJCi2K8PRAZTZWNvbmSHkKLYrw85AwtvcmRlcmVkTGlzdAcAkKLYrw9LAwhsaXN0SXRlbQcAkKLYrw9MAwlwYXJhZ3JhcGgHAJCi2K8PTQYEAJCi2K8PTgVUaGlyZCgAkKLYrw9LBXN0YXJ0AX0Dh5Ci2K8PSwMKYmxvY2txdW90ZQcAkKLYrw9VAwlwYXJhZ3JhcGgHAJCi2K8PVgYEAJCi2K8PVwZRdW90ZWSHkKLYrw9VAwljb2RlQmxvY2sHAJCi2K8PXgYEAJCi2K8PXw1wcmludCgibG9yZSIpKACQotivD14IbGFuZ3VhZ2UBdwZweXRob26HkKLYrw9eAw5ob3Jpem9udGFsUnVsZYeQotivD24DBWltYWdlKACQotivD28Dc3JjAXcbaHR0cHM6Ly9leGFtcGxlLmNvbS9tYXAucG5nKACQotivD28DYWx0AXcDTWFwKACQotivD28FdGl0bGUBdwlNYXAgdGl0bGUA",
+  "state_vector_base64": "AZCi2K8Pcw=="
+}

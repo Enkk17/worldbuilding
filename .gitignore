@@ -20,6 +20,7 @@ node_modules
 .pythonlibs/
 .env
 /backups/
+/var/media/
 __pycache__/
 *.py[cod]
 .pytest_cache/
