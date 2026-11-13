@@ -27,6 +27,7 @@ from backend.modules.collaboration.manager import CollaborationManager
 from backend.modules.collaboration.router import router as collaboration_router
 from backend.modules.atlas.router import router as atlas_router
 from backend.modules.chronos.router import router as chronos_router
+from backend.modules.search.router import router as search_router
 
 UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 CSRF_EXEMPT_PATHS = frozenset({"/api/v1/auth/login", "/api/v1/auth/register"})
@@ -102,6 +103,7 @@ def create_app(
     app.include_router(collaboration_router)
     app.include_router(atlas_router)
     app.include_router(chronos_router)
+    app.include_router(search_router)
 
     @app.middleware("http")
     async def request_context(request: Request, call_next):

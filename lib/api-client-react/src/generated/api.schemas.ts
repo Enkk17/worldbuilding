@@ -5,6 +5,456 @@
  * WORLDWEAVE M1 foundation API. PostgreSQL-backed, session-authenticated endpoints.
  * OpenAPI spec version: 0.1.0
  */
+export interface AssetResponse {
+  id: string;
+  universe_id: string;
+  original_filename: string;
+  mime_type: string;
+  byte_size: number;
+  checksum_sha256: string;
+  width: number | null;
+  height: number | null;
+  uploaded_by: string;
+  created_at: string;
+  download_path: string;
+}
+
+export interface MapPoint {
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  x: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  y: number;
+}
+
+export interface MapCreate {
+  /**
+     * @minLength 1
+     * @maxLength 150
+     */
+  title: string;
+  description?: string | null;
+  image_asset_id?: string | null;
+  /**
+     * @minimum 1
+     * @maximum 100000
+     */
+  width?: number;
+  /**
+     * @minimum 1
+     * @maximum 100000
+     */
+  height?: number;
+}
+
+export interface MapUpdate {
+  title?: string | null;
+  description?: string | null;
+  image_asset_id?: string | null;
+  width?: number | null;
+  height?: number | null;
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export interface MapResponse {
+  id: string;
+  universe_id: string;
+  title: string;
+  description: string | null;
+  image_asset_id: string | null;
+  coordinate_system: string;
+  width: number;
+  height: number;
+  created_by: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MapListResponse {
+  items: MapResponse[];
+  total: number;
+}
+
+export type MapMarkerCreateStyleJson = { [key: string]: unknown };
+
+export interface MapMarkerCreate {
+  /**
+     * @minLength 1
+     * @maxLength 150
+     */
+  title: string;
+  description?: string | null;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  x_norm: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  y_norm: number;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  marker_type?: string;
+  linked_entity_id?: string | null;
+  style_json?: MapMarkerCreateStyleJson;
+}
+
+export type MapMarkerUpdateStyleJson = { [key: string]: unknown } | null;
+
+export interface MapMarkerUpdate {
+  title?: string | null;
+  description?: string | null;
+  x_norm?: number | null;
+  y_norm?: number | null;
+  marker_type?: string | null;
+  linked_entity_id?: string | null;
+  style_json?: MapMarkerUpdateStyleJson;
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export type MapMarkerResponseStyleJson = { [key: string]: unknown };
+
+export interface MapMarkerResponse {
+  id: string;
+  map_id: string;
+  universe_id: string;
+  title: string;
+  description: string | null;
+  x_norm: number;
+  y_norm: number;
+  marker_type: string;
+  linked_entity_id: string | null;
+  style_json: MapMarkerResponseStyleJson;
+  created_by: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MapMarkerListResponse {
+  items: MapMarkerResponse[];
+  total: number;
+}
+
+export interface PolygonGeometry {
+  type?: 'polygon';
+  /**
+     * @minItems 3
+     * @maxItems 200
+     */
+  points: MapPoint[];
+}
+
+export type MapRegionCreateStyleJson = { [key: string]: unknown };
+
+export interface MapRegionCreate {
+  /**
+     * @minLength 1
+     * @maxLength 150
+     */
+  title: string;
+  geometry_json: PolygonGeometry;
+  linked_entity_id?: string | null;
+  style_json?: MapRegionCreateStyleJson;
+}
+
+export type MapRegionUpdateStyleJson = { [key: string]: unknown } | null;
+
+export interface MapRegionUpdate {
+  title?: string | null;
+  geometry_json?: PolygonGeometry | null;
+  linked_entity_id?: string | null;
+  style_json?: MapRegionUpdateStyleJson;
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export type MapRegionResponseGeometryJson = { [key: string]: unknown };
+
+export type MapRegionResponseStyleJson = { [key: string]: unknown };
+
+export interface MapRegionResponse {
+  id: string;
+  map_id: string;
+  universe_id: string;
+  title: string;
+  geometry_json: MapRegionResponseGeometryJson;
+  linked_entity_id: string | null;
+  style_json: MapRegionResponseStyleJson;
+  version: number;
+  created_at: string;
+}
+
+export interface MapRegionListResponse {
+  items: MapRegionResponse[];
+  total: number;
+}
+
+export interface CalendarMonth {
+  /**
+     * @minLength 1
+     * @maxLength 40
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 1000
+     */
+  days: number;
+}
+
+export interface LeapRule {
+  /**
+     * @minimum 1
+     * @maximum 1000000
+     */
+  every_years: number;
+  /**
+     * @minimum -1000000
+     * @maximum 1000000
+     */
+  year_offset?: number;
+  /**
+     * @minimum 1
+     * @maximum 36
+     */
+  month: number;
+  /**
+     * @minimum 1
+     * @maximum 1000
+     */
+  extra_days?: number;
+}
+
+export interface CalendarConfiguration {
+  /**
+     * @minItems 1
+     * @maxItems 36
+     */
+  months: CalendarMonth[];
+  /** @maxItems 32 */
+  weekdays?: string[];
+  /**
+     * @minimum -1000000000
+     * @maximum 1000000000
+     */
+  epoch_offset?: number;
+  /** @maxItems 36 */
+  leap_rules?: LeapRule[];
+}
+
+export interface CalendarDate {
+  /**
+     * @minimum -1000000
+     * @maximum 1000000
+     */
+  year: number;
+  month?: number | null;
+  day?: number | null;
+}
+
+export interface CalendarCreate {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  name: string;
+  description?: string | null;
+  config_json: CalendarConfiguration;
+}
+
+export interface CalendarUpdate {
+  name?: string | null;
+  description?: string | null;
+  config_json?: CalendarConfiguration | null;
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export type CalendarResponseConfigJson = { [key: string]: unknown };
+
+export interface CalendarResponse {
+  id: string;
+  universe_id: string;
+  name: string;
+  description: string | null;
+  config_json: CalendarResponseConfigJson;
+  created_by: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CalendarListResponse {
+  items: CalendarResponse[];
+  total: number;
+}
+
+export interface EraCreate {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  name: string;
+  /**
+     * @minimum -1000000000
+     * @maximum 1000000000
+     */
+  start_day_index: number;
+  description?: string | null;
+}
+
+export interface EraUpdate {
+  name?: string | null;
+  start_day_index?: number | null;
+  description?: string | null;
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export interface EraResponse {
+  id: string;
+  calendar_id: string;
+  name: string;
+  start_day_index: number;
+  description: string | null;
+  version: number;
+}
+
+export interface EraListResponse {
+  items: EraResponse[];
+  total: number;
+}
+
+export type TimelineEventCreateDatePrecision = typeof TimelineEventCreateDatePrecision[keyof typeof TimelineEventCreateDatePrecision];
+
+
+export const TimelineEventCreateDatePrecision = {
+  day: 'day',
+  month: 'month',
+  year: 'year',
+  range: 'range',
+  approximate: 'approximate',
+} as const;
+
+export type TimelineEventCreateUncertaintyJson = {[key: string]: number} | null;
+
+export interface TimelineEventCreate {
+  calendar_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  title: string;
+  description?: string | null;
+  start_date_json: CalendarDate;
+  end_date_json?: CalendarDate | null;
+  date_precision?: TimelineEventCreateDatePrecision;
+  uncertainty_json?: TimelineEventCreateUncertaintyJson;
+  linked_entity_id?: string | null;
+  linked_document_id?: string | null;
+}
+
+export type TimelineEventUpdateDatePrecision = typeof TimelineEventUpdateDatePrecision[keyof typeof TimelineEventUpdateDatePrecision] | null;
+
+
+export const TimelineEventUpdateDatePrecision = {
+  day: 'day',
+  month: 'month',
+  year: 'year',
+  range: 'range',
+  approximate: 'approximate',
+} as const;
+
+export type TimelineEventUpdateUncertaintyJson = {[key: string]: number} | null;
+
+export interface TimelineEventUpdate {
+  title?: string | null;
+  description?: string | null;
+  start_date_json?: CalendarDate | null;
+  end_date_json?: CalendarDate | null;
+  date_precision?: TimelineEventUpdateDatePrecision;
+  uncertainty_json?: TimelineEventUpdateUncertaintyJson;
+  linked_entity_id?: string | null;
+  linked_document_id?: string | null;
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export type TimelineEventResponseStartDateJson = { [key: string]: unknown };
+
+export type TimelineEventResponseEndDateJson = { [key: string]: unknown } | null;
+
+export type TimelineEventResponseUncertaintyJson = { [key: string]: unknown } | null;
+
+export interface TimelineEventResponse {
+  id: string;
+  universe_id: string;
+  calendar_id: string;
+  title: string;
+  description: string | null;
+  start_date_json: TimelineEventResponseStartDateJson;
+  end_date_json: TimelineEventResponseEndDateJson;
+  start_day_index: number;
+  end_day_index: number | null;
+  date_precision: string;
+  uncertainty_json: TimelineEventResponseUncertaintyJson;
+  linked_entity_id: string | null;
+  linked_document_id: string | null;
+  created_by: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SearchResultKind = typeof SearchResultKind[keyof typeof SearchResultKind];
+
+
+export const SearchResultKind = {
+  entity: 'entity',
+  document: 'document',
+  timeline_event: 'timeline_event',
+} as const;
+
+export interface SearchResult {
+  id: string;
+  kind: SearchResultKind;
+  title: string;
+  summary: string;
+  snippet: string;
+  /** @minimum 0 */
+  highlight_start: number;
+  /** @minimum 0 */
+  highlight_end: number;
+  href: string;
+  updated_at: string;
+}
+
+export interface SearchResponse {
+  query: string;
+  items: SearchResult[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface TimelineEventListResponse {
+  items: TimelineEventResponse[];
+  total: number;
+}
+
 export const HealthStatusValue = {
   status: 'healthy',
 } as const;
@@ -937,6 +1387,78 @@ offset?: number;
 };
 
 export type ListDocumentCommentsParams = {
+/**
+ * @minimum 1
+ * @maximum 500
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+
+export type UploadUniverseAssetBody = {
+  file: Blob | File;
+};
+
+export type ListUniverseMapsParams = {
+/**
+ * @minimum 1
+ * @maximum 200
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+
+export type ListUniverseCalendarsParams = {
+/**
+ * @minimum 1
+ * @maximum 200
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+
+export type SearchUniverseParams = {
+/**
+ * @minLength 2
+ * @maxLength 200
+ */
+q: string;
+types?: SearchUniverseTypesItem[];
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+
+export type SearchUniverseTypesItem = typeof SearchUniverseTypesItem[keyof typeof SearchUniverseTypesItem];
+
+
+export const SearchUniverseTypesItem = {
+  entity: 'entity',
+  document: 'document',
+  timeline_event: 'timeline_event',
+} as const;
+
+export type ListTimelineEventsParams = {
+calendar_id?: string;
+/**
+ * @maxLength 200
+ */
+q?: string;
 /**
  * @minimum 1
  * @maximum 500

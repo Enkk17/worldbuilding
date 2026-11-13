@@ -12,10 +12,18 @@ class CalendarMonth(BaseModel):
     days: int = Field(ge=1, le=1000)
 
 
+class LeapRule(BaseModel):
+    every_years: int = Field(ge=1, le=1_000_000)
+    year_offset: int = Field(default=0, ge=-1_000_000, le=1_000_000)
+    month: int = Field(ge=1, le=36)
+    extra_days: int = Field(default=1, ge=1, le=1000)
+
+
 class CalendarConfiguration(BaseModel):
     months: list[CalendarMonth] = Field(min_length=1, max_length=36)
     weekdays: list[str] = Field(default_factory=list, max_length=32)
     epoch_offset: int = Field(default=0, ge=-1_000_000_000, le=1_000_000_000)
+    leap_rules: list[LeapRule] = Field(default_factory=list, max_length=36)
 
     @model_validator(mode="after")
     def validate_names(self):
@@ -25,6 +33,14 @@ class CalendarConfiguration(BaseModel):
         weekday_names = [name.strip().casefold() for name in self.weekdays]
         if any(not name for name in weekday_names) or len(set(weekday_names)) != len(weekday_names):
             raise ValueError("Weekday names must be non-empty and unique.")
+        rule_keys = set()
+        for rule in self.leap_rules:
+            if rule.month > len(self.months):
+                raise ValueError("A leap rule must target a month defined by this calendar.")
+            key = (rule.every_years, rule.year_offset % rule.every_years, rule.month)
+            if key in rule_keys:
+                raise ValueError("Leap rules for the same cycle and month must be combined.")
+            rule_keys.add(key)
         return self
 
 
@@ -74,13 +90,13 @@ class CalendarListResponse(BaseModel):
 
 class EraCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
-    start_day_index: int = Field(ge=-1_000_000_000, le=1_000_000_000)
+    start_day_index: int = Field(ge=-100_000_000_000, le=100_000_000_000)
     description: str | None = Field(default=None, max_length=1000)
 
 
 class EraUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=100)
-    start_day_index: int | None = Field(default=None, ge=-1_000_000_000, le=1_000_000_000)
+    start_day_index: int | None = Field(default=None, ge=-100_000_000_000, le=100_000_000_000)
     description: str | None = Field(default=None, max_length=1000)
     expected_version: int = Field(ge=1)
 
@@ -125,6 +141,10 @@ class TimelineEventCreate(BaseModel):
                 raise ValueError("Uncertainty day counts must be non-negative integers.")
         if self.date_precision == "approximate" and self.uncertainty_json is None:
             raise ValueError("Approximate dates need an uncertainty window.")
+        if self.date_precision == "range" and self.end_date_json is None:
+            raise ValueError("Range dates need an end date.")
+        if self.date_precision != "range" and self.end_date_json is not None:
+            raise ValueError("Only range dates may include an end date.")
         return self
 
 

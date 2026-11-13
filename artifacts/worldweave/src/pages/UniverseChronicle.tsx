@@ -334,6 +334,7 @@ export interface UniverseChronicleProps {
   universeId: string;
   role: UniverseRole;
   readOnly: boolean;
+  initialDocumentId?: string;
 }
 
 interface CollaborationSession {
@@ -346,9 +347,10 @@ export function UniverseChronicle({
   universeId,
   role,
   readOnly,
+  initialDocumentId,
 }: UniverseChronicleProps) {
   const queryClient = useQueryClient();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(initialDocumentId ?? null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [notice, setNotice] = useState<{

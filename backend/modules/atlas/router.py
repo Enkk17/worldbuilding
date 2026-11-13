@@ -20,6 +20,7 @@ from backend.modules.atlas.schemas import (
     MapRegionCreate,
     MapRegionListResponse,
     MapRegionResponse,
+    MapRegionUpdate,
     MapResponse,
     MapUpdate,
 )
@@ -29,6 +30,7 @@ from backend.modules.atlas.service import (
     create_region,
     delete_map,
     delete_marker,
+    delete_region,
     get_asset,
     get_map,
     list_maps,
@@ -36,6 +38,7 @@ from backend.modules.atlas.service import (
     list_regions,
     update_map,
     update_marker,
+    update_region,
 )
 from backend.modules.atlas.storage import create_asset, get_asset_for_download
 from backend.modules.identity.service import get_current_account
@@ -256,6 +259,46 @@ def create_map_region(
         request_id=getattr(request.state, "request_id", None),
     )
     return MapRegionResponse.model_validate(record)
+
+
+@router.patch(
+    "/universes/{universe_id}/maps/{map_id}/regions/{region_id}",
+    response_model=MapRegionResponse,
+)
+def update_map_region(
+    universe_id: uuid.UUID,
+    map_id: uuid.UUID,
+    region_id: uuid.UUID,
+    payload: MapRegionUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> MapRegionResponse:
+    user = get_current_account(request, db)
+    record = update_region(
+        db, universe_id, map_id, region_id, user, payload,
+        request_id=getattr(request.state, "request_id", None),
+    )
+    return MapRegionResponse.model_validate(record)
+
+
+@router.delete(
+    "/universes/{universe_id}/maps/{map_id}/regions/{region_id}",
+    status_code=204,
+    response_class=Response,
+)
+def delete_map_region(
+    universe_id: uuid.UUID,
+    map_id: uuid.UUID,
+    region_id: uuid.UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> Response:
+    user = get_current_account(request, db)
+    delete_region(
+        db, universe_id, map_id, region_id, user,
+        request_id=getattr(request.state, "request_id", None),
+    )
+    return Response(status_code=204)
 
 
 @router.post(

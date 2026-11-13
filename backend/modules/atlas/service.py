@@ -16,6 +16,7 @@ from backend.modules.atlas.schemas import (
     MapMarkerCreate,
     MapMarkerUpdate,
     MapRegionCreate,
+    MapRegionUpdate,
     MapUpdate,
 )
 from backend.modules.universes.service import (
@@ -336,6 +337,89 @@ def create_region(
     db.commit()
     db.refresh(record)
     return record
+
+
+def update_region(
+    db: Session,
+    universe_id: uuid.UUID,
+    map_id: uuid.UUID,
+    region_id: uuid.UUID,
+    user: User,
+    payload: MapRegionUpdate,
+    request_id: str | None = None,
+) -> MapRegion:
+    _get_map(db, universe_id, map_id, user, Action.MAP_UPDATE)
+    record = db.scalar(
+        select(MapRegion).where(
+            MapRegion.id == region_id,
+            MapRegion.map_id == map_id,
+            MapRegion.universe_id == universe_id,
+        )
+    )
+    if record is None:
+        raise ApiError(404, "map_region_not_found", "The requested region does not exist.")
+    if record.version != payload.expected_version:
+        raise ApiError(409, "version_conflict", "The region changed; refresh before saving.")
+    values = payload.model_dump(exclude={"expected_version"}, exclude_unset=True)
+    if "linked_entity_id" in values:
+        _check_entity(db, universe_id, user, values["linked_entity_id"])
+    before = {
+        "title": record.title,
+        "geometry_json": record.geometry_json,
+        "linked_entity_id": str(record.linked_entity_id) if record.linked_entity_id else None,
+        "style_json": record.style_json,
+        "version": record.version,
+    }
+    for name, value in values.items():
+        if name == "title" and value is not None:
+            value = value.strip()
+        elif name == "geometry_json" and value is not None:
+            value = value.model_dump()
+        setattr(record, name, value)
+    record.version += 1
+    after = {
+        "title": record.title,
+        "geometry_json": record.geometry_json,
+        "linked_entity_id": str(record.linked_entity_id) if record.linked_entity_id else None,
+        "style_json": record.style_json,
+        "version": record.version,
+    }
+    record_audit(
+        db, universe_id, user.id, "map_region.updated", "map_region", record.id,
+        before_hash=state_hash(before), after_hash=state_hash(after), request_id=request_id,
+    )
+    record_activity(db, universe_id, user.id, "map_region.updated", "map_region", record.id)
+    db.commit()
+    db.refresh(record)
+    return record
+
+
+def delete_region(
+    db: Session,
+    universe_id: uuid.UUID,
+    map_id: uuid.UUID,
+    region_id: uuid.UUID,
+    user: User,
+    request_id: str | None = None,
+) -> None:
+    _get_map(db, universe_id, map_id, user, Action.MAP_UPDATE)
+    record = db.scalar(
+        select(MapRegion).where(
+            MapRegion.id == region_id,
+            MapRegion.map_id == map_id,
+            MapRegion.universe_id == universe_id,
+        )
+    )
+    if record is None:
+        raise ApiError(404, "map_region_not_found", "The requested region does not exist.")
+    record_audit(
+        db, universe_id, user.id, "map_region.deleted", "map_region", record.id,
+        before_hash=state_hash({"title": record.title, "geometry_json": record.geometry_json}),
+        request_id=request_id,
+    )
+    record_activity(db, universe_id, user.id, "map_region.deleted", "map_region", record.id)
+    db.delete(record)
+    db.commit()
 
 
 def get_asset(db: Session, universe_id: uuid.UUID, asset_id: uuid.UUID, user: User) -> Asset:

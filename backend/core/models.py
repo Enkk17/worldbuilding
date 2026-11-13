@@ -754,7 +754,7 @@ class Era(Base):
         Uuid(as_uuid=True), ForeignKey("calendars.id", ondelete="CASCADE"), nullable=False
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    start_day_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    start_day_index: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
     description: Mapped[str | None] = mapped_column(String(1000))
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
@@ -779,8 +779,8 @@ class TimelineEvent(Base):
     description: Mapped[str | None] = mapped_column(String(5000))
     start_date_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
     end_date_json: Mapped[dict[str, Any] | None] = mapped_column(JSON)
-    start_day_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    end_day_index: Mapped[int | None] = mapped_column(Integer)
+    start_day_index: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    end_day_index: Mapped[int | None] = mapped_column(BigInteger)
     date_precision: Mapped[str] = mapped_column(String(32), nullable=False, default="day")
     uncertainty_json: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     linked_entity_id: Mapped[uuid.UUID | None] = mapped_column(

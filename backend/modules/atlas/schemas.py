@@ -108,6 +108,14 @@ class MapRegionCreate(BaseModel):
     style_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class MapRegionUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=150)
+    geometry_json: PolygonGeometry | None = None
+    linked_entity_id: uuid.UUID | None = None
+    style_json: dict[str, Any] | None = None
+    expected_version: int = Field(ge=1)
+
+
 class MapRegionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

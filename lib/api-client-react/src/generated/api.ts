@@ -28,7 +28,12 @@ import type {
   Account,
   ActivityEventResponse,
   ApiError,
+  AssetResponse,
   AuditLogResponse,
+  CalendarCreate,
+  CalendarListResponse,
+  CalendarResponse,
+  CalendarUpdate,
   CollaborationTicketResponse,
   CommentCreate,
   CommentListResponse,
@@ -52,6 +57,10 @@ import type {
   EntityTypeResponse,
   EntityTypeUpdate,
   EntityUpdate,
+  EraCreate,
+  EraListResponse,
+  EraResponse,
+  EraUpdate,
   GetNexusGraphParams,
   GraphResponse,
   HealthStatus,
@@ -62,17 +71,39 @@ import type {
   ListDocumentsParams,
   ListEntitiesParams,
   ListEntityDocumentsParams,
+  ListTimelineEventsParams,
+  ListUniverseCalendarsParams,
+  ListUniverseMapsParams,
   LoginInput,
+  MapCreate,
+  MapListResponse,
+  MapMarkerCreate,
+  MapMarkerListResponse,
+  MapMarkerResponse,
+  MapMarkerUpdate,
+  MapRegionCreate,
+  MapRegionListResponse,
+  MapRegionResponse,
+  MapRegionUpdate,
+  MapResponse,
+  MapUpdate,
   MemberResponse,
   MemberUpdate,
   ReadinessStatus,
   RegistrationInput,
   RelationTypeCreate,
   RelationTypeResponse,
+  SearchResponse,
+  SearchUniverseParams,
+  TimelineEventCreate,
+  TimelineEventListResponse,
+  TimelineEventResponse,
+  TimelineEventUpdate,
   UniverseCreate,
   UniverseListResponse,
   UniverseResponse,
-  UniverseUpdate
+  UniverseUpdate,
+  UploadUniverseAssetBody
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -4886,5 +4917,2896 @@ export const useDeleteDocumentComment = <TError = ErrorType<ApiError>,
         TContext
       > => {
       return useMutation(getDeleteDocumentCommentMutationOptions(options), queryClient);
+    }
+
+export const getUploadUniverseAssetUrl = (universeId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/assets`
+}
+
+/**
+ * @summary Upload a map image
+ */
+export const uploadUniverseAsset = async (universeId: string,
+    uploadUniverseAssetBody: UploadUniverseAssetBody, options?: Parameters<typeof customFetch>[1]): Promise<AssetResponse> => {
+    const formData = new FormData();
+formData.append(`file`, uploadUniverseAssetBody.file);
+
+  return customFetch<AssetResponse>(getUploadUniverseAssetUrl(universeId),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getUploadUniverseAssetMutationKey = () => ['uploadUniverseAsset'] as const;
+
+export const getUploadUniverseAssetMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadUniverseAsset>>, TError,UploadUniverseAssetMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadUniverseAsset>>, TError,UploadUniverseAssetMutationVariables, TContext> => {
+
+const mutationKey = getUploadUniverseAssetMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadUniverseAsset>>, UploadUniverseAssetMutationVariables> = (props) => {
+          const {universeId,data} = props ?? {};
+
+          return  uploadUniverseAsset(universeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadUniverseAssetMutationResult = NonNullable<Awaited<ReturnType<typeof uploadUniverseAsset>>>
+    export type UploadUniverseAssetMutationBody = BodyType<UploadUniverseAssetBody>
+    export type UploadUniverseAssetMutationError = ErrorType<ApiError>
+    export type UploadUniverseAssetMutationVariables = {universeId: string;data: BodyType<UploadUniverseAssetBody>}
+
+    /**
+ * @summary Upload a map image
+ */
+export const useUploadUniverseAsset = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadUniverseAsset>>, TError,UploadUniverseAssetMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof uploadUniverseAsset>>,
+        TError,
+        UploadUniverseAssetMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUploadUniverseAssetMutationOptions(options), queryClient);
+    }
+
+export const getGetUniverseAssetMetadataUrl = (universeId: string,
+    assetId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/assets/${assetId}`
+}
+
+/**
+ * @summary Get uploaded image metadata
+ */
+export const getUniverseAssetMetadata = async (universeId: string,
+    assetId: string, options?: Parameters<typeof customFetch>[1]): Promise<AssetResponse> => {
+
+  return customFetch<AssetResponse>(getGetUniverseAssetMetadataUrl(universeId,assetId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUniverseAssetMetadataQueryKey = (universeId: string,
+    assetId: string,) => {
+    return [
+    `/api/v1/universes/${universeId}/assets/${assetId}`
+    ] as const;
+    }
+
+
+export const getGetUniverseAssetMetadataQueryOptions = <TData = Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError = ErrorType<ApiError>>(universeId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUniverseAssetMetadataQueryKey(universeId,assetId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUniverseAssetMetadata>>> = ({ signal }) => getUniverseAssetMetadata(universeId,assetId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined && assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetUniverseAssetMetadataQueryResult = NonNullable<Awaited<ReturnType<typeof getUniverseAssetMetadata>>>
+export type GetUniverseAssetMetadataQueryError = ErrorType<ApiError>
+
+
+export function useGetUniverseAssetMetadata<TData = Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    assetId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getUniverseAssetMetadata>>,
+          TError,
+          Awaited<ReturnType<typeof getUniverseAssetMetadata>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetUniverseAssetMetadata<TData = Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getUniverseAssetMetadata>>,
+          TError,
+          Awaited<ReturnType<typeof getUniverseAssetMetadata>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetUniverseAssetMetadata<TData = Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get uploaded image metadata
+ */
+
+export function useGetUniverseAssetMetadata<TData = Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseAssetMetadata>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetUniverseAssetMetadataQueryOptions(universeId,assetId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDownloadAssetFileUrl = (assetId: string,) => {
+
+
+
+
+  return `/api/v1/assets/${assetId}`
+}
+
+/**
+ * @summary Download an uploaded map image
+ */
+export const downloadAssetFile = async (assetId: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadAssetFileUrl(assetId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadAssetFileQueryKey = (assetId: string,) => {
+    return [
+    `/api/v1/assets/${assetId}`
+    ] as const;
+    }
+
+
+export const getDownloadAssetFileQueryOptions = <TData = Awaited<ReturnType<typeof downloadAssetFile>>, TError = ErrorType<ApiError>>(assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadAssetFileQueryKey(assetId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadAssetFile>>> = ({ signal }) => downloadAssetFile(assetId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadAssetFile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadAssetFileQueryResult = NonNullable<Awaited<ReturnType<typeof downloadAssetFile>>>
+export type DownloadAssetFileQueryError = ErrorType<ApiError>
+
+
+export function useDownloadAssetFile<TData = Awaited<ReturnType<typeof downloadAssetFile>>, TError = ErrorType<ApiError>>(
+ assetId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetFile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadAssetFile>>,
+          TError,
+          Awaited<ReturnType<typeof downloadAssetFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadAssetFile<TData = Awaited<ReturnType<typeof downloadAssetFile>>, TError = ErrorType<ApiError>>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetFile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadAssetFile>>,
+          TError,
+          Awaited<ReturnType<typeof downloadAssetFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadAssetFile<TData = Awaited<ReturnType<typeof downloadAssetFile>>, TError = ErrorType<ApiError>>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Download an uploaded map image
+ */
+
+export function useDownloadAssetFile<TData = Awaited<ReturnType<typeof downloadAssetFile>>, TError = ErrorType<ApiError>>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadAssetFileQueryOptions(assetId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListUniverseMapsUrl = (universeId: string,
+    params?: ListUniverseMapsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/universes/${universeId}/maps?${stringifiedParams}` : `/api/v1/universes/${universeId}/maps`
+}
+
+/**
+ * @summary List maps in a universe
+ */
+export const listUniverseMaps = async (universeId: string,
+    params?: ListUniverseMapsParams, options?: Parameters<typeof customFetch>[1]): Promise<MapListResponse> => {
+
+  return customFetch<MapListResponse>(getListUniverseMapsUrl(universeId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListUniverseMapsQueryKey = (universeId: string,
+    params?: ListUniverseMapsParams,) => {
+    return [
+    `/api/v1/universes/${universeId}/maps`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListUniverseMapsQueryOptions = <TData = Awaited<ReturnType<typeof listUniverseMaps>>, TError = ErrorType<unknown>>(universeId: string,
+    params?: ListUniverseMapsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseMaps>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListUniverseMapsQueryKey(universeId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUniverseMaps>>> = ({ signal }) => listUniverseMaps(universeId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUniverseMaps>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListUniverseMapsQueryResult = NonNullable<Awaited<ReturnType<typeof listUniverseMaps>>>
+export type ListUniverseMapsQueryError = ErrorType<unknown>
+
+
+export function useListUniverseMaps<TData = Awaited<ReturnType<typeof listUniverseMaps>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params: undefined |  ListUniverseMapsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseMaps>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listUniverseMaps>>,
+          TError,
+          Awaited<ReturnType<typeof listUniverseMaps>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListUniverseMaps<TData = Awaited<ReturnType<typeof listUniverseMaps>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListUniverseMapsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseMaps>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listUniverseMaps>>,
+          TError,
+          Awaited<ReturnType<typeof listUniverseMaps>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListUniverseMaps<TData = Awaited<ReturnType<typeof listUniverseMaps>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListUniverseMapsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseMaps>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List maps in a universe
+ */
+
+export function useListUniverseMaps<TData = Awaited<ReturnType<typeof listUniverseMaps>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListUniverseMapsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseMaps>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListUniverseMapsQueryOptions(universeId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateUniverseMapUrl = (universeId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps`
+}
+
+/**
+ * @summary Create a map
+ */
+export const createUniverseMap = async (universeId: string,
+    mapCreate: MapCreate, options?: Parameters<typeof customFetch>[1]): Promise<MapResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MapResponse>(getCreateUniverseMapUrl(universeId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(mapCreate)
+  }
+);}
+
+
+
+
+
+export const getCreateUniverseMapMutationKey = () => ['createUniverseMap'] as const;
+
+export const getCreateUniverseMapMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUniverseMap>>, TError,CreateUniverseMapMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUniverseMap>>, TError,CreateUniverseMapMutationVariables, TContext> => {
+
+const mutationKey = getCreateUniverseMapMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUniverseMap>>, CreateUniverseMapMutationVariables> = (props) => {
+          const {universeId,data} = props ?? {};
+
+          return  createUniverseMap(universeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUniverseMapMutationResult = NonNullable<Awaited<ReturnType<typeof createUniverseMap>>>
+    export type CreateUniverseMapMutationBody = BodyType<MapCreate>
+    export type CreateUniverseMapMutationError = ErrorType<unknown>
+    export type CreateUniverseMapMutationVariables = {universeId: string;data: BodyType<MapCreate>}
+
+    /**
+ * @summary Create a map
+ */
+export const useCreateUniverseMap = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUniverseMap>>, TError,CreateUniverseMapMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createUniverseMap>>,
+        TError,
+        CreateUniverseMapMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUniverseMapMutationOptions(options), queryClient);
+    }
+
+export const getGetUniverseMapUrl = (universeId: string,
+    mapId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}`
+}
+
+/**
+ * @summary Get a map
+ */
+export const getUniverseMap = async (universeId: string,
+    mapId: string, options?: Parameters<typeof customFetch>[1]): Promise<MapResponse> => {
+
+  return customFetch<MapResponse>(getGetUniverseMapUrl(universeId,mapId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUniverseMapQueryKey = (universeId: string,
+    mapId: string,) => {
+    return [
+    `/api/v1/universes/${universeId}/maps/${mapId}`
+    ] as const;
+    }
+
+
+export const getGetUniverseMapQueryOptions = <TData = Awaited<ReturnType<typeof getUniverseMap>>, TError = ErrorType<unknown>>(universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseMap>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUniverseMapQueryKey(universeId,mapId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUniverseMap>>> = ({ signal }) => getUniverseMap(universeId,mapId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined && mapId !== null && mapId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUniverseMap>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetUniverseMapQueryResult = NonNullable<Awaited<ReturnType<typeof getUniverseMap>>>
+export type GetUniverseMapQueryError = ErrorType<unknown>
+
+
+export function useGetUniverseMap<TData = Awaited<ReturnType<typeof getUniverseMap>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseMap>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getUniverseMap>>,
+          TError,
+          Awaited<ReturnType<typeof getUniverseMap>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetUniverseMap<TData = Awaited<ReturnType<typeof getUniverseMap>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseMap>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getUniverseMap>>,
+          TError,
+          Awaited<ReturnType<typeof getUniverseMap>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetUniverseMap<TData = Awaited<ReturnType<typeof getUniverseMap>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseMap>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a map
+ */
+
+export function useGetUniverseMap<TData = Awaited<ReturnType<typeof getUniverseMap>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseMap>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetUniverseMapQueryOptions(universeId,mapId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateUniverseMapUrl = (universeId: string,
+    mapId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}`
+}
+
+/**
+ * @summary Update a map
+ */
+export const updateUniverseMap = async (universeId: string,
+    mapId: string,
+    mapUpdate: MapUpdate, options?: Parameters<typeof customFetch>[1]): Promise<MapResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MapResponse>(getUpdateUniverseMapUrl(universeId,mapId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(mapUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateUniverseMapMutationKey = () => ['updateUniverseMap'] as const;
+
+export const getUpdateUniverseMapMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUniverseMap>>, TError,UpdateUniverseMapMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateUniverseMap>>, TError,UpdateUniverseMapMutationVariables, TContext> => {
+
+const mutationKey = getUpdateUniverseMapMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateUniverseMap>>, UpdateUniverseMapMutationVariables> = (props) => {
+          const {universeId,mapId,data} = props ?? {};
+
+          return  updateUniverseMap(universeId,mapId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateUniverseMapMutationResult = NonNullable<Awaited<ReturnType<typeof updateUniverseMap>>>
+    export type UpdateUniverseMapMutationBody = BodyType<MapUpdate>
+    export type UpdateUniverseMapMutationError = ErrorType<unknown>
+    export type UpdateUniverseMapMutationVariables = {universeId: string;mapId: string;data: BodyType<MapUpdate>}
+
+    /**
+ * @summary Update a map
+ */
+export const useUpdateUniverseMap = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUniverseMap>>, TError,UpdateUniverseMapMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateUniverseMap>>,
+        TError,
+        UpdateUniverseMapMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateUniverseMapMutationOptions(options), queryClient);
+    }
+
+export const getDeleteUniverseMapUrl = (universeId: string,
+    mapId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}`
+}
+
+/**
+ * @summary Delete a map and its overlays
+ */
+export const deleteUniverseMap = async (universeId: string,
+    mapId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteUniverseMapUrl(universeId,mapId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteUniverseMapMutationKey = () => ['deleteUniverseMap'] as const;
+
+export const getDeleteUniverseMapMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUniverseMap>>, TError,DeleteUniverseMapMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteUniverseMap>>, TError,DeleteUniverseMapMutationVariables, TContext> => {
+
+const mutationKey = getDeleteUniverseMapMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteUniverseMap>>, DeleteUniverseMapMutationVariables> = (props) => {
+          const {universeId,mapId} = props ?? {};
+
+          return  deleteUniverseMap(universeId,mapId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteUniverseMapMutationResult = NonNullable<Awaited<ReturnType<typeof deleteUniverseMap>>>
+
+    export type DeleteUniverseMapMutationError = ErrorType<unknown>
+    export type DeleteUniverseMapMutationVariables = {universeId: string;mapId: string}
+
+    /**
+ * @summary Delete a map and its overlays
+ */
+export const useDeleteUniverseMap = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUniverseMap>>, TError,DeleteUniverseMapMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteUniverseMap>>,
+        TError,
+        DeleteUniverseMapMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteUniverseMapMutationOptions(options), queryClient);
+    }
+
+export const getListMapMarkersUrl = (universeId: string,
+    mapId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}/markers`
+}
+
+/**
+ * @summary List map markers
+ */
+export const listMapMarkers = async (universeId: string,
+    mapId: string, options?: Parameters<typeof customFetch>[1]): Promise<MapMarkerListResponse> => {
+
+  return customFetch<MapMarkerListResponse>(getListMapMarkersUrl(universeId,mapId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMapMarkersQueryKey = (universeId: string,
+    mapId: string,) => {
+    return [
+    `/api/v1/universes/${universeId}/maps/${mapId}/markers`
+    ] as const;
+    }
+
+
+export const getListMapMarkersQueryOptions = <TData = Awaited<ReturnType<typeof listMapMarkers>>, TError = ErrorType<unknown>>(universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapMarkers>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMapMarkersQueryKey(universeId,mapId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMapMarkers>>> = ({ signal }) => listMapMarkers(universeId,mapId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined && mapId !== null && mapId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMapMarkers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMapMarkersQueryResult = NonNullable<Awaited<ReturnType<typeof listMapMarkers>>>
+export type ListMapMarkersQueryError = ErrorType<unknown>
+
+
+export function useListMapMarkers<TData = Awaited<ReturnType<typeof listMapMarkers>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapMarkers>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMapMarkers>>,
+          TError,
+          Awaited<ReturnType<typeof listMapMarkers>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMapMarkers<TData = Awaited<ReturnType<typeof listMapMarkers>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapMarkers>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMapMarkers>>,
+          TError,
+          Awaited<ReturnType<typeof listMapMarkers>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMapMarkers<TData = Awaited<ReturnType<typeof listMapMarkers>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapMarkers>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List map markers
+ */
+
+export function useListMapMarkers<TData = Awaited<ReturnType<typeof listMapMarkers>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapMarkers>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMapMarkersQueryOptions(universeId,mapId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateMapMarkerUrl = (universeId: string,
+    mapId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}/markers`
+}
+
+/**
+ * @summary Add a normalized map marker
+ */
+export const createMapMarker = async (universeId: string,
+    mapId: string,
+    mapMarkerCreate: MapMarkerCreate, options?: Parameters<typeof customFetch>[1]): Promise<MapMarkerResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MapMarkerResponse>(getCreateMapMarkerUrl(universeId,mapId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(mapMarkerCreate)
+  }
+);}
+
+
+
+
+
+export const getCreateMapMarkerMutationKey = () => ['createMapMarker'] as const;
+
+export const getCreateMapMarkerMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMapMarker>>, TError,CreateMapMarkerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMapMarker>>, TError,CreateMapMarkerMutationVariables, TContext> => {
+
+const mutationKey = getCreateMapMarkerMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMapMarker>>, CreateMapMarkerMutationVariables> = (props) => {
+          const {universeId,mapId,data} = props ?? {};
+
+          return  createMapMarker(universeId,mapId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMapMarkerMutationResult = NonNullable<Awaited<ReturnType<typeof createMapMarker>>>
+    export type CreateMapMarkerMutationBody = BodyType<MapMarkerCreate>
+    export type CreateMapMarkerMutationError = ErrorType<unknown>
+    export type CreateMapMarkerMutationVariables = {universeId: string;mapId: string;data: BodyType<MapMarkerCreate>}
+
+    /**
+ * @summary Add a normalized map marker
+ */
+export const useCreateMapMarker = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMapMarker>>, TError,CreateMapMarkerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createMapMarker>>,
+        TError,
+        CreateMapMarkerMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMapMarkerMutationOptions(options), queryClient);
+    }
+
+export const getUpdateMapMarkerUrl = (universeId: string,
+    mapId: string,
+    markerId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}/markers/${markerId}`
+}
+
+/**
+ * @summary Update a map marker
+ */
+export const updateMapMarker = async (universeId: string,
+    mapId: string,
+    markerId: string,
+    mapMarkerUpdate: MapMarkerUpdate, options?: Parameters<typeof customFetch>[1]): Promise<MapMarkerResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MapMarkerResponse>(getUpdateMapMarkerUrl(universeId,mapId,markerId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(mapMarkerUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateMapMarkerMutationKey = () => ['updateMapMarker'] as const;
+
+export const getUpdateMapMarkerMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMapMarker>>, TError,UpdateMapMarkerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMapMarker>>, TError,UpdateMapMarkerMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMapMarkerMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMapMarker>>, UpdateMapMarkerMutationVariables> = (props) => {
+          const {universeId,mapId,markerId,data} = props ?? {};
+
+          return  updateMapMarker(universeId,mapId,markerId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMapMarkerMutationResult = NonNullable<Awaited<ReturnType<typeof updateMapMarker>>>
+    export type UpdateMapMarkerMutationBody = BodyType<MapMarkerUpdate>
+    export type UpdateMapMarkerMutationError = ErrorType<unknown>
+    export type UpdateMapMarkerMutationVariables = {universeId: string;mapId: string;markerId: string;data: BodyType<MapMarkerUpdate>}
+
+    /**
+ * @summary Update a map marker
+ */
+export const useUpdateMapMarker = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMapMarker>>, TError,UpdateMapMarkerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMapMarker>>,
+        TError,
+        UpdateMapMarkerMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateMapMarkerMutationOptions(options), queryClient);
+    }
+
+export const getDeleteMapMarkerUrl = (universeId: string,
+    mapId: string,
+    markerId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}/markers/${markerId}`
+}
+
+/**
+ * @summary Delete a map marker
+ */
+export const deleteMapMarker = async (universeId: string,
+    mapId: string,
+    markerId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteMapMarkerUrl(universeId,mapId,markerId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteMapMarkerMutationKey = () => ['deleteMapMarker'] as const;
+
+export const getDeleteMapMarkerMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMapMarker>>, TError,DeleteMapMarkerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMapMarker>>, TError,DeleteMapMarkerMutationVariables, TContext> => {
+
+const mutationKey = getDeleteMapMarkerMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMapMarker>>, DeleteMapMarkerMutationVariables> = (props) => {
+          const {universeId,mapId,markerId} = props ?? {};
+
+          return  deleteMapMarker(universeId,mapId,markerId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteMapMarkerMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMapMarker>>>
+
+    export type DeleteMapMarkerMutationError = ErrorType<unknown>
+    export type DeleteMapMarkerMutationVariables = {universeId: string;mapId: string;markerId: string}
+
+    /**
+ * @summary Delete a map marker
+ */
+export const useDeleteMapMarker = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMapMarker>>, TError,DeleteMapMarkerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteMapMarker>>,
+        TError,
+        DeleteMapMarkerMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteMapMarkerMutationOptions(options), queryClient);
+    }
+
+export const getListMapRegionsUrl = (universeId: string,
+    mapId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}/regions`
+}
+
+/**
+ * @summary List map regions
+ */
+export const listMapRegions = async (universeId: string,
+    mapId: string, options?: Parameters<typeof customFetch>[1]): Promise<MapRegionListResponse> => {
+
+  return customFetch<MapRegionListResponse>(getListMapRegionsUrl(universeId,mapId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMapRegionsQueryKey = (universeId: string,
+    mapId: string,) => {
+    return [
+    `/api/v1/universes/${universeId}/maps/${mapId}/regions`
+    ] as const;
+    }
+
+
+export const getListMapRegionsQueryOptions = <TData = Awaited<ReturnType<typeof listMapRegions>>, TError = ErrorType<unknown>>(universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapRegions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMapRegionsQueryKey(universeId,mapId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMapRegions>>> = ({ signal }) => listMapRegions(universeId,mapId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined && mapId !== null && mapId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMapRegions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMapRegionsQueryResult = NonNullable<Awaited<ReturnType<typeof listMapRegions>>>
+export type ListMapRegionsQueryError = ErrorType<unknown>
+
+
+export function useListMapRegions<TData = Awaited<ReturnType<typeof listMapRegions>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapRegions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMapRegions>>,
+          TError,
+          Awaited<ReturnType<typeof listMapRegions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMapRegions<TData = Awaited<ReturnType<typeof listMapRegions>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapRegions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMapRegions>>,
+          TError,
+          Awaited<ReturnType<typeof listMapRegions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMapRegions<TData = Awaited<ReturnType<typeof listMapRegions>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapRegions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List map regions
+ */
+
+export function useListMapRegions<TData = Awaited<ReturnType<typeof listMapRegions>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    mapId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMapRegions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMapRegionsQueryOptions(universeId,mapId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateMapRegionUrl = (universeId: string,
+    mapId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}/regions`
+}
+
+/**
+ * @summary Add a normalized polygon overlay
+ */
+export const createMapRegion = async (universeId: string,
+    mapId: string,
+    mapRegionCreate: MapRegionCreate, options?: Parameters<typeof customFetch>[1]): Promise<MapRegionResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MapRegionResponse>(getCreateMapRegionUrl(universeId,mapId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(mapRegionCreate)
+  }
+);}
+
+
+
+
+
+export const getCreateMapRegionMutationKey = () => ['createMapRegion'] as const;
+
+export const getCreateMapRegionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMapRegion>>, TError,CreateMapRegionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMapRegion>>, TError,CreateMapRegionMutationVariables, TContext> => {
+
+const mutationKey = getCreateMapRegionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMapRegion>>, CreateMapRegionMutationVariables> = (props) => {
+          const {universeId,mapId,data} = props ?? {};
+
+          return  createMapRegion(universeId,mapId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMapRegionMutationResult = NonNullable<Awaited<ReturnType<typeof createMapRegion>>>
+    export type CreateMapRegionMutationBody = BodyType<MapRegionCreate>
+    export type CreateMapRegionMutationError = ErrorType<unknown>
+    export type CreateMapRegionMutationVariables = {universeId: string;mapId: string;data: BodyType<MapRegionCreate>}
+
+    /**
+ * @summary Add a normalized polygon overlay
+ */
+export const useCreateMapRegion = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMapRegion>>, TError,CreateMapRegionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createMapRegion>>,
+        TError,
+        CreateMapRegionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMapRegionMutationOptions(options), queryClient);
+    }
+
+export const getUpdateMapRegionUrl = (universeId: string,
+    mapId: string,
+    regionId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}/regions/${regionId}`
+}
+
+/**
+ * @summary Update a normalized map region
+ */
+export const updateMapRegion = async (universeId: string,
+    mapId: string,
+    regionId: string,
+    mapRegionUpdate: MapRegionUpdate, options?: Parameters<typeof customFetch>[1]): Promise<MapRegionResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MapRegionResponse>(getUpdateMapRegionUrl(universeId,mapId,regionId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(mapRegionUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateMapRegionMutationKey = () => ['updateMapRegion'] as const;
+
+export const getUpdateMapRegionMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMapRegion>>, TError,UpdateMapRegionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMapRegion>>, TError,UpdateMapRegionMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMapRegionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMapRegion>>, UpdateMapRegionMutationVariables> = (props) => {
+          const {universeId,mapId,regionId,data} = props ?? {};
+
+          return  updateMapRegion(universeId,mapId,regionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMapRegionMutationResult = NonNullable<Awaited<ReturnType<typeof updateMapRegion>>>
+    export type UpdateMapRegionMutationBody = BodyType<MapRegionUpdate>
+    export type UpdateMapRegionMutationError = ErrorType<ApiError>
+    export type UpdateMapRegionMutationVariables = {universeId: string;mapId: string;regionId: string;data: BodyType<MapRegionUpdate>}
+
+    /**
+ * @summary Update a normalized map region
+ */
+export const useUpdateMapRegion = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMapRegion>>, TError,UpdateMapRegionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMapRegion>>,
+        TError,
+        UpdateMapRegionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateMapRegionMutationOptions(options), queryClient);
+    }
+
+export const getDeleteMapRegionUrl = (universeId: string,
+    mapId: string,
+    regionId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/maps/${mapId}/regions/${regionId}`
+}
+
+/**
+ * @summary Delete a map region
+ */
+export const deleteMapRegion = async (universeId: string,
+    mapId: string,
+    regionId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteMapRegionUrl(universeId,mapId,regionId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteMapRegionMutationKey = () => ['deleteMapRegion'] as const;
+
+export const getDeleteMapRegionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMapRegion>>, TError,DeleteMapRegionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMapRegion>>, TError,DeleteMapRegionMutationVariables, TContext> => {
+
+const mutationKey = getDeleteMapRegionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMapRegion>>, DeleteMapRegionMutationVariables> = (props) => {
+          const {universeId,mapId,regionId} = props ?? {};
+
+          return  deleteMapRegion(universeId,mapId,regionId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteMapRegionMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMapRegion>>>
+
+    export type DeleteMapRegionMutationError = ErrorType<unknown>
+    export type DeleteMapRegionMutationVariables = {universeId: string;mapId: string;regionId: string}
+
+    /**
+ * @summary Delete a map region
+ */
+export const useDeleteMapRegion = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMapRegion>>, TError,DeleteMapRegionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteMapRegion>>,
+        TError,
+        DeleteMapRegionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteMapRegionMutationOptions(options), queryClient);
+    }
+
+export const getListUniverseCalendarsUrl = (universeId: string,
+    params?: ListUniverseCalendarsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/universes/${universeId}/calendars?${stringifiedParams}` : `/api/v1/universes/${universeId}/calendars`
+}
+
+/**
+ * @summary List custom calendars
+ */
+export const listUniverseCalendars = async (universeId: string,
+    params?: ListUniverseCalendarsParams, options?: Parameters<typeof customFetch>[1]): Promise<CalendarListResponse> => {
+
+  return customFetch<CalendarListResponse>(getListUniverseCalendarsUrl(universeId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListUniverseCalendarsQueryKey = (universeId: string,
+    params?: ListUniverseCalendarsParams,) => {
+    return [
+    `/api/v1/universes/${universeId}/calendars`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListUniverseCalendarsQueryOptions = <TData = Awaited<ReturnType<typeof listUniverseCalendars>>, TError = ErrorType<unknown>>(universeId: string,
+    params?: ListUniverseCalendarsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseCalendars>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListUniverseCalendarsQueryKey(universeId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUniverseCalendars>>> = ({ signal }) => listUniverseCalendars(universeId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUniverseCalendars>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListUniverseCalendarsQueryResult = NonNullable<Awaited<ReturnType<typeof listUniverseCalendars>>>
+export type ListUniverseCalendarsQueryError = ErrorType<unknown>
+
+
+export function useListUniverseCalendars<TData = Awaited<ReturnType<typeof listUniverseCalendars>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params: undefined |  ListUniverseCalendarsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseCalendars>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listUniverseCalendars>>,
+          TError,
+          Awaited<ReturnType<typeof listUniverseCalendars>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListUniverseCalendars<TData = Awaited<ReturnType<typeof listUniverseCalendars>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListUniverseCalendarsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseCalendars>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listUniverseCalendars>>,
+          TError,
+          Awaited<ReturnType<typeof listUniverseCalendars>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListUniverseCalendars<TData = Awaited<ReturnType<typeof listUniverseCalendars>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListUniverseCalendarsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseCalendars>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List custom calendars
+ */
+
+export function useListUniverseCalendars<TData = Awaited<ReturnType<typeof listUniverseCalendars>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListUniverseCalendarsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUniverseCalendars>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListUniverseCalendarsQueryOptions(universeId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateUniverseCalendarUrl = (universeId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/calendars`
+}
+
+/**
+ * @summary Create a custom calendar
+ */
+export const createUniverseCalendar = async (universeId: string,
+    calendarCreate: CalendarCreate, options?: Parameters<typeof customFetch>[1]): Promise<CalendarResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CalendarResponse>(getCreateUniverseCalendarUrl(universeId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(calendarCreate)
+  }
+);}
+
+
+
+
+
+export const getCreateUniverseCalendarMutationKey = () => ['createUniverseCalendar'] as const;
+
+export const getCreateUniverseCalendarMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUniverseCalendar>>, TError,CreateUniverseCalendarMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUniverseCalendar>>, TError,CreateUniverseCalendarMutationVariables, TContext> => {
+
+const mutationKey = getCreateUniverseCalendarMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUniverseCalendar>>, CreateUniverseCalendarMutationVariables> = (props) => {
+          const {universeId,data} = props ?? {};
+
+          return  createUniverseCalendar(universeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUniverseCalendarMutationResult = NonNullable<Awaited<ReturnType<typeof createUniverseCalendar>>>
+    export type CreateUniverseCalendarMutationBody = BodyType<CalendarCreate>
+    export type CreateUniverseCalendarMutationError = ErrorType<unknown>
+    export type CreateUniverseCalendarMutationVariables = {universeId: string;data: BodyType<CalendarCreate>}
+
+    /**
+ * @summary Create a custom calendar
+ */
+export const useCreateUniverseCalendar = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUniverseCalendar>>, TError,CreateUniverseCalendarMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createUniverseCalendar>>,
+        TError,
+        CreateUniverseCalendarMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateUniverseCalendarMutationOptions(options), queryClient);
+    }
+
+export const getGetUniverseCalendarUrl = (universeId: string,
+    calendarId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/calendars/${calendarId}`
+}
+
+/**
+ * @summary Get a custom calendar
+ */
+export const getUniverseCalendar = async (universeId: string,
+    calendarId: string, options?: Parameters<typeof customFetch>[1]): Promise<CalendarResponse> => {
+
+  return customFetch<CalendarResponse>(getGetUniverseCalendarUrl(universeId,calendarId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUniverseCalendarQueryKey = (universeId: string,
+    calendarId: string,) => {
+    return [
+    `/api/v1/universes/${universeId}/calendars/${calendarId}`
+    ] as const;
+    }
+
+
+export const getGetUniverseCalendarQueryOptions = <TData = Awaited<ReturnType<typeof getUniverseCalendar>>, TError = ErrorType<unknown>>(universeId: string,
+    calendarId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseCalendar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUniverseCalendarQueryKey(universeId,calendarId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUniverseCalendar>>> = ({ signal }) => getUniverseCalendar(universeId,calendarId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined && calendarId !== null && calendarId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUniverseCalendar>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetUniverseCalendarQueryResult = NonNullable<Awaited<ReturnType<typeof getUniverseCalendar>>>
+export type GetUniverseCalendarQueryError = ErrorType<unknown>
+
+
+export function useGetUniverseCalendar<TData = Awaited<ReturnType<typeof getUniverseCalendar>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    calendarId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseCalendar>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getUniverseCalendar>>,
+          TError,
+          Awaited<ReturnType<typeof getUniverseCalendar>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetUniverseCalendar<TData = Awaited<ReturnType<typeof getUniverseCalendar>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    calendarId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseCalendar>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getUniverseCalendar>>,
+          TError,
+          Awaited<ReturnType<typeof getUniverseCalendar>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetUniverseCalendar<TData = Awaited<ReturnType<typeof getUniverseCalendar>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    calendarId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseCalendar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a custom calendar
+ */
+
+export function useGetUniverseCalendar<TData = Awaited<ReturnType<typeof getUniverseCalendar>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    calendarId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUniverseCalendar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetUniverseCalendarQueryOptions(universeId,calendarId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateUniverseCalendarUrl = (universeId: string,
+    calendarId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/calendars/${calendarId}`
+}
+
+/**
+ * @summary Update a calendar
+ */
+export const updateUniverseCalendar = async (universeId: string,
+    calendarId: string,
+    calendarUpdate: CalendarUpdate, options?: Parameters<typeof customFetch>[1]): Promise<CalendarResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CalendarResponse>(getUpdateUniverseCalendarUrl(universeId,calendarId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(calendarUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateUniverseCalendarMutationKey = () => ['updateUniverseCalendar'] as const;
+
+export const getUpdateUniverseCalendarMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUniverseCalendar>>, TError,UpdateUniverseCalendarMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateUniverseCalendar>>, TError,UpdateUniverseCalendarMutationVariables, TContext> => {
+
+const mutationKey = getUpdateUniverseCalendarMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateUniverseCalendar>>, UpdateUniverseCalendarMutationVariables> = (props) => {
+          const {universeId,calendarId,data} = props ?? {};
+
+          return  updateUniverseCalendar(universeId,calendarId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateUniverseCalendarMutationResult = NonNullable<Awaited<ReturnType<typeof updateUniverseCalendar>>>
+    export type UpdateUniverseCalendarMutationBody = BodyType<CalendarUpdate>
+    export type UpdateUniverseCalendarMutationError = ErrorType<ApiError>
+    export type UpdateUniverseCalendarMutationVariables = {universeId: string;calendarId: string;data: BodyType<CalendarUpdate>}
+
+    /**
+ * @summary Update a calendar
+ */
+export const useUpdateUniverseCalendar = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUniverseCalendar>>, TError,UpdateUniverseCalendarMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateUniverseCalendar>>,
+        TError,
+        UpdateUniverseCalendarMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateUniverseCalendarMutationOptions(options), queryClient);
+    }
+
+export const getListCalendarErasUrl = (universeId: string,
+    calendarId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/calendars/${calendarId}/eras`
+}
+
+/**
+ * @summary List calendar eras
+ */
+export const listCalendarEras = async (universeId: string,
+    calendarId: string, options?: Parameters<typeof customFetch>[1]): Promise<EraListResponse> => {
+
+  return customFetch<EraListResponse>(getListCalendarErasUrl(universeId,calendarId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCalendarErasQueryKey = (universeId: string,
+    calendarId: string,) => {
+    return [
+    `/api/v1/universes/${universeId}/calendars/${calendarId}/eras`
+    ] as const;
+    }
+
+
+export const getListCalendarErasQueryOptions = <TData = Awaited<ReturnType<typeof listCalendarEras>>, TError = ErrorType<unknown>>(universeId: string,
+    calendarId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCalendarEras>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCalendarErasQueryKey(universeId,calendarId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCalendarEras>>> = ({ signal }) => listCalendarEras(universeId,calendarId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined && calendarId !== null && calendarId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCalendarEras>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListCalendarErasQueryResult = NonNullable<Awaited<ReturnType<typeof listCalendarEras>>>
+export type ListCalendarErasQueryError = ErrorType<unknown>
+
+
+export function useListCalendarEras<TData = Awaited<ReturnType<typeof listCalendarEras>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    calendarId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCalendarEras>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listCalendarEras>>,
+          TError,
+          Awaited<ReturnType<typeof listCalendarEras>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListCalendarEras<TData = Awaited<ReturnType<typeof listCalendarEras>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    calendarId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCalendarEras>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listCalendarEras>>,
+          TError,
+          Awaited<ReturnType<typeof listCalendarEras>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListCalendarEras<TData = Awaited<ReturnType<typeof listCalendarEras>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    calendarId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCalendarEras>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List calendar eras
+ */
+
+export function useListCalendarEras<TData = Awaited<ReturnType<typeof listCalendarEras>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    calendarId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCalendarEras>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListCalendarErasQueryOptions(universeId,calendarId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCalendarEraUrl = (universeId: string,
+    calendarId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/calendars/${calendarId}/eras`
+}
+
+/**
+ * @summary Create a calendar era
+ */
+export const createCalendarEra = async (universeId: string,
+    calendarId: string,
+    eraCreate: EraCreate, options?: Parameters<typeof customFetch>[1]): Promise<EraResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<EraResponse>(getCreateCalendarEraUrl(universeId,calendarId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(eraCreate)
+  }
+);}
+
+
+
+
+
+export const getCreateCalendarEraMutationKey = () => ['createCalendarEra'] as const;
+
+export const getCreateCalendarEraMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCalendarEra>>, TError,CreateCalendarEraMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCalendarEra>>, TError,CreateCalendarEraMutationVariables, TContext> => {
+
+const mutationKey = getCreateCalendarEraMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCalendarEra>>, CreateCalendarEraMutationVariables> = (props) => {
+          const {universeId,calendarId,data} = props ?? {};
+
+          return  createCalendarEra(universeId,calendarId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCalendarEraMutationResult = NonNullable<Awaited<ReturnType<typeof createCalendarEra>>>
+    export type CreateCalendarEraMutationBody = BodyType<EraCreate>
+    export type CreateCalendarEraMutationError = ErrorType<unknown>
+    export type CreateCalendarEraMutationVariables = {universeId: string;calendarId: string;data: BodyType<EraCreate>}
+
+    /**
+ * @summary Create a calendar era
+ */
+export const useCreateCalendarEra = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCalendarEra>>, TError,CreateCalendarEraMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createCalendarEra>>,
+        TError,
+        CreateCalendarEraMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateCalendarEraMutationOptions(options), queryClient);
+    }
+
+export const getUpdateCalendarEraUrl = (universeId: string,
+    calendarId: string,
+    eraId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/calendars/${calendarId}/eras/${eraId}`
+}
+
+/**
+ * @summary Update a calendar era
+ */
+export const updateCalendarEra = async (universeId: string,
+    calendarId: string,
+    eraId: string,
+    eraUpdate: EraUpdate, options?: Parameters<typeof customFetch>[1]): Promise<EraResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<EraResponse>(getUpdateCalendarEraUrl(universeId,calendarId,eraId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(eraUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateCalendarEraMutationKey = () => ['updateCalendarEra'] as const;
+
+export const getUpdateCalendarEraMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCalendarEra>>, TError,UpdateCalendarEraMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCalendarEra>>, TError,UpdateCalendarEraMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCalendarEraMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCalendarEra>>, UpdateCalendarEraMutationVariables> = (props) => {
+          const {universeId,calendarId,eraId,data} = props ?? {};
+
+          return  updateCalendarEra(universeId,calendarId,eraId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCalendarEraMutationResult = NonNullable<Awaited<ReturnType<typeof updateCalendarEra>>>
+    export type UpdateCalendarEraMutationBody = BodyType<EraUpdate>
+    export type UpdateCalendarEraMutationError = ErrorType<unknown>
+    export type UpdateCalendarEraMutationVariables = {universeId: string;calendarId: string;eraId: string;data: BodyType<EraUpdate>}
+
+    /**
+ * @summary Update a calendar era
+ */
+export const useUpdateCalendarEra = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCalendarEra>>, TError,UpdateCalendarEraMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateCalendarEra>>,
+        TError,
+        UpdateCalendarEraMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateCalendarEraMutationOptions(options), queryClient);
+    }
+
+export const getDeleteCalendarEraUrl = (universeId: string,
+    calendarId: string,
+    eraId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/calendars/${calendarId}/eras/${eraId}`
+}
+
+/**
+ * @summary Delete a calendar era
+ */
+export const deleteCalendarEra = async (universeId: string,
+    calendarId: string,
+    eraId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteCalendarEraUrl(universeId,calendarId,eraId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteCalendarEraMutationKey = () => ['deleteCalendarEra'] as const;
+
+export const getDeleteCalendarEraMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCalendarEra>>, TError,DeleteCalendarEraMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCalendarEra>>, TError,DeleteCalendarEraMutationVariables, TContext> => {
+
+const mutationKey = getDeleteCalendarEraMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCalendarEra>>, DeleteCalendarEraMutationVariables> = (props) => {
+          const {universeId,calendarId,eraId} = props ?? {};
+
+          return  deleteCalendarEra(universeId,calendarId,eraId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCalendarEraMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCalendarEra>>>
+
+    export type DeleteCalendarEraMutationError = ErrorType<unknown>
+    export type DeleteCalendarEraMutationVariables = {universeId: string;calendarId: string;eraId: string}
+
+    /**
+ * @summary Delete a calendar era
+ */
+export const useDeleteCalendarEra = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCalendarEra>>, TError,DeleteCalendarEraMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCalendarEra>>,
+        TError,
+        DeleteCalendarEraMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteCalendarEraMutationOptions(options), queryClient);
+    }
+
+export const getSearchUniverseUrl = (universeId: string,
+    params: SearchUniverseParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["types"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/universes/${universeId}/search?${stringifiedParams}` : `/api/v1/universes/${universeId}/search`
+}
+
+/**
+ * @summary Search authorized universe content
+ */
+export const searchUniverse = async (universeId: string,
+    params: SearchUniverseParams, options?: Parameters<typeof customFetch>[1]): Promise<SearchResponse> => {
+
+  return customFetch<SearchResponse>(getSearchUniverseUrl(universeId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSearchUniverseQueryKey = (universeId: string,
+    params?: SearchUniverseParams,) => {
+    return [
+    `/api/v1/universes/${universeId}/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchUniverseQueryOptions = <TData = Awaited<ReturnType<typeof searchUniverse>>, TError = ErrorType<ApiError>>(universeId: string,
+    params: SearchUniverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchUniverse>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchUniverseQueryKey(universeId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchUniverse>>> = ({ signal }) => searchUniverse(universeId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchUniverse>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SearchUniverseQueryResult = NonNullable<Awaited<ReturnType<typeof searchUniverse>>>
+export type SearchUniverseQueryError = ErrorType<ApiError>
+
+
+export function useSearchUniverse<TData = Awaited<ReturnType<typeof searchUniverse>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    params: SearchUniverseParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchUniverse>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchUniverse>>,
+          TError,
+          Awaited<ReturnType<typeof searchUniverse>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSearchUniverse<TData = Awaited<ReturnType<typeof searchUniverse>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    params: SearchUniverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchUniverse>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchUniverse>>,
+          TError,
+          Awaited<ReturnType<typeof searchUniverse>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSearchUniverse<TData = Awaited<ReturnType<typeof searchUniverse>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    params: SearchUniverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchUniverse>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Search authorized universe content
+ */
+
+export function useSearchUniverse<TData = Awaited<ReturnType<typeof searchUniverse>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    params: SearchUniverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchUniverse>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSearchUniverseQueryOptions(universeId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListTimelineEventsUrl = (universeId: string,
+    params?: ListTimelineEventsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/universes/${universeId}/timeline-events?${stringifiedParams}` : `/api/v1/universes/${universeId}/timeline-events`
+}
+
+/**
+ * @summary List events in day-index order
+ */
+export const listTimelineEvents = async (universeId: string,
+    params?: ListTimelineEventsParams, options?: Parameters<typeof customFetch>[1]): Promise<TimelineEventListResponse> => {
+
+  return customFetch<TimelineEventListResponse>(getListTimelineEventsUrl(universeId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTimelineEventsQueryKey = (universeId: string,
+    params?: ListTimelineEventsParams,) => {
+    return [
+    `/api/v1/universes/${universeId}/timeline-events`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListTimelineEventsQueryOptions = <TData = Awaited<ReturnType<typeof listTimelineEvents>>, TError = ErrorType<unknown>>(universeId: string,
+    params?: ListTimelineEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimelineEvents>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTimelineEventsQueryKey(universeId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTimelineEvents>>> = ({ signal }) => listTimelineEvents(universeId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTimelineEvents>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListTimelineEventsQueryResult = NonNullable<Awaited<ReturnType<typeof listTimelineEvents>>>
+export type ListTimelineEventsQueryError = ErrorType<unknown>
+
+
+export function useListTimelineEvents<TData = Awaited<ReturnType<typeof listTimelineEvents>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params: undefined |  ListTimelineEventsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimelineEvents>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimelineEvents>>,
+          TError,
+          Awaited<ReturnType<typeof listTimelineEvents>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimelineEvents<TData = Awaited<ReturnType<typeof listTimelineEvents>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListTimelineEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimelineEvents>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimelineEvents>>,
+          TError,
+          Awaited<ReturnType<typeof listTimelineEvents>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimelineEvents<TData = Awaited<ReturnType<typeof listTimelineEvents>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListTimelineEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimelineEvents>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List events in day-index order
+ */
+
+export function useListTimelineEvents<TData = Awaited<ReturnType<typeof listTimelineEvents>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    params?: ListTimelineEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimelineEvents>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListTimelineEventsQueryOptions(universeId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateTimelineEventUrl = (universeId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/timeline-events`
+}
+
+/**
+ * @summary Create a date-aware timeline event
+ */
+export const createTimelineEvent = async (universeId: string,
+    timelineEventCreate: TimelineEventCreate, options?: Parameters<typeof customFetch>[1]): Promise<TimelineEventResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<TimelineEventResponse>(getCreateTimelineEventUrl(universeId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(timelineEventCreate)
+  }
+);}
+
+
+
+
+
+export const getCreateTimelineEventMutationKey = () => ['createTimelineEvent'] as const;
+
+export const getCreateTimelineEventMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTimelineEvent>>, TError,CreateTimelineEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createTimelineEvent>>, TError,CreateTimelineEventMutationVariables, TContext> => {
+
+const mutationKey = getCreateTimelineEventMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTimelineEvent>>, CreateTimelineEventMutationVariables> = (props) => {
+          const {universeId,data} = props ?? {};
+
+          return  createTimelineEvent(universeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateTimelineEventMutationResult = NonNullable<Awaited<ReturnType<typeof createTimelineEvent>>>
+    export type CreateTimelineEventMutationBody = BodyType<TimelineEventCreate>
+    export type CreateTimelineEventMutationError = ErrorType<unknown>
+    export type CreateTimelineEventMutationVariables = {universeId: string;data: BodyType<TimelineEventCreate>}
+
+    /**
+ * @summary Create a date-aware timeline event
+ */
+export const useCreateTimelineEvent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTimelineEvent>>, TError,CreateTimelineEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createTimelineEvent>>,
+        TError,
+        CreateTimelineEventMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateTimelineEventMutationOptions(options), queryClient);
+    }
+
+export const getGetTimelineEventUrl = (universeId: string,
+    eventId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/timeline-events/${eventId}`
+}
+
+/**
+ * @summary Get a timeline event
+ */
+export const getTimelineEvent = async (universeId: string,
+    eventId: string, options?: Parameters<typeof customFetch>[1]): Promise<TimelineEventResponse> => {
+
+  return customFetch<TimelineEventResponse>(getGetTimelineEventUrl(universeId,eventId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTimelineEventQueryKey = (universeId: string,
+    eventId: string,) => {
+    return [
+    `/api/v1/universes/${universeId}/timeline-events/${eventId}`
+    ] as const;
+    }
+
+
+export const getGetTimelineEventQueryOptions = <TData = Awaited<ReturnType<typeof getTimelineEvent>>, TError = ErrorType<unknown>>(universeId: string,
+    eventId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimelineEvent>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTimelineEventQueryKey(universeId,eventId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTimelineEvent>>> = ({ signal }) => getTimelineEvent(universeId,eventId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined && eventId !== null && eventId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTimelineEvent>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTimelineEventQueryResult = NonNullable<Awaited<ReturnType<typeof getTimelineEvent>>>
+export type GetTimelineEventQueryError = ErrorType<unknown>
+
+
+export function useGetTimelineEvent<TData = Awaited<ReturnType<typeof getTimelineEvent>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    eventId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimelineEvent>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTimelineEvent>>,
+          TError,
+          Awaited<ReturnType<typeof getTimelineEvent>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTimelineEvent<TData = Awaited<ReturnType<typeof getTimelineEvent>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    eventId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimelineEvent>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTimelineEvent>>,
+          TError,
+          Awaited<ReturnType<typeof getTimelineEvent>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTimelineEvent<TData = Awaited<ReturnType<typeof getTimelineEvent>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    eventId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimelineEvent>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a timeline event
+ */
+
+export function useGetTimelineEvent<TData = Awaited<ReturnType<typeof getTimelineEvent>>, TError = ErrorType<unknown>>(
+ universeId: string,
+    eventId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimelineEvent>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTimelineEventQueryOptions(universeId,eventId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateTimelineEventUrl = (universeId: string,
+    eventId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/timeline-events/${eventId}`
+}
+
+/**
+ * @summary Update a timeline event
+ */
+export const updateTimelineEvent = async (universeId: string,
+    eventId: string,
+    timelineEventUpdate: TimelineEventUpdate, options?: Parameters<typeof customFetch>[1]): Promise<TimelineEventResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<TimelineEventResponse>(getUpdateTimelineEventUrl(universeId,eventId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(timelineEventUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateTimelineEventMutationKey = () => ['updateTimelineEvent'] as const;
+
+export const getUpdateTimelineEventMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTimelineEvent>>, TError,UpdateTimelineEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateTimelineEvent>>, TError,UpdateTimelineEventMutationVariables, TContext> => {
+
+const mutationKey = getUpdateTimelineEventMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateTimelineEvent>>, UpdateTimelineEventMutationVariables> = (props) => {
+          const {universeId,eventId,data} = props ?? {};
+
+          return  updateTimelineEvent(universeId,eventId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateTimelineEventMutationResult = NonNullable<Awaited<ReturnType<typeof updateTimelineEvent>>>
+    export type UpdateTimelineEventMutationBody = BodyType<TimelineEventUpdate>
+    export type UpdateTimelineEventMutationError = ErrorType<unknown>
+    export type UpdateTimelineEventMutationVariables = {universeId: string;eventId: string;data: BodyType<TimelineEventUpdate>}
+
+    /**
+ * @summary Update a timeline event
+ */
+export const useUpdateTimelineEvent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTimelineEvent>>, TError,UpdateTimelineEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateTimelineEvent>>,
+        TError,
+        UpdateTimelineEventMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateTimelineEventMutationOptions(options), queryClient);
+    }
+
+export const getDeleteTimelineEventUrl = (universeId: string,
+    eventId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/timeline-events/${eventId}`
+}
+
+/**
+ * @summary Delete a timeline event
+ */
+export const deleteTimelineEvent = async (universeId: string,
+    eventId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteTimelineEventUrl(universeId,eventId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteTimelineEventMutationKey = () => ['deleteTimelineEvent'] as const;
+
+export const getDeleteTimelineEventMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTimelineEvent>>, TError,DeleteTimelineEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteTimelineEvent>>, TError,DeleteTimelineEventMutationVariables, TContext> => {
+
+const mutationKey = getDeleteTimelineEventMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteTimelineEvent>>, DeleteTimelineEventMutationVariables> = (props) => {
+          const {universeId,eventId} = props ?? {};
+
+          return  deleteTimelineEvent(universeId,eventId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteTimelineEventMutationResult = NonNullable<Awaited<ReturnType<typeof deleteTimelineEvent>>>
+
+    export type DeleteTimelineEventMutationError = ErrorType<unknown>
+    export type DeleteTimelineEventMutationVariables = {universeId: string;eventId: string}
+
+    /**
+ * @summary Delete a timeline event
+ */
+export const useDeleteTimelineEvent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTimelineEvent>>, TError,DeleteTimelineEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteTimelineEvent>>,
+        TError,
+        DeleteTimelineEventMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteTimelineEventMutationOptions(options), queryClient);
     }
 

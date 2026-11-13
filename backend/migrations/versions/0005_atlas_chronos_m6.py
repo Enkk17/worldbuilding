@@ -84,6 +84,32 @@ def upgrade() -> None:
         ["calendar_id", "start_day_index"],
     )
 
+    # Day indices can exceed signed 32-bit range for supported calendar years.
+    op.alter_column(
+        "eras",
+        "start_day_index",
+        existing_type=sa.Integer(),
+        type_=sa.BigInteger(),
+        existing_nullable=False,
+        postgresql_using="start_day_index::bigint",
+    )
+    op.alter_column(
+        "timeline_events",
+        "start_day_index",
+        existing_type=sa.Integer(),
+        type_=sa.BigInteger(),
+        existing_nullable=False,
+        postgresql_using="start_day_index::bigint",
+    )
+    op.alter_column(
+        "timeline_events",
+        "end_day_index",
+        existing_type=sa.Integer(),
+        type_=sa.BigInteger(),
+        existing_nullable=True,
+        postgresql_using="end_day_index::bigint",
+    )
+
     # Complete the asset relationship after both tables exist.
     op.create_foreign_key(
         "fk_maps_image_asset",
@@ -113,6 +139,21 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_constraint(
         "ck_timeline_events_day_range", "timeline_events", type_="check"
+    )
+    op.alter_column(
+        "timeline_events", "end_day_index", existing_type=sa.BigInteger(),
+        type_=sa.Integer(), existing_nullable=True,
+        postgresql_using="end_day_index::integer",
+    )
+    op.alter_column(
+        "timeline_events", "start_day_index", existing_type=sa.BigInteger(),
+        type_=sa.Integer(), existing_nullable=False,
+        postgresql_using="start_day_index::integer",
+    )
+    op.alter_column(
+        "eras", "start_day_index", existing_type=sa.BigInteger(),
+        type_=sa.Integer(), existing_nullable=False,
+        postgresql_using="start_day_index::integer",
     )
     op.drop_constraint(
         "ck_map_markers_y_norm_range", "map_markers", type_="check"

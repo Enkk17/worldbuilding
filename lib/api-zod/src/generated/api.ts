@@ -1582,3 +1582,1081 @@ export const DeleteDocumentCommentParams = zod.object({
 export const DeleteDocumentCommentResponse = zod.void()
 
 
+/**
+ * @summary Upload a map image
+ */
+export const UploadUniverseAssetParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const UploadUniverseAssetBody = zod.object({
+  "file": zod.instanceof(Blob)
+})
+
+export const UploadUniverseAssetResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "original_filename": zod.string(),
+  "mime_type": zod.string(),
+  "byte_size": zod.number().int(),
+  "checksum_sha256": zod.string(),
+  "width": zod.union([zod.number().int(),zod.null()]),
+  "height": zod.union([zod.number().int(),zod.null()]),
+  "uploaded_by": zod.string().uuid(),
+  "created_at": zod.coerce.date(),
+  "download_path": zod.string()
+})
+
+
+/**
+ * @summary Get uploaded image metadata
+ */
+export const GetUniverseAssetMetadataParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "asset_id": zod.coerce.string().uuid()
+})
+
+export const GetUniverseAssetMetadataResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "original_filename": zod.string(),
+  "mime_type": zod.string(),
+  "byte_size": zod.number().int(),
+  "checksum_sha256": zod.string(),
+  "width": zod.union([zod.number().int(),zod.null()]),
+  "height": zod.union([zod.number().int(),zod.null()]),
+  "uploaded_by": zod.string().uuid(),
+  "created_at": zod.coerce.date(),
+  "download_path": zod.string()
+})
+
+
+/**
+ * @summary Download an uploaded map image
+ */
+export const DownloadAssetFileParams = zod.object({
+  "asset_id": zod.coerce.string().uuid()
+})
+
+export const DownloadAssetFileResponse = zod.unknown()
+
+
+/**
+ * @summary List maps in a universe
+ */
+export const ListUniverseMapsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const listUniverseMapsQueryLimitDefault = 100;
+export const listUniverseMapsQueryLimitMax = 200;
+
+export const listUniverseMapsQueryOffsetDefault = 0;
+export const listUniverseMapsQueryOffsetMin = 0;
+
+
+
+export const ListUniverseMapsQueryParams = zod.object({
+  "limit": zod.coerce.number().int().min(1).max(listUniverseMapsQueryLimitMax).default(listUniverseMapsQueryLimitDefault),
+  "offset": zod.coerce.number().int().min(listUniverseMapsQueryOffsetMin).default(listUniverseMapsQueryOffsetDefault)
+})
+
+export const ListUniverseMapsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "image_asset_id": zod.union([zod.string().uuid(),zod.null()]),
+  "coordinate_system": zod.string(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Create a map
+ */
+export const CreateUniverseMapParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const createUniverseMapBodyTitleMax = 150;
+
+export const createUniverseMapBodyDescriptionOneMax = 2000;
+
+export const createUniverseMapBodyWidthDefault = 1920;
+export const createUniverseMapBodyWidthMax = 100000;
+
+export const createUniverseMapBodyHeightDefault = 1080;
+export const createUniverseMapBodyHeightMax = 100000;
+
+
+
+export const CreateUniverseMapBody = zod.object({
+  "title": zod.string().min(1).max(createUniverseMapBodyTitleMax),
+  "description": zod.union([zod.string().max(createUniverseMapBodyDescriptionOneMax),zod.null()]).optional(),
+  "image_asset_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "width": zod.number().int().min(1).max(createUniverseMapBodyWidthMax).default(createUniverseMapBodyWidthDefault),
+  "height": zod.number().int().min(1).max(createUniverseMapBodyHeightMax).default(createUniverseMapBodyHeightDefault)
+})
+
+export const CreateUniverseMapResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "image_asset_id": zod.union([zod.string().uuid(),zod.null()]),
+  "coordinate_system": zod.string(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get a map
+ */
+export const GetUniverseMapParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid()
+})
+
+export const GetUniverseMapResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "image_asset_id": zod.union([zod.string().uuid(),zod.null()]),
+  "coordinate_system": zod.string(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update a map
+ */
+export const UpdateUniverseMapParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid()
+})
+
+export const updateUniverseMapBodyTitleOneMax = 150;
+
+export const updateUniverseMapBodyDescriptionOneMax = 2000;
+
+export const updateUniverseMapBodyWidthOneMax = 100000;
+
+export const updateUniverseMapBodyHeightOneMax = 100000;
+
+
+
+
+export const UpdateUniverseMapBody = zod.object({
+  "title": zod.union([zod.string().min(1).max(updateUniverseMapBodyTitleOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateUniverseMapBodyDescriptionOneMax),zod.null()]).optional(),
+  "image_asset_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "width": zod.union([zod.number().int().min(1).max(updateUniverseMapBodyWidthOneMax),zod.null()]).optional(),
+  "height": zod.union([zod.number().int().min(1).max(updateUniverseMapBodyHeightOneMax),zod.null()]).optional(),
+  "expected_version": zod.number().int().min(1)
+})
+
+export const UpdateUniverseMapResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "image_asset_id": zod.union([zod.string().uuid(),zod.null()]),
+  "coordinate_system": zod.string(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a map and its overlays
+ */
+export const DeleteUniverseMapParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid()
+})
+
+export const DeleteUniverseMapResponse = zod.void()
+
+
+/**
+ * @summary List map markers
+ */
+export const ListMapMarkersParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid()
+})
+
+export const ListMapMarkersResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "map_id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "x_norm": zod.number(),
+  "y_norm": zod.number(),
+  "marker_type": zod.string(),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "style_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Add a normalized map marker
+ */
+export const CreateMapMarkerParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid()
+})
+
+export const createMapMarkerBodyTitleMax = 150;
+
+export const createMapMarkerBodyDescriptionOneMax = 2000;
+
+export const createMapMarkerBodyXNormMin = 0;
+export const createMapMarkerBodyXNormMax = 1;
+
+export const createMapMarkerBodyYNormMin = 0;
+export const createMapMarkerBodyYNormMax = 1;
+
+export const createMapMarkerBodyMarkerTypeDefault = `poi`;
+export const createMapMarkerBodyMarkerTypeMax = 64;
+
+
+
+export const CreateMapMarkerBody = zod.object({
+  "title": zod.string().min(1).max(createMapMarkerBodyTitleMax),
+  "description": zod.union([zod.string().max(createMapMarkerBodyDescriptionOneMax),zod.null()]).optional(),
+  "x_norm": zod.number().min(createMapMarkerBodyXNormMin).max(createMapMarkerBodyXNormMax),
+  "y_norm": zod.number().min(createMapMarkerBodyYNormMin).max(createMapMarkerBodyYNormMax),
+  "marker_type": zod.string().min(1).max(createMapMarkerBodyMarkerTypeMax).default(createMapMarkerBodyMarkerTypeDefault),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "style_json": zod.record(zod.string(), zod.unknown()).optional()
+})
+
+export const CreateMapMarkerResponse = zod.object({
+  "id": zod.string().uuid(),
+  "map_id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "x_norm": zod.number(),
+  "y_norm": zod.number(),
+  "marker_type": zod.string(),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "style_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update a map marker
+ */
+export const UpdateMapMarkerParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid(),
+  "marker_id": zod.coerce.string().uuid()
+})
+
+export const updateMapMarkerBodyTitleOneMax = 150;
+
+export const updateMapMarkerBodyDescriptionOneMax = 2000;
+
+export const updateMapMarkerBodyXNormOneMin = 0;
+export const updateMapMarkerBodyXNormOneMax = 1;
+
+export const updateMapMarkerBodyYNormOneMin = 0;
+export const updateMapMarkerBodyYNormOneMax = 1;
+
+export const updateMapMarkerBodyMarkerTypeOneMax = 64;
+
+
+
+
+export const UpdateMapMarkerBody = zod.object({
+  "title": zod.union([zod.string().min(1).max(updateMapMarkerBodyTitleOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateMapMarkerBodyDescriptionOneMax),zod.null()]).optional(),
+  "x_norm": zod.union([zod.number().min(updateMapMarkerBodyXNormOneMin).max(updateMapMarkerBodyXNormOneMax),zod.null()]).optional(),
+  "y_norm": zod.union([zod.number().min(updateMapMarkerBodyYNormOneMin).max(updateMapMarkerBodyYNormOneMax),zod.null()]).optional(),
+  "marker_type": zod.union([zod.string().min(1).max(updateMapMarkerBodyMarkerTypeOneMax),zod.null()]).optional(),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "style_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "expected_version": zod.number().int().min(1)
+})
+
+export const UpdateMapMarkerResponse = zod.object({
+  "id": zod.string().uuid(),
+  "map_id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "x_norm": zod.number(),
+  "y_norm": zod.number(),
+  "marker_type": zod.string(),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "style_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a map marker
+ */
+export const DeleteMapMarkerParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid(),
+  "marker_id": zod.coerce.string().uuid()
+})
+
+export const DeleteMapMarkerResponse = zod.void()
+
+
+/**
+ * @summary List map regions
+ */
+export const ListMapRegionsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid()
+})
+
+export const ListMapRegionsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "map_id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "geometry_json": zod.record(zod.string(), zod.unknown()),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "style_json": zod.record(zod.string(), zod.unknown()),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Add a normalized polygon overlay
+ */
+export const CreateMapRegionParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid()
+})
+
+export const createMapRegionBodyTitleMax = 150;
+
+export const createMapRegionBodyGeometryJsonTypeDefault = `polygon`;
+export const createMapRegionBodyGeometryJsonPointsItemXMin = 0;
+export const createMapRegionBodyGeometryJsonPointsItemXMax = 1;
+
+export const createMapRegionBodyGeometryJsonPointsItemYMin = 0;
+export const createMapRegionBodyGeometryJsonPointsItemYMax = 1;
+
+export const createMapRegionBodyGeometryJsonPointsMin = 3;
+export const createMapRegionBodyGeometryJsonPointsMax = 200;
+
+
+
+export const CreateMapRegionBody = zod.object({
+  "title": zod.string().min(1).max(createMapRegionBodyTitleMax),
+  "geometry_json": zod.object({
+  "type": zod.literal("polygon").default(createMapRegionBodyGeometryJsonTypeDefault),
+  "points": zod.array(zod.object({
+  "x": zod.number().min(createMapRegionBodyGeometryJsonPointsItemXMin).max(createMapRegionBodyGeometryJsonPointsItemXMax),
+  "y": zod.number().min(createMapRegionBodyGeometryJsonPointsItemYMin).max(createMapRegionBodyGeometryJsonPointsItemYMax)
+})).min(createMapRegionBodyGeometryJsonPointsMin).max(createMapRegionBodyGeometryJsonPointsMax)
+}),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "style_json": zod.record(zod.string(), zod.unknown()).optional()
+})
+
+export const CreateMapRegionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "map_id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "geometry_json": zod.record(zod.string(), zod.unknown()),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "style_json": zod.record(zod.string(), zod.unknown()),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update a normalized map region
+ */
+export const UpdateMapRegionParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid(),
+  "region_id": zod.coerce.string().uuid()
+})
+
+export const updateMapRegionBodyTitleOneMax = 150;
+
+export const updateMapRegionBodyGeometryJsonOneTypeDefault = `polygon`;
+export const updateMapRegionBodyGeometryJsonOnePointsItemXMin = 0;
+export const updateMapRegionBodyGeometryJsonOnePointsItemXMax = 1;
+
+export const updateMapRegionBodyGeometryJsonOnePointsItemYMin = 0;
+export const updateMapRegionBodyGeometryJsonOnePointsItemYMax = 1;
+
+export const updateMapRegionBodyGeometryJsonOnePointsMin = 3;
+export const updateMapRegionBodyGeometryJsonOnePointsMax = 200;
+
+
+
+
+export const UpdateMapRegionBody = zod.object({
+  "title": zod.union([zod.string().min(1).max(updateMapRegionBodyTitleOneMax),zod.null()]).optional(),
+  "geometry_json": zod.union([zod.object({
+  "type": zod.literal("polygon").default(updateMapRegionBodyGeometryJsonOneTypeDefault),
+  "points": zod.array(zod.object({
+  "x": zod.number().min(updateMapRegionBodyGeometryJsonOnePointsItemXMin).max(updateMapRegionBodyGeometryJsonOnePointsItemXMax),
+  "y": zod.number().min(updateMapRegionBodyGeometryJsonOnePointsItemYMin).max(updateMapRegionBodyGeometryJsonOnePointsItemYMax)
+})).min(updateMapRegionBodyGeometryJsonOnePointsMin).max(updateMapRegionBodyGeometryJsonOnePointsMax)
+}),zod.null()]).optional(),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "style_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "expected_version": zod.number().int().min(1)
+})
+
+export const UpdateMapRegionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "map_id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "title": zod.string(),
+  "geometry_json": zod.record(zod.string(), zod.unknown()),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "style_json": zod.record(zod.string(), zod.unknown()),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a map region
+ */
+export const DeleteMapRegionParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "map_id": zod.coerce.string().uuid(),
+  "region_id": zod.coerce.string().uuid()
+})
+
+export const DeleteMapRegionResponse = zod.void()
+
+
+/**
+ * @summary List custom calendars
+ */
+export const ListUniverseCalendarsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const listUniverseCalendarsQueryLimitDefault = 100;
+export const listUniverseCalendarsQueryLimitMax = 200;
+
+export const listUniverseCalendarsQueryOffsetDefault = 0;
+export const listUniverseCalendarsQueryOffsetMin = 0;
+
+
+
+export const ListUniverseCalendarsQueryParams = zod.object({
+  "limit": zod.coerce.number().int().min(1).max(listUniverseCalendarsQueryLimitMax).default(listUniverseCalendarsQueryLimitDefault),
+  "offset": zod.coerce.number().int().min(listUniverseCalendarsQueryOffsetMin).default(listUniverseCalendarsQueryOffsetDefault)
+})
+
+export const ListUniverseCalendarsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "name": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "config_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Create a custom calendar
+ */
+export const CreateUniverseCalendarParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const createUniverseCalendarBodyNameMax = 100;
+
+export const createUniverseCalendarBodyDescriptionOneMax = 1000;
+
+export const createUniverseCalendarBodyConfigJsonMonthsItemNameMax = 40;
+
+export const createUniverseCalendarBodyConfigJsonMonthsItemDaysMax = 1000;
+
+export const createUniverseCalendarBodyConfigJsonMonthsMax = 36;
+
+export const createUniverseCalendarBodyConfigJsonWeekdaysMax = 32;
+
+export const createUniverseCalendarBodyConfigJsonEpochOffsetDefault = 0;
+export const createUniverseCalendarBodyConfigJsonEpochOffsetMin = -1000000000;
+export const createUniverseCalendarBodyConfigJsonEpochOffsetMax = 1000000000;
+
+export const createUniverseCalendarBodyConfigJsonLeapRulesItemEveryYearsMax = 1000000;
+
+export const createUniverseCalendarBodyConfigJsonLeapRulesItemYearOffsetDefault = 0;
+export const createUniverseCalendarBodyConfigJsonLeapRulesItemYearOffsetMin = -1000000;
+export const createUniverseCalendarBodyConfigJsonLeapRulesItemYearOffsetMax = 1000000;
+
+export const createUniverseCalendarBodyConfigJsonLeapRulesItemMonthMax = 36;
+
+export const createUniverseCalendarBodyConfigJsonLeapRulesItemExtraDaysDefault = 1;
+export const createUniverseCalendarBodyConfigJsonLeapRulesItemExtraDaysMax = 1000;
+
+export const createUniverseCalendarBodyConfigJsonLeapRulesMax = 36;
+
+
+
+export const CreateUniverseCalendarBody = zod.object({
+  "name": zod.string().min(1).max(createUniverseCalendarBodyNameMax),
+  "description": zod.union([zod.string().max(createUniverseCalendarBodyDescriptionOneMax),zod.null()]).optional(),
+  "config_json": zod.object({
+  "months": zod.array(zod.object({
+  "name": zod.string().min(1).max(createUniverseCalendarBodyConfigJsonMonthsItemNameMax),
+  "days": zod.number().int().min(1).max(createUniverseCalendarBodyConfigJsonMonthsItemDaysMax)
+})).min(1).max(createUniverseCalendarBodyConfigJsonMonthsMax),
+  "weekdays": zod.array(zod.string()).max(createUniverseCalendarBodyConfigJsonWeekdaysMax).optional(),
+  "epoch_offset": zod.number().int().min(createUniverseCalendarBodyConfigJsonEpochOffsetMin).max(createUniverseCalendarBodyConfigJsonEpochOffsetMax).default(createUniverseCalendarBodyConfigJsonEpochOffsetDefault),
+  "leap_rules": zod.array(zod.object({
+  "every_years": zod.number().int().min(1).max(createUniverseCalendarBodyConfigJsonLeapRulesItemEveryYearsMax),
+  "year_offset": zod.number().int().min(createUniverseCalendarBodyConfigJsonLeapRulesItemYearOffsetMin).max(createUniverseCalendarBodyConfigJsonLeapRulesItemYearOffsetMax).default(createUniverseCalendarBodyConfigJsonLeapRulesItemYearOffsetDefault),
+  "month": zod.number().int().min(1).max(createUniverseCalendarBodyConfigJsonLeapRulesItemMonthMax),
+  "extra_days": zod.number().int().min(1).max(createUniverseCalendarBodyConfigJsonLeapRulesItemExtraDaysMax).default(createUniverseCalendarBodyConfigJsonLeapRulesItemExtraDaysDefault)
+})).max(createUniverseCalendarBodyConfigJsonLeapRulesMax).optional()
+})
+})
+
+export const CreateUniverseCalendarResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "name": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "config_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get a custom calendar
+ */
+export const GetUniverseCalendarParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "calendar_id": zod.coerce.string().uuid()
+})
+
+export const GetUniverseCalendarResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "name": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "config_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update a calendar
+ */
+export const UpdateUniverseCalendarParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "calendar_id": zod.coerce.string().uuid()
+})
+
+export const updateUniverseCalendarBodyNameOneMax = 100;
+
+export const updateUniverseCalendarBodyDescriptionOneMax = 1000;
+
+export const updateUniverseCalendarBodyConfigJsonOneMonthsItemNameMax = 40;
+
+export const updateUniverseCalendarBodyConfigJsonOneMonthsItemDaysMax = 1000;
+
+export const updateUniverseCalendarBodyConfigJsonOneMonthsMax = 36;
+
+export const updateUniverseCalendarBodyConfigJsonOneWeekdaysMax = 32;
+
+export const updateUniverseCalendarBodyConfigJsonOneEpochOffsetDefault = 0;
+export const updateUniverseCalendarBodyConfigJsonOneEpochOffsetMin = -1000000000;
+export const updateUniverseCalendarBodyConfigJsonOneEpochOffsetMax = 1000000000;
+
+export const updateUniverseCalendarBodyConfigJsonOneLeapRulesItemEveryYearsMax = 1000000;
+
+export const updateUniverseCalendarBodyConfigJsonOneLeapRulesItemYearOffsetDefault = 0;
+export const updateUniverseCalendarBodyConfigJsonOneLeapRulesItemYearOffsetMin = -1000000;
+export const updateUniverseCalendarBodyConfigJsonOneLeapRulesItemYearOffsetMax = 1000000;
+
+export const updateUniverseCalendarBodyConfigJsonOneLeapRulesItemMonthMax = 36;
+
+export const updateUniverseCalendarBodyConfigJsonOneLeapRulesItemExtraDaysDefault = 1;
+export const updateUniverseCalendarBodyConfigJsonOneLeapRulesItemExtraDaysMax = 1000;
+
+export const updateUniverseCalendarBodyConfigJsonOneLeapRulesMax = 36;
+
+
+
+
+export const UpdateUniverseCalendarBody = zod.object({
+  "name": zod.union([zod.string().min(1).max(updateUniverseCalendarBodyNameOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateUniverseCalendarBodyDescriptionOneMax),zod.null()]).optional(),
+  "config_json": zod.union([zod.object({
+  "months": zod.array(zod.object({
+  "name": zod.string().min(1).max(updateUniverseCalendarBodyConfigJsonOneMonthsItemNameMax),
+  "days": zod.number().int().min(1).max(updateUniverseCalendarBodyConfigJsonOneMonthsItemDaysMax)
+})).min(1).max(updateUniverseCalendarBodyConfigJsonOneMonthsMax),
+  "weekdays": zod.array(zod.string()).max(updateUniverseCalendarBodyConfigJsonOneWeekdaysMax).optional(),
+  "epoch_offset": zod.number().int().min(updateUniverseCalendarBodyConfigJsonOneEpochOffsetMin).max(updateUniverseCalendarBodyConfigJsonOneEpochOffsetMax).default(updateUniverseCalendarBodyConfigJsonOneEpochOffsetDefault),
+  "leap_rules": zod.array(zod.object({
+  "every_years": zod.number().int().min(1).max(updateUniverseCalendarBodyConfigJsonOneLeapRulesItemEveryYearsMax),
+  "year_offset": zod.number().int().min(updateUniverseCalendarBodyConfigJsonOneLeapRulesItemYearOffsetMin).max(updateUniverseCalendarBodyConfigJsonOneLeapRulesItemYearOffsetMax).default(updateUniverseCalendarBodyConfigJsonOneLeapRulesItemYearOffsetDefault),
+  "month": zod.number().int().min(1).max(updateUniverseCalendarBodyConfigJsonOneLeapRulesItemMonthMax),
+  "extra_days": zod.number().int().min(1).max(updateUniverseCalendarBodyConfigJsonOneLeapRulesItemExtraDaysMax).default(updateUniverseCalendarBodyConfigJsonOneLeapRulesItemExtraDaysDefault)
+})).max(updateUniverseCalendarBodyConfigJsonOneLeapRulesMax).optional()
+}),zod.null()]).optional(),
+  "expected_version": zod.number().int().min(1)
+})
+
+export const UpdateUniverseCalendarResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "name": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "config_json": zod.record(zod.string(), zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary List calendar eras
+ */
+export const ListCalendarErasParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "calendar_id": zod.coerce.string().uuid()
+})
+
+export const ListCalendarErasResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "calendar_id": zod.string().uuid(),
+  "name": zod.string(),
+  "start_day_index": zod.number().int(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "version": zod.number().int()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Create a calendar era
+ */
+export const CreateCalendarEraParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "calendar_id": zod.coerce.string().uuid()
+})
+
+export const createCalendarEraBodyNameMax = 100;
+
+export const createCalendarEraBodyStartDayIndexMin = -1000000000;
+export const createCalendarEraBodyStartDayIndexMax = 1000000000;
+
+export const createCalendarEraBodyDescriptionOneMax = 1000;
+
+
+
+export const CreateCalendarEraBody = zod.object({
+  "name": zod.string().min(1).max(createCalendarEraBodyNameMax),
+  "start_day_index": zod.number().int().min(createCalendarEraBodyStartDayIndexMin).max(createCalendarEraBodyStartDayIndexMax),
+  "description": zod.union([zod.string().max(createCalendarEraBodyDescriptionOneMax),zod.null()]).optional()
+})
+
+export const CreateCalendarEraResponse = zod.object({
+  "id": zod.string().uuid(),
+  "calendar_id": zod.string().uuid(),
+  "name": zod.string(),
+  "start_day_index": zod.number().int(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "version": zod.number().int()
+})
+
+
+/**
+ * @summary Update a calendar era
+ */
+export const UpdateCalendarEraParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "calendar_id": zod.coerce.string().uuid(),
+  "era_id": zod.coerce.string().uuid()
+})
+
+export const updateCalendarEraBodyNameOneMax = 100;
+
+export const updateCalendarEraBodyStartDayIndexOneMin = -1000000000;
+export const updateCalendarEraBodyStartDayIndexOneMax = 1000000000;
+
+export const updateCalendarEraBodyDescriptionOneMax = 1000;
+
+
+
+
+export const UpdateCalendarEraBody = zod.object({
+  "name": zod.union([zod.string().min(1).max(updateCalendarEraBodyNameOneMax),zod.null()]).optional(),
+  "start_day_index": zod.union([zod.number().int().min(updateCalendarEraBodyStartDayIndexOneMin).max(updateCalendarEraBodyStartDayIndexOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateCalendarEraBodyDescriptionOneMax),zod.null()]).optional(),
+  "expected_version": zod.number().int().min(1)
+})
+
+export const UpdateCalendarEraResponse = zod.object({
+  "id": zod.string().uuid(),
+  "calendar_id": zod.string().uuid(),
+  "name": zod.string(),
+  "start_day_index": zod.number().int(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "version": zod.number().int()
+})
+
+
+/**
+ * @summary Delete a calendar era
+ */
+export const DeleteCalendarEraParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "calendar_id": zod.coerce.string().uuid(),
+  "era_id": zod.coerce.string().uuid()
+})
+
+export const DeleteCalendarEraResponse = zod.void()
+
+
+/**
+ * @summary Search authorized universe content
+ */
+export const SearchUniverseParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const searchUniverseQueryQMin = 2;
+export const searchUniverseQueryQMax = 200;
+
+export const searchUniverseQueryLimitDefault = 30;
+export const searchUniverseQueryLimitMax = 100;
+
+export const searchUniverseQueryOffsetDefault = 0;
+export const searchUniverseQueryOffsetMin = 0;
+
+
+
+export const SearchUniverseQueryParams = zod.object({
+  "q": zod.coerce.string().min(searchUniverseQueryQMin).max(searchUniverseQueryQMax),
+  "types": zod.array(zod.enum(['entity', 'document', 'timeline_event'])).optional(),
+  "limit": zod.coerce.number().int().min(1).max(searchUniverseQueryLimitMax).default(searchUniverseQueryLimitDefault),
+  "offset": zod.coerce.number().int().min(searchUniverseQueryOffsetMin).default(searchUniverseQueryOffsetDefault)
+})
+
+export const searchUniverseResponseItemsItemHighlightStartMin = 0;
+
+export const searchUniverseResponseItemsItemHighlightEndMin = 0;
+
+
+
+export const SearchUniverseResponse = zod.object({
+  "query": zod.string(),
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "kind": zod.enum(['entity', 'document', 'timeline_event']),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "snippet": zod.string(),
+  "highlight_start": zod.number().int().min(searchUniverseResponseItemsItemHighlightStartMin),
+  "highlight_end": zod.number().int().min(searchUniverseResponseItemsItemHighlightEndMin),
+  "href": zod.string(),
+  "updated_at": zod.coerce.date()
+})),
+  "total": zod.number().int(),
+  "limit": zod.number().int(),
+  "offset": zod.number().int()
+})
+
+
+/**
+ * @summary List events in day-index order
+ */
+export const ListTimelineEventsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const listTimelineEventsQueryQMax = 200;
+
+export const listTimelineEventsQueryLimitDefault = 100;
+export const listTimelineEventsQueryLimitMax = 500;
+
+export const listTimelineEventsQueryOffsetDefault = 0;
+export const listTimelineEventsQueryOffsetMin = 0;
+
+
+
+export const ListTimelineEventsQueryParams = zod.object({
+  "calendar_id": zod.coerce.string().uuid().optional(),
+  "q": zod.coerce.string().max(listTimelineEventsQueryQMax).optional(),
+  "limit": zod.coerce.number().int().min(1).max(listTimelineEventsQueryLimitMax).default(listTimelineEventsQueryLimitDefault),
+  "offset": zod.coerce.number().int().min(listTimelineEventsQueryOffsetMin).default(listTimelineEventsQueryOffsetDefault)
+})
+
+export const ListTimelineEventsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "calendar_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "start_date_json": zod.record(zod.string(), zod.unknown()),
+  "end_date_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]),
+  "start_day_index": zod.number().int(),
+  "end_day_index": zod.union([zod.number().int(),zod.null()]),
+  "date_precision": zod.string(),
+  "uncertainty_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "linked_document_id": zod.union([zod.string().uuid(),zod.null()]),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
+ * @summary Create a date-aware timeline event
+ */
+export const CreateTimelineEventParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const createTimelineEventBodyTitleMax = 200;
+
+export const createTimelineEventBodyDescriptionOneMax = 5000;
+
+export const createTimelineEventBodyStartDateJsonYearMin = -1000000;
+export const createTimelineEventBodyStartDateJsonYearMax = 1000000;
+
+export const createTimelineEventBodyStartDateJsonMonthOneMax = 36;
+
+export const createTimelineEventBodyStartDateJsonDayOneMax = 1000;
+
+export const createTimelineEventBodyEndDateJsonOneYearMin = -1000000;
+export const createTimelineEventBodyEndDateJsonOneYearMax = 1000000;
+
+export const createTimelineEventBodyEndDateJsonOneMonthOneMax = 36;
+
+export const createTimelineEventBodyEndDateJsonOneDayOneMax = 1000;
+
+export const createTimelineEventBodyDatePrecisionDefault = `day`;
+
+export const CreateTimelineEventBody = zod.object({
+  "calendar_id": zod.string().uuid(),
+  "title": zod.string().min(1).max(createTimelineEventBodyTitleMax),
+  "description": zod.union([zod.string().max(createTimelineEventBodyDescriptionOneMax),zod.null()]).optional(),
+  "start_date_json": zod.object({
+  "year": zod.number().int().min(createTimelineEventBodyStartDateJsonYearMin).max(createTimelineEventBodyStartDateJsonYearMax),
+  "month": zod.union([zod.number().int().min(1).max(createTimelineEventBodyStartDateJsonMonthOneMax),zod.null()]).optional(),
+  "day": zod.union([zod.number().int().min(1).max(createTimelineEventBodyStartDateJsonDayOneMax),zod.null()]).optional()
+}),
+  "end_date_json": zod.union([zod.object({
+  "year": zod.number().int().min(createTimelineEventBodyEndDateJsonOneYearMin).max(createTimelineEventBodyEndDateJsonOneYearMax),
+  "month": zod.union([zod.number().int().min(1).max(createTimelineEventBodyEndDateJsonOneMonthOneMax),zod.null()]).optional(),
+  "day": zod.union([zod.number().int().min(1).max(createTimelineEventBodyEndDateJsonOneDayOneMax),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "date_precision": zod.enum(['day', 'month', 'year', 'range', 'approximate']).default(createTimelineEventBodyDatePrecisionDefault),
+  "uncertainty_json": zod.union([zod.record(zod.string(), zod.number().int()),zod.null()]).optional(),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "linked_document_id": zod.union([zod.string().uuid(),zod.null()]).optional()
+})
+
+export const CreateTimelineEventResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "calendar_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "start_date_json": zod.record(zod.string(), zod.unknown()),
+  "end_date_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]),
+  "start_day_index": zod.number().int(),
+  "end_day_index": zod.union([zod.number().int(),zod.null()]),
+  "date_precision": zod.string(),
+  "uncertainty_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "linked_document_id": zod.union([zod.string().uuid(),zod.null()]),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get a timeline event
+ */
+export const GetTimelineEventParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "event_id": zod.coerce.string().uuid()
+})
+
+export const GetTimelineEventResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "calendar_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "start_date_json": zod.record(zod.string(), zod.unknown()),
+  "end_date_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]),
+  "start_day_index": zod.number().int(),
+  "end_day_index": zod.union([zod.number().int(),zod.null()]),
+  "date_precision": zod.string(),
+  "uncertainty_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "linked_document_id": zod.union([zod.string().uuid(),zod.null()]),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update a timeline event
+ */
+export const UpdateTimelineEventParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "event_id": zod.coerce.string().uuid()
+})
+
+export const updateTimelineEventBodyTitleOneMax = 200;
+
+export const updateTimelineEventBodyDescriptionOneMax = 5000;
+
+export const updateTimelineEventBodyStartDateJsonOneYearMin = -1000000;
+export const updateTimelineEventBodyStartDateJsonOneYearMax = 1000000;
+
+export const updateTimelineEventBodyStartDateJsonOneMonthOneMax = 36;
+
+export const updateTimelineEventBodyStartDateJsonOneDayOneMax = 1000;
+
+export const updateTimelineEventBodyEndDateJsonOneYearMin = -1000000;
+export const updateTimelineEventBodyEndDateJsonOneYearMax = 1000000;
+
+export const updateTimelineEventBodyEndDateJsonOneMonthOneMax = 36;
+
+export const updateTimelineEventBodyEndDateJsonOneDayOneMax = 1000;
+
+
+
+
+export const UpdateTimelineEventBody = zod.object({
+  "title": zod.union([zod.string().min(1).max(updateTimelineEventBodyTitleOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateTimelineEventBodyDescriptionOneMax),zod.null()]).optional(),
+  "start_date_json": zod.union([zod.object({
+  "year": zod.number().int().min(updateTimelineEventBodyStartDateJsonOneYearMin).max(updateTimelineEventBodyStartDateJsonOneYearMax),
+  "month": zod.union([zod.number().int().min(1).max(updateTimelineEventBodyStartDateJsonOneMonthOneMax),zod.null()]).optional(),
+  "day": zod.union([zod.number().int().min(1).max(updateTimelineEventBodyStartDateJsonOneDayOneMax),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "end_date_json": zod.union([zod.object({
+  "year": zod.number().int().min(updateTimelineEventBodyEndDateJsonOneYearMin).max(updateTimelineEventBodyEndDateJsonOneYearMax),
+  "month": zod.union([zod.number().int().min(1).max(updateTimelineEventBodyEndDateJsonOneMonthOneMax),zod.null()]).optional(),
+  "day": zod.union([zod.number().int().min(1).max(updateTimelineEventBodyEndDateJsonOneDayOneMax),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "date_precision": zod.union([zod.enum(['day', 'month', 'year', 'range', 'approximate']),zod.null()]).optional(),
+  "uncertainty_json": zod.union([zod.record(zod.string(), zod.number().int()),zod.null()]).optional(),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "linked_document_id": zod.union([zod.string().uuid(),zod.null()]).optional(),
+  "expected_version": zod.number().int().min(1)
+})
+
+export const UpdateTimelineEventResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "calendar_id": zod.string().uuid(),
+  "title": zod.string(),
+  "description": zod.union([zod.string(),zod.null()]),
+  "start_date_json": zod.record(zod.string(), zod.unknown()),
+  "end_date_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]),
+  "start_day_index": zod.number().int(),
+  "end_day_index": zod.union([zod.number().int(),zod.null()]),
+  "date_precision": zod.string(),
+  "uncertainty_json": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]),
+  "linked_entity_id": zod.union([zod.string().uuid(),zod.null()]),
+  "linked_document_id": zod.union([zod.string().uuid(),zod.null()]),
+  "created_by": zod.string().uuid(),
+  "version": zod.number().int(),
+  "created_at": zod.coerce.date(),
+  "updated_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a timeline event
+ */
+export const DeleteTimelineEventParams = zod.object({
+  "universe_id": zod.coerce.string().uuid(),
+  "event_id": zod.coerce.string().uuid()
+})
+
+export const DeleteTimelineEventResponse = zod.void()
+
+

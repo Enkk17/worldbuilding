@@ -21,6 +21,7 @@ import {
   useCreateEntityRelation,
   useDeleteEntityRelation,
   useGetNexusGraph,
+  useSearchUniverse,
   type MemberResponse,
   type EntityResponse,
   type EntityTypeResponse,
@@ -30,12 +31,14 @@ import {
   ArrowLeft,
   BookOpen,
   Check,
+  Clock3,
   Copy,
   Crown,
   Filter,
   Globe,
   Layers,
   Lock,
+  MapPin,
   Network,
   Plus,
   RefreshCw,
@@ -53,6 +56,7 @@ import {
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { UniverseChronicle } from '@/pages/UniverseChronicle';
+import AtlasChronos from '@/pages/AtlasChronos';
 
 export default function UniverseDetail() {
   const [, params] = useRoute('/universes/:id');
@@ -60,7 +64,10 @@ export default function UniverseDetail() {
   const queryClient = useQueryClient();
   const universeId = params?.id || '';
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'codex' | 'chronicle' | 'nexus' | 'society' | 'audit' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'codex' | 'chronicle' | 'nexus' | 'atlas' | 'chronos' | 'society' | 'audit' | 'settings'>('overview');
+  const [globalSearchQuery, setGlobalSearchQuery] = useState('');
+  const [globalSearchPage, setGlobalSearchPage] = useState(0);
+  const [openDocumentId, setOpenDocumentId] = useState<string | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Queries
@@ -68,6 +75,25 @@ export default function UniverseDetail() {
   const { data: members, refetch: refetchMembers } = useListUniverseMembers(universeId);
   const { data: auditLogs, refetch: refetchAudit } = useListAuditLogs(universeId);
   const { data: activity, refetch: refetchActivity } = useListActivity(universeId);
+  const searchResults = useSearchUniverse(
+    universeId,
+    { q: globalSearchQuery.trim(), limit: 8, offset: globalSearchPage * 8 },
+    { query: { enabled: globalSearchQuery.trim().length >= 2 } },
+  );
+  const [pageSearchVisible, setPageSearchVisible] = useState(false);
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setPageSearchVisible(true);
+        window.setTimeout(() => document.getElementById('universe-global-search')?.focus(), 0);
+      }
+      if (event.key === 'Escape') setPageSearchVisible(false);
+    };
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
+  }, []);
 
   // Codex & Nexus Queries
   const { data: entityTypes } = useListEntityTypes(universeId);
@@ -380,6 +406,30 @@ export default function UniverseDetail() {
           </div>
         </div>
 
+        <section className="relative mt-5" data-testid="universe-search">
+          <div className="flex items-center gap-2">
+            <Search size={15} className="text-[#9b4a36]" />
+            <label className="sr-only" htmlFor="universe-global-search">Search this universe</label>
+            <input id="universe-global-search" className="w-full max-w-lg rounded border border-[#d5cebf] bg-[#faf7ef] px-3 py-2 text-xs text-[#253a32] focus:border-[#9b4a36] focus:outline-none" placeholder="Search Codex, Chronicle and Chronos… (Ctrl/⌘ K)" value={globalSearchQuery} onFocus={() => setPageSearchVisible(true)} onChange={(event) => { setGlobalSearchQuery(event.target.value); setGlobalSearchPage(0); setPageSearchVisible(true); }} data-testid="input-universe-global-search" />
+            <kbd className="hidden rounded border border-[#d9d1c2] px-1.5 py-1 text-[10px] text-[#788078] sm:inline">Ctrl / ⌘ K</kbd>
+          </div>
+          {pageSearchVisible && globalSearchQuery.trim().length >= 2 && (
+            <div className="absolute z-30 mt-2 w-full max-w-2xl border border-[#d9d1c2] bg-[#fffdf7] p-3 shadow-xl" role="region" aria-label="Search results" data-testid="universe-search-results">
+              {searchResults.isLoading ? <p className="p-3 text-xs text-[#788078]">Searching this universe…</p> : <>
+                <p className="px-2 pb-2 text-[10px] text-[#788078]" aria-live="polite">{searchResults.data?.total ?? 0} authorized results</p>
+                <ul className="max-h-[55vh] divide-y divide-[#e2dccf] overflow-y-auto">
+                  {(searchResults.data?.items ?? []).map((result) => <li key={`${result.kind}:${result.id}`}><button type="button" className="w-full px-2 py-3 text-left hover:bg-[#f3eee2] focus:bg-[#f3eee2] focus:outline-none" onClick={() => { setPageSearchVisible(false); if (result.kind === 'entity') { setActiveTab('codex'); setSelectedEntityId(result.id); } else if (result.kind === 'document') { setOpenDocumentId(result.id); setActiveTab('chronicle'); } else setActiveTab('chronos'); }}>
+                    <span className="ww-kicker text-[9px] text-[#9b4a36]">{result.kind.replace('_', ' ')}</span><span className="ml-2 text-xs font-semibold text-[#34473d]">{result.title}</span>
+                    <span className="mt-1 block text-[11px] text-[#657168]">{result.snippet.slice(0, result.highlight_start)}<mark className="bg-[#f1dca8] text-[#34473d]">{result.snippet.slice(result.highlight_start, result.highlight_end)}</mark>{result.snippet.slice(result.highlight_end)}</span>
+                  </button></li>)}
+                  {searchResults.data?.items.length === 0 && <li className="p-3 text-xs text-[#788078]">No matching content found.</li>}
+                </ul>
+                {(searchResults.data?.total ?? 0) > 8 && <div className="mt-3 flex items-center justify-between border-t border-[#e2dccf] pt-3"><button type="button" className="border border-[#c9c1b2] px-2 py-1 text-xs disabled:opacity-40" disabled={globalSearchPage === 0} onClick={() => setGlobalSearchPage((page) => Math.max(0, page - 1))}>Previous</button><span className="text-[10px] text-[#788078]">Page {globalSearchPage + 1} of {Math.ceil((searchResults.data?.total ?? 0) / 8)}</span><button type="button" className="border border-[#c9c1b2] px-2 py-1 text-xs disabled:opacity-40" disabled={(globalSearchPage + 1) * 8 >= (searchResults.data?.total ?? 0)} onClick={() => setGlobalSearchPage((page) => page + 1)}>Next</button></div>}
+              </>}
+            </div>
+          )}
+        </section>
+
         {/* Tab Navigation */}
         <div className="mt-8 flex flex-wrap gap-5 border-b border-[#e2dccf] text-sm">
           {[
@@ -387,6 +437,8 @@ export default function UniverseDetail() {
             { id: 'codex', label: 'Codex (Entities)', icon: BookOpen },
             { id: 'chronicle', label: 'Chronicle', icon: ScrollText },
             { id: 'nexus', label: 'Nexus (Graph)', icon: Network },
+            { id: 'atlas', label: 'Atlas', icon: MapPin },
+            { id: 'chronos', label: 'Chronos', icon: Clock3 },
             { id: 'society', label: 'Society & Members', icon: Users },
             { id: 'audit', label: 'Audit Trail', icon: Shield },
             { id: 'settings', label: 'Settings', icon: Lock },
@@ -472,7 +524,7 @@ export default function UniverseDetail() {
                 <div className="border border-[#ded7ca] bg-white/60 p-4">
                   <h3 className="font-serif text-lg text-[#253a32]">Atlas & Chronos</h3>
                   <p className="mt-1 text-xs text-[#6e786f]">Normalized maps, POIs & fictional calendars.</p>
-                  <span className="mt-3 inline-block rounded bg-[#e8e1d4] px-2 py-0.5 text-[10px] font-semibold text-[#53655b]">M6</span>
+                  <span className="mt-3 inline-block rounded bg-[#64856b]/20 px-2 py-0.5 text-[10px] font-semibold text-[#294238]">Active · M6</span>
                 </div>
               </div>
             </div>
@@ -880,13 +932,17 @@ export default function UniverseDetail() {
         {/* TAB: CHRONICLE (DOCUMENTS) */}
         {activeTab === 'chronicle' && (
           <UniverseChronicle
+            key={openDocumentId ?? 'chronicle-root'}
             universeId={universeId}
             role={universe.role as 'owner' | 'admin' | 'editor' | 'contributor' | 'viewer'}
             readOnly={universe.status === 'archived'}
+            initialDocumentId={openDocumentId ?? undefined}
           />
         )}
 
         {/* TAB 3: NEXUS (KNOWLEDGE GRAPH) */}
+        {activeTab === 'atlas' && <AtlasChronos universeId={universeId} canEdit={canEdit} initialView="atlas" />}
+        {activeTab === 'chronos' && <AtlasChronos universeId={universeId} canEdit={canEdit} initialView="chronos" />}
         {activeTab === 'nexus' && (
           <div className="space-y-4">
             {/* Graph Controls */}

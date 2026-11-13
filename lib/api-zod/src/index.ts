@@ -7,4 +7,9 @@ export type {
   ListDocumentsParams,
   ListEntitiesParams,
   ListEntityDocumentsParams,
+  SearchUniverseParams,
+  ListTimelineEventsParams,
+  ListUniverseCalendarsParams,
+  ListUniverseMapsParams,
+  UploadUniverseAssetBody,
 } from "./generated/api";

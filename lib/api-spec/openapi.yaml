@@ -24,6 +24,8 @@ tags:
     description: Image maps, normalized markers, and polygon overlays
   - name: chronos
     description: Custom calendar systems, eras, and timeline events
+  - name: search
+    description: Permission-filtered full-text search
 paths:
   /healthz:
     get:
@@ -1770,6 +1772,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MapRegionResponse"
+  /v1/universes/{universe_id}/maps/{map_id}/regions/{region_id}:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+      - $ref: "#/components/parameters/MapId"
+      - $ref: "#/components/parameters/RegionId"
+    patch:
+      operationId: updateMapRegion
+      tags: [atlas]
+      summary: Update a normalized map region
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MapRegionUpdate"
+      responses:
+        "200":
+          description: Region updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapRegionResponse"
+        "409":
+          description: Region was changed by another user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteMapRegion
+      tags: [atlas]
+      summary: Delete a map region
+      security:
+        - sessionCookie: []
+      responses:
+        "204":
+          description: Region deleted.
   /v1/universes/{universe_id}/calendars:
     parameters:
       - $ref: "#/components/parameters/UniverseId"
@@ -1923,6 +1964,61 @@ paths:
       responses:
         "204":
           description: Era deleted.
+  /v1/universes/{universe_id}/search:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+    get:
+      operationId: searchUniverse
+      tags: [search]
+      summary: Search authorized universe content
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 2, maxLength: 200 }
+        - name: types
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [entity, document, timeline_event]
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 30 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Permission-filtered full-text search results.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+        "403":
+          description: Search is not permitted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Universe not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: Invalid search query or types.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
   /v1/universes/{universe_id}/timeline-events:
     parameters:
       - $ref: "#/components/parameters/UniverseId"
@@ -2051,7 +2147,1183 @@ components:
       schema:
         type: string
         format: uuid
+    AssetId:
+      name: asset_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    MapId:
+      name: map_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    MarkerId:
+      name: marker_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RegionId:
+      name: region_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CalendarId:
+      name: calendar_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    EraId:
+      name: era_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
+    AssetResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        universe_id:
+          type: string
+          format: uuid
+          title: Universe Id
+        original_filename:
+          type: string
+          title: Original Filename
+        mime_type:
+          type: string
+          title: Mime Type
+        byte_size:
+          type: integer
+          title: Byte Size
+        checksum_sha256:
+          type: string
+          title: Checksum Sha256
+        width:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Width
+        height:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Height
+        uploaded_by:
+          type: string
+          format: uuid
+          title: Uploaded By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        download_path:
+          type: string
+          title: Download Path
+      type: object
+      required:
+      - id
+      - universe_id
+      - original_filename
+      - mime_type
+      - byte_size
+      - checksum_sha256
+      - width
+      - height
+      - uploaded_by
+      - created_at
+      - download_path
+      title: AssetResponse
+    MapPoint:
+      properties:
+        x:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: X
+        y:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Y
+      type: object
+      required:
+      - x
+      - y
+      title: MapPoint
+    MapCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 150
+          minLength: 1
+          title: Title
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Description
+        image_asset_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Image Asset Id
+        width:
+          type: integer
+          maximum: 100000.0
+          minimum: 1.0
+          title: Width
+          default: 1920
+        height:
+          type: integer
+          maximum: 100000.0
+          minimum: 1.0
+          title: Height
+          default: 1080
+      type: object
+      required:
+      - title
+      title: MapCreate
+    MapUpdate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+            maxLength: 150
+            minLength: 1
+          - type: 'null'
+          title: Title
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Description
+        image_asset_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Image Asset Id
+        width:
+          anyOf:
+          - type: integer
+            maximum: 100000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Width
+        height:
+          anyOf:
+          - type: integer
+            maximum: 100000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Height
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+      type: object
+      required:
+      - expected_version
+      title: MapUpdate
+    MapResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        universe_id:
+          type: string
+          format: uuid
+          title: Universe Id
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        image_asset_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Image Asset Id
+        coordinate_system:
+          type: string
+          title: Coordinate System
+        width:
+          type: integer
+          title: Width
+        height:
+          type: integer
+          title: Height
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        version:
+          type: integer
+          title: Version
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - universe_id
+      - title
+      - description
+      - image_asset_id
+      - coordinate_system
+      - width
+      - height
+      - created_by
+      - version
+      - created_at
+      - updated_at
+      title: MapResponse
+    MapListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/MapResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: MapListResponse
+    MapMarkerCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 150
+          minLength: 1
+          title: Title
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Description
+        x_norm:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: X Norm
+        y_norm:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Y Norm
+        marker_type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Marker Type
+          default: poi
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        style_json:
+          additionalProperties: true
+          type: object
+          title: Style Json
+      type: object
+      required:
+      - title
+      - x_norm
+      - y_norm
+      title: MapMarkerCreate
+    MapMarkerUpdate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+            maxLength: 150
+            minLength: 1
+          - type: 'null'
+          title: Title
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Description
+        x_norm:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: X Norm
+        y_norm:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Y Norm
+        marker_type:
+          anyOf:
+          - type: string
+            maxLength: 64
+            minLength: 1
+          - type: 'null'
+          title: Marker Type
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        style_json:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Style Json
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+      type: object
+      required:
+      - expected_version
+      title: MapMarkerUpdate
+    MapMarkerResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        map_id:
+          type: string
+          format: uuid
+          title: Map Id
+        universe_id:
+          type: string
+          format: uuid
+          title: Universe Id
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        x_norm:
+          type: number
+          title: X Norm
+        y_norm:
+          type: number
+          title: Y Norm
+        marker_type:
+          type: string
+          title: Marker Type
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        style_json:
+          additionalProperties: true
+          type: object
+          title: Style Json
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        version:
+          type: integer
+          title: Version
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - map_id
+      - universe_id
+      - title
+      - description
+      - x_norm
+      - y_norm
+      - marker_type
+      - linked_entity_id
+      - style_json
+      - created_by
+      - version
+      - created_at
+      - updated_at
+      title: MapMarkerResponse
+    MapMarkerListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/MapMarkerResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: MapMarkerListResponse
+    PolygonGeometry:
+      properties:
+        type:
+          type: string
+          const: polygon
+          title: Type
+          default: polygon
+        points:
+          items:
+            $ref: '#/components/schemas/MapPoint'
+          type: array
+          maxItems: 200
+          minItems: 3
+          title: Points
+      type: object
+      required:
+      - points
+      title: PolygonGeometry
+    MapRegionCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 150
+          minLength: 1
+          title: Title
+        geometry_json:
+          $ref: '#/components/schemas/PolygonGeometry'
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        style_json:
+          additionalProperties: true
+          type: object
+          title: Style Json
+      type: object
+      required:
+      - title
+      - geometry_json
+      title: MapRegionCreate
+    MapRegionUpdate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+            maxLength: 150
+            minLength: 1
+          - type: 'null'
+          title: Title
+        geometry_json:
+          anyOf:
+          - $ref: '#/components/schemas/PolygonGeometry'
+          - type: 'null'
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        style_json:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Style Json
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+      type: object
+      required:
+      - expected_version
+      title: MapRegionUpdate
+    MapRegionResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        map_id:
+          type: string
+          format: uuid
+          title: Map Id
+        universe_id:
+          type: string
+          format: uuid
+          title: Universe Id
+        title:
+          type: string
+          title: Title
+        geometry_json:
+          additionalProperties: true
+          type: object
+          title: Geometry Json
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        style_json:
+          additionalProperties: true
+          type: object
+          title: Style Json
+        version:
+          type: integer
+          title: Version
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - map_id
+      - universe_id
+      - title
+      - geometry_json
+      - linked_entity_id
+      - style_json
+      - version
+      - created_at
+      title: MapRegionResponse
+    MapRegionListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/MapRegionResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: MapRegionListResponse
+    CalendarMonth:
+      properties:
+        name:
+          type: string
+          maxLength: 40
+          minLength: 1
+          title: Name
+        days:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Days
+      type: object
+      required:
+      - name
+      - days
+      title: CalendarMonth
+    LeapRule:
+      properties:
+        every_years:
+          type: integer
+          maximum: 1000000.0
+          minimum: 1.0
+          title: Every Years
+        year_offset:
+          type: integer
+          maximum: 1000000.0
+          minimum: -1000000.0
+          title: Year Offset
+          default: 0
+        month:
+          type: integer
+          maximum: 36.0
+          minimum: 1.0
+          title: Month
+        extra_days:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Extra Days
+          default: 1
+      type: object
+      required:
+      - every_years
+      - month
+      title: LeapRule
+    CalendarConfiguration:
+      properties:
+        months:
+          items:
+            $ref: '#/components/schemas/CalendarMonth'
+          type: array
+          maxItems: 36
+          minItems: 1
+          title: Months
+        weekdays:
+          items:
+            type: string
+          type: array
+          maxItems: 32
+          title: Weekdays
+        epoch_offset:
+          type: integer
+          maximum: 1000000000.0
+          minimum: -1000000000.0
+          title: Epoch Offset
+          default: 0
+        leap_rules:
+          items:
+            $ref: '#/components/schemas/LeapRule'
+          type: array
+          maxItems: 36
+          title: Leap Rules
+      type: object
+      required:
+      - months
+      title: CalendarConfiguration
+    CalendarDate:
+      properties:
+        year:
+          type: integer
+          maximum: 1000000.0
+          minimum: -1000000.0
+          title: Year
+        month:
+          anyOf:
+          - type: integer
+            maximum: 36.0
+            minimum: 1.0
+          - type: 'null'
+          title: Month
+        day:
+          anyOf:
+          - type: integer
+            maximum: 1000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Day
+      type: object
+      required:
+      - year
+      title: CalendarDate
+    CalendarCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+        config_json:
+          $ref: '#/components/schemas/CalendarConfiguration'
+      type: object
+      required:
+      - name
+      - config_json
+      title: CalendarCreate
+    CalendarUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+        config_json:
+          anyOf:
+          - $ref: '#/components/schemas/CalendarConfiguration'
+          - type: 'null'
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+      type: object
+      required:
+      - expected_version
+      title: CalendarUpdate
+    CalendarResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        universe_id:
+          type: string
+          format: uuid
+          title: Universe Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        config_json:
+          additionalProperties: true
+          type: object
+          title: Config Json
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        version:
+          type: integer
+          title: Version
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - universe_id
+      - name
+      - description
+      - config_json
+      - created_by
+      - version
+      - created_at
+      - updated_at
+      title: CalendarResponse
+    CalendarListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/CalendarResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: CalendarListResponse
+    EraCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        start_day_index:
+          type: integer
+          maximum: 1000000000.0
+          minimum: -1000000000.0
+          title: Start Day Index
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - name
+      - start_day_index
+      title: EraCreate
+    EraUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Name
+        start_day_index:
+          anyOf:
+          - type: integer
+            maximum: 1000000000.0
+            minimum: -1000000000.0
+          - type: 'null'
+          title: Start Day Index
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+      type: object
+      required:
+      - expected_version
+      title: EraUpdate
+    EraResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        calendar_id:
+          type: string
+          format: uuid
+          title: Calendar Id
+        name:
+          type: string
+          title: Name
+        start_day_index:
+          type: integer
+          title: Start Day Index
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        version:
+          type: integer
+          title: Version
+      type: object
+      required:
+      - id
+      - calendar_id
+      - name
+      - start_day_index
+      - description
+      - version
+      title: EraResponse
+    EraListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EraResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: EraListResponse
+    TimelineEventCreate:
+      properties:
+        calendar_id:
+          type: string
+          format: uuid
+          title: Calendar Id
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+        description:
+          anyOf:
+          - type: string
+            maxLength: 5000
+          - type: 'null'
+          title: Description
+        start_date_json:
+          $ref: '#/components/schemas/CalendarDate'
+        end_date_json:
+          anyOf:
+          - $ref: '#/components/schemas/CalendarDate'
+          - type: 'null'
+        date_precision:
+          type: string
+          enum:
+          - day
+          - month
+          - year
+          - range
+          - approximate
+          title: Date Precision
+          default: day
+        uncertainty_json:
+          anyOf:
+          - additionalProperties:
+              type: integer
+            type: object
+          - type: 'null'
+          title: Uncertainty Json
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        linked_document_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Document Id
+      type: object
+      required:
+      - calendar_id
+      - title
+      - start_date_json
+      title: TimelineEventCreate
+    TimelineEventUpdate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+            maxLength: 200
+            minLength: 1
+          - type: 'null'
+          title: Title
+        description:
+          anyOf:
+          - type: string
+            maxLength: 5000
+          - type: 'null'
+          title: Description
+        start_date_json:
+          anyOf:
+          - $ref: '#/components/schemas/CalendarDate'
+          - type: 'null'
+        end_date_json:
+          anyOf:
+          - $ref: '#/components/schemas/CalendarDate'
+          - type: 'null'
+        date_precision:
+          anyOf:
+          - type: string
+            enum:
+            - day
+            - month
+            - year
+            - range
+            - approximate
+          - type: 'null'
+          title: Date Precision
+        uncertainty_json:
+          anyOf:
+          - additionalProperties:
+              type: integer
+            type: object
+          - type: 'null'
+          title: Uncertainty Json
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        linked_document_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Document Id
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+      type: object
+      required:
+      - expected_version
+      title: TimelineEventUpdate
+    TimelineEventResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        universe_id:
+          type: string
+          format: uuid
+          title: Universe Id
+        calendar_id:
+          type: string
+          format: uuid
+          title: Calendar Id
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        start_date_json:
+          additionalProperties: true
+          type: object
+          title: Start Date Json
+        end_date_json:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: End Date Json
+        start_day_index:
+          type: integer
+          title: Start Day Index
+        end_day_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: End Day Index
+        date_precision:
+          type: string
+          title: Date Precision
+        uncertainty_json:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Uncertainty Json
+        linked_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Entity Id
+        linked_document_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Linked Document Id
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        version:
+          type: integer
+          title: Version
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - universe_id
+      - calendar_id
+      - title
+      - description
+      - start_date_json
+      - end_date_json
+      - start_day_index
+      - end_day_index
+      - date_precision
+      - uncertainty_json
+      - linked_entity_id
+      - linked_document_id
+      - created_by
+      - version
+      - created_at
+      - updated_at
+      title: TimelineEventResponse
+    SearchResult:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [entity, document, timeline_event] }
+        title: { type: string }
+        summary: { type: string }
+        snippet: { type: string }
+        highlight_start: { type: integer, minimum: 0 }
+        highlight_end: { type: integer, minimum: 0 }
+        href: { type: string }
+        updated_at: { type: string, format: date-time }
+      required: [id, kind, title, summary, snippet, highlight_start, highlight_end, href, updated_at]
+    SearchResponse:
+      type: object
+      properties:
+        query: { type: string }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/SearchResult" }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }
+      required: [query, items, total, limit, offset]
+    TimelineEventListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TimelineEventResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: TimelineEventListResponse
     HealthStatus:
       type: object
       properties:

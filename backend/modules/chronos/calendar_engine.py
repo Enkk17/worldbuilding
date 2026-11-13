@@ -4,6 +4,28 @@ from backend.core.errors import ApiError
 from backend.modules.chronos.schemas import CalendarConfiguration, CalendarDate
 
 
+def _leap_days_before_year(configuration: CalendarConfiguration, year: int) -> int:
+    """Count intercalary days in calendar years [0, year), including negative years."""
+    total = 0
+    for rule in configuration.leap_rules:
+        # Number of integers n in [0, year) for which n ≡ offset (mod period).
+        total += (
+            (year - 1 - rule.year_offset) // rule.every_years
+            - (-1 - rule.year_offset) // rule.every_years
+        ) * rule.extra_days
+    return total
+
+
+def _month_days(
+    configuration: CalendarConfiguration, year: int, month: int
+) -> int:
+    days = configuration.months[month - 1].days
+    for rule in configuration.leap_rules:
+        if month == rule.month and (year - rule.year_offset) % rule.every_years == 0:
+            days += rule.extra_days
+    return days
+
+
 def date_window(
     configuration: CalendarConfiguration,
     date: CalendarDate,
@@ -12,20 +34,32 @@ def date_window(
     """Convert a custom-calendar date into an inclusive sortable day window."""
     months = configuration.months
     year_length = sum(month.days for month in months)
-    year_start = date.year * year_length + configuration.epoch_offset
+    year_start = (
+        date.year * year_length
+        + _leap_days_before_year(configuration, date.year)
+        + configuration.epoch_offset
+    )
+    this_year_length = year_length + sum(
+        rule.extra_days
+        for rule in configuration.leap_rules
+        if (date.year - rule.year_offset) % rule.every_years == 0
+    )
 
     if precision == "year":
         if date.month is not None or date.day is not None:
             raise ApiError(422, "invalid_calendar_date", "Year-precision dates must contain only a year.")
-        return year_start, year_start + year_length - 1
+        return year_start, year_start + this_year_length - 1
 
     if date.month is None:
         raise ApiError(422, "invalid_calendar_date", "A month is required for this date precision.")
     if date.month > len(months):
         raise ApiError(422, "invalid_calendar_date", "The month is not defined by this calendar.")
 
-    month_start = year_start + sum(month.days for month in months[: date.month - 1])
-    month_days = months[date.month - 1].days
+    month_start = year_start + sum(
+        _month_days(configuration, date.year, month_number)
+        for month_number in range(1, date.month)
+    )
+    month_days = _month_days(configuration, date.year, date.month)
     if precision == "month":
         if date.day is not None:
             raise ApiError(422, "invalid_calendar_date", "Month-precision dates must not include a day.")
