@@ -57,6 +57,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { UniverseChronicle } from '@/pages/UniverseChronicle';
 import AtlasChronos from '@/pages/AtlasChronos';
+import { DataPortability } from '@/components/data-portability';
 
 export default function UniverseDetail() {
   const [, params] = useRoute('/universes/:id');
@@ -1295,6 +1296,13 @@ export default function UniverseDetail() {
                 </button>
               </div>
             )}
+
+            <DataPortability
+              universeId={universeId}
+              universeSlug={universe.slug}
+              canExport={isAdminOrOwner}
+              canImport={isAdminOrOwner}
+            />
           </div>
         )}
       </div>

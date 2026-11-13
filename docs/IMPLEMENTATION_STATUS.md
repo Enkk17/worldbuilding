@@ -45,5 +45,31 @@ Updated: 2026-11-12
 - Regression suite `backend/tests/test_collaboration.py` covers conversion fixtures, tickets, durability, permissions, tenant isolation, compaction, idle recovery, revocation, REST guard, generation reset, and awareness replay.
 - **Operational limit**: the room manager is in-process. Run a single API worker until sticky room routing or external pub/sub is implemented.
 
-## M6–M9
-- **Status**: IN PROGRESS (M6 Atlas & Chronos).
+## M6 — Timeline e mappe (Atlas & Chronos)
+- **Status**: COMPLETE & VERIFIED.
+- Migration `0005_atlas_chronos_m6`; maps, markers, regions, and assets with SHA-256 checksums.
+- Normalized [0,1] marker coordinates are independent of map dimensions; markers and regions link to Codex entities.
+- Custom calendar engine: variable months, days per month, leap rules, weekdays, eras, and conversion between calendar dates and a continuous day index.
+- Timeline events with exact/approximate dates and links to entities and documents.
+- Frontend Atlas viewer (pan/zoom, markers, regions) and Chronos timeline visualizer.
+
+## M7 — Full-text Search
+- **Status**: COMPLETE & VERIFIED.
+- Migration `0006_search_m7`; GIN expression indexes for entities, documents, and timeline events.
+- The index expressions use immutable `coalesce`/`||` concatenations over `::text`; the previous `concat_ws` form is `STABLE`, not `IMMUTABLE`, and failed to apply on PostgreSQL.
+- Unified, permission-filtered search across entities, documents, and events with snippet highlighting.
+- The service query expression matches the index expression, so `EXPLAIN` confirms `ix_entities_search_fts` is used (Bitmap Heap Scan).
+- Frontend Ctrl/⌘K command palette in the Universe workspace.
+
+## M8 — Import/Export
+- **Status**: COMPLETE & VERIFIED.
+- Migration `0007_import_export_m8`; portable ZIP bundles: `entities/{type_key}/{slug}.md`, `documents/{document_type}/{slug}.md`, `assets/{asset_id}{suffix}`, JSON indexes, `manifest.json`, `universe.json`, and `checksums.sha256`.
+- Import validates schema version, checksums, archive path safety, and reference integrity, then restores entities, relations, documents, maps, markers, regions, and calendars with a configurable conflict policy. Import requires an elevated role.
+
+## M9 — Release 1.0 Hardening
+- **Status**: COMPLETE & VERIFIED.
+- Release E2E suite (`backend/tests/test_release_e2e.py`) covers the ten release scenarios: role roster, viewer mutation rejection, contributor-to-editor review, two-editor realtime convergence, restart durability, viewport-invariant marker links, custom-calendar ordering, Nexus visibility, export/import round-trip, and integrity-verifiable bundles.
+- Security audit suite (`backend/tests/test_security_audit.py`) covers unauthenticated access, session revocation, cross-universe id substitution, search/graph leakage, role escalation, viewer mutation, room authorization, upload path/MIME/size safety, stored-XSS link and node rejection, CSRF, invitation binding, and import safety.
+- Backup/restore drill executed against PostgreSQL: `pg_dump -Fc`, database wipe, `pg_restore`, and API-level integrity verification of restored rows.
+- Operational scripts back up and restore the media asset volume alongside the database, with SHA-256 sidecar verification.
+- Production web build and TypeScript typecheck pass; clean-database migrations apply with FTS indexes present.

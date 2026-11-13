@@ -832,3 +832,34 @@ class Asset(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+# -----------------------------------------------------------------------------
+# Import / Export
+# -----------------------------------------------------------------------------
+
+class ImportJob(Base):
+    __tablename__ = "import_jobs"
+    __table_args__ = (
+        Index("ix_import_jobs_universe_created", "universe_id", "created_at"),
+        Index("ix_import_jobs_status", "status"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    universe_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("universes.id", ondelete="CASCADE"), nullable=False
+    )
+    source_universe_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(as_uuid=True))
+    schema_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="completed")
+    conflict_policy: Mapped[str] = mapped_column(String(20), nullable=False, default="skip")
+    dry_run: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    archive_checksum_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    report_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
+    warnings_json: Mapped[list[Any]] = mapped_column(JSON, nullable=False, default=list)
+    created_by: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )

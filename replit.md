@@ -41,7 +41,7 @@ WORLDWEAVE is a self-hostable collaborative workspace for creating and organizin
 
 ## Product
 
-WORLDWEAVE will cover universe and Society management, the Codex encyclopedia, Chronicle documents, Nexus relation graphs, Atlas maps, Chronos calendars/timelines, collaboration, and portable import/export. Only the M1 account foundation is implemented at this stage; see `docs/IMPLEMENTATION_STATUS.md`.
+WORLDWEAVE covers universe and Society management, the Codex encyclopedia, Chronicle documents, Nexus relation graphs, Atlas maps, Chronos calendars/timelines, collaboration, and portable import/export. Milestones M1 through M9 are implemented; see `docs/IMPLEMENTATION_STATUS.md`.
 
 ## User preferences
 

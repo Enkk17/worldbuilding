@@ -26,6 +26,8 @@ tags:
     description: Custom calendar systems, eras, and timeline events
   - name: search
     description: Permission-filtered full-text search
+  - name: import-export
+    description: Portable universe export bundles and validated imports
 paths:
   /healthz:
     get:
@@ -2015,6 +2017,167 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "422":
           description: Invalid search query or types.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/exports:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+    post:
+      operationId: exportUniverse
+      tags: [import-export]
+      summary: Export a universe as a portable bundle
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: A downloadable WORLDWEAVE export bundle.
+          headers:
+            Content-Disposition:
+              schema: { type: string }
+            X-Export-Schema-Version:
+              schema: { type: integer }
+            X-Export-Manifest:
+              schema: { type: string }
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "403":
+          description: Export is not permitted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Universe not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/imports/validate:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+    post:
+      operationId: validateUniverseImport
+      tags: [import-export]
+      summary: Validate an import archive without writing
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Dry-run report describing the planned changes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportValidationResponse"
+        "403":
+          description: Import validation is not permitted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Archive exceeds the configured limit.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: The archive is unsafe or malformed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/universes/{universe_id}/imports:
+    parameters:
+      - $ref: "#/components/parameters/UniverseId"
+    post:
+      operationId: executeUniverseImport
+      tags: [import-export]
+      summary: Execute an import archive
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: conflict_policy
+          in: query
+          schema:
+            type: string
+            enum: [skip, overwrite, fail]
+            default: skip
+        - name: dry_run
+          in: query
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Import job recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportJobResponse"
+        "403":
+          description: Import is not permitted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Archive exceeds the configured limit.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: The archive is unsafe, malformed, or contains blocking errors.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    get:
+      operationId: listImportJobs
+      tags: [import-export]
+      summary: List recorded import jobs
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+      responses:
+        "200":
+          description: Import jobs for the universe, newest first.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportJobListResponse"
+        "403":
+          description: Audit access is not permitted.
           content:
             application/json:
               schema:
@@ -4383,3 +4546,124 @@ components:
         offset:
           type: integer
       required: [items, total, limit, offset]
+    ExportCounts:
+      type: object
+      properties:
+        entity_types: { type: integer }
+        relation_types: { type: integer }
+        entities: { type: integer }
+        relations: { type: integer }
+        documents: { type: integer }
+        maps: { type: integer }
+        calendars: { type: integer }
+        timeline_events: { type: integer }
+        assets: { type: integer }
+    ExportManifest:
+      type: object
+      properties:
+        format: { type: string }
+        schema_version: { type: integer }
+        exporter_version: { type: string }
+        universe_id:
+          type: string
+          format: uuid
+        universe_name: { type: string }
+        universe_slug: { type: string }
+        exported_at: { type: string, format: date-time }
+        counts:
+          $ref: "#/components/schemas/ExportCounts"
+        warnings:
+          type: array
+          items: { type: string }
+      required:
+        [format, schema_version, exporter_version, universe_id, universe_name, universe_slug, exported_at, counts]
+    ImportReportItem:
+      type: object
+      properties:
+        kind: { type: string }
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        label: { type: string }
+        action:
+          type: string
+          enum: [create, update, skip, conflict, error]
+        message:
+          type: string
+          nullable: true
+      required: [kind, label, action]
+    ImportReport:
+      type: object
+      properties:
+        counts:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties: { type: integer }
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportReportItem"
+        errors: { type: integer }
+        valid: { type: boolean }
+      required: [counts, items, errors, valid]
+    ImportValidationResponse:
+      type: object
+      properties:
+        valid: { type: boolean }
+        schema_version: { type: integer }
+        source_universe_id:
+          type: string
+          format: uuid
+          nullable: true
+        source_universe_name:
+          type: string
+          nullable: true
+        report:
+          $ref: "#/components/schemas/ImportReport"
+        warnings:
+          type: array
+          items: { type: string }
+      required: [valid, schema_version, report]
+    ImportJobResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        universe_id:
+          type: string
+          format: uuid
+        source_universe_id:
+          type: string
+          format: uuid
+          nullable: true
+        schema_version: { type: integer }
+        status: { type: string }
+        conflict_policy: { type: string }
+        dry_run: { type: boolean }
+        archive_checksum_sha256: { type: string }
+        report_json:
+          type: object
+          additionalProperties: true
+        warnings_json:
+          type: array
+          items: {}
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+      required:
+        [id, universe_id, schema_version, status, conflict_policy, dry_run, archive_checksum_sha256, report_json, warnings_json, created_by, created_at]
+    ImportJobListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportJobResponse"
+        total: { type: integer }
+      required: [items, total]

@@ -61,9 +61,14 @@ import type {
   EraListResponse,
   EraResponse,
   EraUpdate,
+  ExecuteUniverseImportBody,
+  ExecuteUniverseImportParams,
   GetNexusGraphParams,
   GraphResponse,
   HealthStatus,
+  ImportJobListResponse,
+  ImportJobResponse,
+  ImportValidationResponse,
   InvitationCreate,
   InvitationResponse,
   ListDocumentCommentsParams,
@@ -71,6 +76,7 @@ import type {
   ListDocumentsParams,
   ListEntitiesParams,
   ListEntityDocumentsParams,
+  ListImportJobsParams,
   ListTimelineEventsParams,
   ListUniverseCalendarsParams,
   ListUniverseMapsParams,
@@ -103,7 +109,8 @@ import type {
   UniverseListResponse,
   UniverseResponse,
   UniverseUpdate,
-  UploadUniverseAssetBody
+  UploadUniverseAssetBody,
+  ValidateUniverseImportBody
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -7317,6 +7324,359 @@ export function useSearchUniverse<TData = Awaited<ReturnType<typeof searchUniver
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getSearchUniverseQueryOptions(universeId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getExportUniverseUrl = (universeId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/exports`
+}
+
+/**
+ * @summary Export a universe as a portable bundle
+ */
+export const exportUniverse = async (universeId: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getExportUniverseUrl(universeId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getExportUniverseMutationKey = () => ['exportUniverse'] as const;
+
+export const getExportUniverseMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof exportUniverse>>, TError,ExportUniverseMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof exportUniverse>>, TError,ExportUniverseMutationVariables, TContext> => {
+
+const mutationKey = getExportUniverseMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof exportUniverse>>, ExportUniverseMutationVariables> = (props) => {
+          const {universeId} = props ?? {};
+
+          return  exportUniverse(universeId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExportUniverseMutationResult = NonNullable<Awaited<ReturnType<typeof exportUniverse>>>
+
+    export type ExportUniverseMutationError = ErrorType<ApiError>
+    export type ExportUniverseMutationVariables = {universeId: string}
+
+    /**
+ * @summary Export a universe as a portable bundle
+ */
+export const useExportUniverse = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof exportUniverse>>, TError,ExportUniverseMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof exportUniverse>>,
+        TError,
+        ExportUniverseMutationVariables,
+        TContext
+      > => {
+      return useMutation(getExportUniverseMutationOptions(options), queryClient);
+    }
+
+export const getValidateUniverseImportUrl = (universeId: string,) => {
+
+
+
+
+  return `/api/v1/universes/${universeId}/imports/validate`
+}
+
+/**
+ * @summary Validate an import archive without writing
+ */
+export const validateUniverseImport = async (universeId: string,
+    validateUniverseImportBody: ValidateUniverseImportBody, options?: Parameters<typeof customFetch>[1]): Promise<ImportValidationResponse> => {
+    const formData = new FormData();
+formData.append(`file`, validateUniverseImportBody.file);
+
+  return customFetch<ImportValidationResponse>(getValidateUniverseImportUrl(universeId),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getValidateUniverseImportMutationKey = () => ['validateUniverseImport'] as const;
+
+export const getValidateUniverseImportMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof validateUniverseImport>>, TError,ValidateUniverseImportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof validateUniverseImport>>, TError,ValidateUniverseImportMutationVariables, TContext> => {
+
+const mutationKey = getValidateUniverseImportMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof validateUniverseImport>>, ValidateUniverseImportMutationVariables> = (props) => {
+          const {universeId,data} = props ?? {};
+
+          return  validateUniverseImport(universeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ValidateUniverseImportMutationResult = NonNullable<Awaited<ReturnType<typeof validateUniverseImport>>>
+    export type ValidateUniverseImportMutationBody = BodyType<ValidateUniverseImportBody>
+    export type ValidateUniverseImportMutationError = ErrorType<ApiError>
+    export type ValidateUniverseImportMutationVariables = {universeId: string;data: BodyType<ValidateUniverseImportBody>}
+
+    /**
+ * @summary Validate an import archive without writing
+ */
+export const useValidateUniverseImport = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof validateUniverseImport>>, TError,ValidateUniverseImportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof validateUniverseImport>>,
+        TError,
+        ValidateUniverseImportMutationVariables,
+        TContext
+      > => {
+      return useMutation(getValidateUniverseImportMutationOptions(options), queryClient);
+    }
+
+export const getExecuteUniverseImportUrl = (universeId: string,
+    params?: ExecuteUniverseImportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/universes/${universeId}/imports?${stringifiedParams}` : `/api/v1/universes/${universeId}/imports`
+}
+
+/**
+ * @summary Execute an import archive
+ */
+export const executeUniverseImport = async (universeId: string,
+    executeUniverseImportBody: ExecuteUniverseImportBody,
+    params?: ExecuteUniverseImportParams, options?: Parameters<typeof customFetch>[1]): Promise<ImportJobResponse> => {
+    const formData = new FormData();
+formData.append(`file`, executeUniverseImportBody.file);
+
+  return customFetch<ImportJobResponse>(getExecuteUniverseImportUrl(universeId,params),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getExecuteUniverseImportMutationKey = () => ['executeUniverseImport'] as const;
+
+export const getExecuteUniverseImportMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeUniverseImport>>, TError,ExecuteUniverseImportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof executeUniverseImport>>, TError,ExecuteUniverseImportMutationVariables, TContext> => {
+
+const mutationKey = getExecuteUniverseImportMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof executeUniverseImport>>, ExecuteUniverseImportMutationVariables> = (props) => {
+          const {universeId,data,params} = props ?? {};
+
+          return  executeUniverseImport(universeId,data,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExecuteUniverseImportMutationResult = NonNullable<Awaited<ReturnType<typeof executeUniverseImport>>>
+    export type ExecuteUniverseImportMutationBody = BodyType<ExecuteUniverseImportBody>
+    export type ExecuteUniverseImportMutationError = ErrorType<ApiError>
+    export type ExecuteUniverseImportMutationVariables = {universeId: string;data: BodyType<ExecuteUniverseImportBody>;params?: ExecuteUniverseImportParams}
+
+    /**
+ * @summary Execute an import archive
+ */
+export const useExecuteUniverseImport = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeUniverseImport>>, TError,ExecuteUniverseImportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof executeUniverseImport>>,
+        TError,
+        ExecuteUniverseImportMutationVariables,
+        TContext
+      > => {
+      return useMutation(getExecuteUniverseImportMutationOptions(options), queryClient);
+    }
+
+export const getListImportJobsUrl = (universeId: string,
+    params?: ListImportJobsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/universes/${universeId}/imports?${stringifiedParams}` : `/api/v1/universes/${universeId}/imports`
+}
+
+/**
+ * @summary List recorded import jobs
+ */
+export const listImportJobs = async (universeId: string,
+    params?: ListImportJobsParams, options?: Parameters<typeof customFetch>[1]): Promise<ImportJobListResponse> => {
+
+  return customFetch<ImportJobListResponse>(getListImportJobsUrl(universeId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListImportJobsQueryKey = (universeId: string,
+    params?: ListImportJobsParams,) => {
+    return [
+    `/api/v1/universes/${universeId}/imports`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListImportJobsQueryOptions = <TData = Awaited<ReturnType<typeof listImportJobs>>, TError = ErrorType<ApiError>>(universeId: string,
+    params?: ListImportJobsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listImportJobs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListImportJobsQueryKey(universeId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listImportJobs>>> = ({ signal }) => listImportJobs(universeId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: universeId !== null && universeId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listImportJobs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListImportJobsQueryResult = NonNullable<Awaited<ReturnType<typeof listImportJobs>>>
+export type ListImportJobsQueryError = ErrorType<ApiError>
+
+
+export function useListImportJobs<TData = Awaited<ReturnType<typeof listImportJobs>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    params: undefined |  ListImportJobsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listImportJobs>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listImportJobs>>,
+          TError,
+          Awaited<ReturnType<typeof listImportJobs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListImportJobs<TData = Awaited<ReturnType<typeof listImportJobs>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    params?: ListImportJobsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listImportJobs>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listImportJobs>>,
+          TError,
+          Awaited<ReturnType<typeof listImportJobs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListImportJobs<TData = Awaited<ReturnType<typeof listImportJobs>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    params?: ListImportJobsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listImportJobs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List recorded import jobs
+ */
+
+export function useListImportJobs<TData = Awaited<ReturnType<typeof listImportJobs>>, TError = ErrorType<ApiError>>(
+ universeId: string,
+    params?: ListImportJobsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listImportJobs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListImportJobsQueryOptions(universeId,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

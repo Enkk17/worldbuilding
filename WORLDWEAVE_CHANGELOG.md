@@ -2,7 +2,34 @@
 
 All notable changes, architectural decisions, and verification records for WORLDWEAVE.
 
-## [Unreleased] - 2026-11-12
+## [Unreleased] - 2026-11-13
+
+### Milestone M9: Release 1.0 Hardening
+- Added `backend/tests/test_release_e2e.py`: ten release end-to-end scenarios (role roster, viewer mutation rejection, contributor-to-editor review, two-editor realtime convergence, restart durability, viewport-invariant marker links, custom-calendar ordering, Nexus visibility, export/import round-trip, integrity-verifiable bundles).
+- Added `backend/tests/test_security_audit.py`: cross-cutting security audit (unauthenticated access, session revocation, cross-universe id substitution, search/graph leakage, role escalation, viewer mutation, WebSocket room authorization, upload path/MIME/size safety, stored-XSS rejection, CSRF, invitation binding, import archive safety).
+- Verified realtime convergence and restart durability against a live `uvicorn` server backed by PostgreSQL.
+- Executed a backup/restore drill on PostgreSQL (`pg_dump -Fc`, database wipe, `pg_restore --exit-on-error`, API-level integrity verification).
+- Extended `Backup-WORLDWEAVE.ps1` and `Ripristina-WORLDWEAVE.ps1` to include the media asset volume, with SHA-256 sidecar verification and a checksum-verified restore path.
+- Full backend suite green (`115 passed`); production web build and TypeScript typecheck pass; clean-database migration applies with FTS indexes present.
+- Synchronized documentation: README, User/Administrator guides, API, Database, Testing, Security, Architecture, Deployment, Backup/Restore, Requirements Traceability, Implementation Status, Milestone Acceptance, Roadmap, Tasks.
+
+### Milestone M8: Import/Export
+- Added the import job ledger (migration `0007_import_export_m8`).
+- Implemented portable ZIP bundles: `manifest.json`, `universe.json`, JSON indexes, per-record Markdown, media assets, and `checksums.sha256`.
+- Implemented import validation (schema version, checksums, archive path safety, reference integrity) and execution with a configurable conflict policy; import requires an elevated role.
+- Added `backend/tests/test_import_export.py`.
+
+### Milestone M7: Full-text Search
+- Added GIN expression indexes `ix_entities_search_fts`, `ix_documents_search_fts`, and `ix_timeline_events_search_fts` (migration `0006_search_m7`).
+- Replaced the initial `concat_ws` index expressions, which are `STABLE` rather than `IMMUTABLE` and failed to apply on PostgreSQL, with immutable `coalesce`/`||` concatenations; aligned the service query with the index so `EXPLAIN` uses `ix_entities_search_fts`.
+- Implemented unified, permission-filtered search with snippet highlighting and the Ctrl/⌘K command palette.
+- Added `backend/tests/test_search.py`.
+
+### Milestone M6: Timeline e mappe (Atlas & Chronos)
+- Added maps, markers, regions, and assets with SHA-256 checksums (migration `0005_atlas_chronos_m6`).
+- Normalized marker coordinates to `[0,1]`, independent of map dimensions; markers and regions link to Codex entities.
+- Implemented the custom calendar engine (variable months, leap rules, weekdays, eras) with conversion between calendar dates and a continuous day index, plus timeline events.
+- Added `backend/tests/test_atlas_chronos.py`.
 
 ### Milestone M5: Collaborazione realtime
 - Added `document_collab_snapshots`, ordered `document_collab_updates`, and `documents.collab_generation` (migration `0004_collaboration_m5`).

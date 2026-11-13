@@ -35,6 +35,7 @@ class Settings:
     collaboration_idle_close_seconds: int = 30
     media_root: str = "var/media"
     max_asset_bytes: int = 10_485_760
+    max_archive_bytes: int = 104_857_600
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -89,5 +90,8 @@ class Settings:
             media_root=os.getenv("MEDIA_ROOT", "var/media").strip() or "var/media",
             max_asset_bytes=_positive_int(
                 "MAX_ASSET_BYTES", 10_485_760
+            ),
+            max_archive_bytes=_positive_int(
+                "MAX_ARCHIVE_BYTES", 104_857_600
             ),
         )

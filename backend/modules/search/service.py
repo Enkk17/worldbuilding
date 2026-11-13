@@ -7,6 +7,7 @@ from typing import Any
 
 from sqlalchemy import (
     String,
+    Text,
     case,
     cast,
     func,
@@ -63,6 +64,20 @@ def _rank_expression(title: Any, query: str, pattern: str) -> Any:
     )
 
 
+def _concat_columns(columns: list[Any]) -> Any:
+    """Join text columns with single spaces using immutable operators.
+
+    ``concat_ws`` is STABLE and therefore unusable inside an index
+    expression; this ``||``/``coalesce`` chain mirrors migration
+    ``0006_search_m7`` so the GIN indexes apply.
+    """
+    expression: Any = None
+    for column in columns:
+        piece = func.coalesce(column, literal_column("''"))
+        expression = piece if expression is None else expression + literal_column("' '") + piece
+    return expression
+
+
 def _matches(
     db: Session,
     columns: list[Any],
@@ -73,14 +88,12 @@ def _matches(
 ) -> Any:
     if db.bind is not None and db.bind.dialect.name == "postgresql":
         # Keep this expression aligned with the GIN expression indexes in
-        # migration 0006_search_m7. Literal constants are intentional so that
-        # PostgreSQL can match the query expression to the index definition.
+        # migration 0006_search_m7: ``to_tsvector`` over an immutable ``||``
+        # concatenation. Literal constants are intentional so PostgreSQL can
+        # match the query expression to the index definition.
         vector = func.to_tsvector(
             literal_column("'simple'"),
-            func.concat_ws(
-                literal_column("' '"),
-                *(func.coalesce(column, literal_column("''")) for column in columns),
-            ),
+            _concat_columns(columns),
         ).op("@@")(
             func.plainto_tsquery(literal_column("'simple'"), query)
         )
@@ -98,7 +111,7 @@ def _entity_search_rows(db: Session, universe_id: uuid.UUID, user: User, role: s
     predicates.append(
         _matches(
             db,
-            [Entity.title, Entity.summary, cast(Entity.custom_fields, String)],
+            [Entity.title, Entity.summary, cast(Entity.custom_fields, Text)],
             term,
             pattern,
             extra=[EntityType.name],
@@ -133,7 +146,7 @@ def _document_search_rows(db: Session, universe_id: uuid.UUID, user: User, role:
     predicates.append(
         _matches(
             db,
-            [Document.title, Document.slug, cast(Document.content_json, String)],
+            [Document.title, Document.slug, cast(Document.content_json, Text)],
             term,
             pattern,
         )

@@ -1,71 +1,64 @@
 # WORLDWEAVE Task Tracker
 
-## Milestone M2: Gestione Mondi e Permessi (Universes & Society) — COMPLETE
+All milestones M1–M9 are complete and verified. Per-milestone evidence is in `docs/MILESTONE_ACCEPTANCE.md`; module status is in `docs/IMPLEMENTATION_STATUS.md`.
 
-### M2 Tasks Breakdown
-- [x] **M2.1 Data Models & Schemas**
-  - [x] Add `Universe`, `UniverseMember`, `Invitation`, `AuditLog`, `ActivityEvent` models in `backend/core/models.py`.
-  - [x] Add Alembic migration `0002_core_worldweave.py` for universe & membership tables.
-  - [x] Define Pydantic request & response schemas in `backend/modules/universes/schemas.py`.
-- [x] **M2.2 Authorization & RBAC Policies**
-  - [x] Implement `backend/core/permissions.py` with roles (`owner`, `admin`, `editor`, `contributor`, `viewer`) and actions.
-  - [x] Implement permission matrix and hierarchical management authority (`can_manage_member`).
-  - [x] Implement cross-universe tenant protection (`check_universe_access`, 404 anti-leak responses).
-- [x] **M2.3 Service & Endpoints Implementation**
-  - [x] Universe CRUD: `GET /api/v1/universes`, `POST /api/v1/universes`, `GET /api/v1/universes/{id}`, `PATCH /api/v1/universes/{id}`, `POST /api/v1/universes/{id}/archive`.
-  - [x] Member management: `GET /api/v1/universes/{id}/members`, `PATCH /api/v1/universes/{id}/members/{user_id}`, `DELETE /api/v1/universes/{id}/members/{user_id}`.
-  - [x] Invitations: `POST /api/v1/universes/{id}/invitations`, `POST /api/v1/invitations/{token}/accept`.
-  - [x] Audit logs: `GET /api/v1/universes/{id}/audit-logs`.
-  - [x] Activity events: `GET /api/v1/universes/{id}/activity`.
-- [x] **M2.4 Automated Testing**
-  - [x] Test universe creation, listing, updating, slug uniqueness, and archiving.
-  - [x] Test role matrix: Owner vs Admin vs Editor vs Contributor vs Viewer.
-  - [x] Test cross-universe isolation (attempting access with non-member session).
-  - [x] Test invitation generation, expiration, acceptance, and duplicate rejection.
-  - [x] Test audit trail creation on universe mutation and member role changes.
-  - [x] 17 pytest tests pass with 0 failures.
-- [x] **M2.5 Frontend Integration**
-  - [x] Updated OpenAPI contract in `lib/api-spec/openapi.yaml` and generated Orval hooks.
-  - [x] Added Universe cards, "+ New Universe" creation form in `AccountHome`.
-  - [x] Implemented comprehensive `UniverseDetail.tsx` page with Overview, Society & Members, Audit Trail, and Settings tabs.
-  - [x] Frontend builds cleanly (`vite build` in 6.27s) and passes `tsc` typecheck.
+## M1 — Foundation — COMPLETE
+- [x] FastAPI application, settings, database, error envelope, structured logging.
+- [x] Identity: registration policy, Argon2id login, revocable sessions, CSRF.
+- [x] Health/readiness endpoints; Docker Compose, Caddy, Windows scripts.
+- [x] `backend/tests/test_auth.py`, `test_health.py`.
 
----
+## M2 — Universes & Society — COMPLETE
+- [x] `Universe`, `UniverseMember`, `Invitation`, `AuditLog`, `ActivityEvent` models (migration `0002`).
+- [x] `backend/core/permissions.py`: five ranked roles and the action matrix.
+- [x] Tenant isolation with 404 anti-leak responses; ownership transfer; archive/unarchive.
+- [x] Membership, invitations, audit logs, activity feed.
+- [x] `backend/tests/test_universes.py`, `test_universe_security.py`.
 
-## Current Focus: M3 — Entità e Knowledge Graph (Codex & Nexus)
+## M3 — Codex & Nexus — COMPLETE
+- [x] Entity types, custom fields, entities (soft delete + optimistic concurrency), tags, typed relations.
+- [x] Relation type compatibility constraints; cross-universe rejection.
+- [x] Nexus graph endpoint with focus node, bounded depth, and type filters.
+- [x] `backend/tests/test_codex.py`, `test_codex_validation.py`, `test_codex_visibility.py`.
 
-### M3 Tasks Breakdown
-- [ ] **M3.1 Codex Schemas & System Seed Types**
-  - [ ] Add system default entity types (Characters, Places, Peoples, Organizations, Creatures, Items, Religions, Magic Systems, Technologies, Concepts).
-  - [ ] Support custom field schema definitions (text, long_text, number, boolean, date, enum, multi_enum, URL, entity reference).
-- [ ] **M3.2 Codex Backend Service & Routers**
-  - [ ] `GET/POST /api/v1/universes/{id}/entity-types`
-  - [ ] `PATCH /api/v1/universes/{id}/entity-types/{type_id}`
-  - [ ] `GET/POST /api/v1/universes/{id}/entities` (with filters, pagination, optimistic locking `version`)
-  - [ ] `GET/PATCH/DELETE /api/v1/universes/{id}/entities/{entity_id}` (soft-delete with `deleted_at`, optimistic locking conflict 409)
-  - [ ] `POST /api/v1/universes/{id}/entities/{entity_id}/restore`
-  - [ ] Directed relations: `POST /api/v1/universes/{id}/relations`, `DELETE /api/v1/universes/{id}/relations/{relation_id}`, `GET /api/v1/universes/{id}/entities/{entity_id}/relations`
-  - [ ] Type compatibility validation (source and target entity types must match `allowed_source_types` / `allowed_target_types`).
-- [ ] **M3.3 Nexus Graph API**
-  - [ ] `GET /api/v1/universes/{id}/graph` with `focus_entity_id`, bounded `depth` (1..3), type filters, and tenant-safe scoping.
-- [ ] **M3.4 Automated Testing**
-  - [ ] Unit & integration tests for entity CRUD, custom fields validation, slug uniqueness per type, optimistic concurrency conflict (409), soft delete and restore.
-  - [ ] Relation constraint enforcement (reject cross-universe relations, reject incompatible entity types).
-  - [ ] Graph query filtering and depth traversal tests.
-- [ ] **M3.5 Frontend Codex & Nexus UI**
-  - [ ] Codex directory view: filter by entity type, status, tag; search bar; "+ New Entity" dialog.
-  - [ ] Entity Detail page: custom fields renderer/editor, incoming & outgoing relations panel, revision history.
-  - [ ] Nexus Graph view: interactive node-link graph visualization with focus, depth control, and filters.
-- [ ] **M3.6 Verification & Milestone Sign-off**
-  - [ ] Run backend tests.
-  - [ ] Run frontend typecheck and build.
+## M4 — Chronicle — COMPLETE
+- [x] Hierarchical documents, revisions, comments, entity-link indexing (migration `0003`).
+- [x] TipTap JSON validation, Markdown snapshots, WikiLinks, revision restore.
+- [x] `backend/tests/test_chronicle.py`.
 
----
+## M5 — Realtime Collaboration — COMPLETE
+- [x] `document_collab_updates`, `document_collab_snapshots`, `collab_generation` (migration `0004`).
+- [x] HMAC tickets; Yjs WebSocket protocol; commit-before-ack; snapshot compaction; awareness replay.
+- [x] `backend/tests/test_collaboration.py`.
 
-### Backlog: Upcoming Milestones
-- **M4**: Editor Rich Text e cross-linking (Chronicle documents, TipTap, WikiLinks, comments, revisions)
-- **M5**: Collaborazione realtime (Yjs collaboration tickets, WebSockets, snapshot compaction, presence)
-- **M6**: Timeline e mappe (Atlas maps, markers, regions; Chronos custom calendars, eras, events)
-- **M7**: Full-text Search (Unified search engine, multi-resource query, search UI)
-- **M8**: Import/Export (Portable universe bundle export, schema validation, import pipeline)
-- **M9**: Release 1.0 (Hardening, full regression, operational backup/restore drills, final release)
+## M6 — Atlas & Chronos — COMPLETE
+- [x] Maps, markers, regions, assets with SHA-256 checksums (migration `0005`).
+- [x] Normalized [0,1] coordinates; markers/regions linked to Codex entities.
+- [x] Custom calendar engine (variable months, leap rules, eras) with day-index conversion; timeline events.
+- [x] `backend/tests/test_atlas_chronos.py`.
+
+## M7 — Full-text Search — COMPLETE
+- [x] GIN expression indexes `ix_entities_search_fts`, `ix_documents_search_fts`, `ix_timeline_events_search_fts` (migration `0006`).
+- [x] Replaced non-immutable `concat_ws` indexes; query expression aligned to the index.
+- [x] Unified, permission-filtered search with snippet highlighting.
+- [x] `backend/tests/test_search.py`.
+
+## M8 — Import/Export — COMPLETE
+- [x] Import job ledger (migration `0007`).
+- [x] Portable ZIP bundles with `manifest.json`, `universe.json`, JSON indexes, Markdown, assets, `checksums.sha256`.
+- [x] Import validation (schema, checksums, path safety, references) and execution with conflict policy.
+- [x] `backend/tests/test_import_export.py`.
+
+## M9 — Release 1.0 Hardening — COMPLETE (VERIFIED)
+- [x] Release E2E suite: ten scenarios (`backend/tests/test_release_e2e.py`).
+- [x] Security audit suite: `18 passed` (`backend/tests/test_security_audit.py`).
+- [x] Full backend suite: `115 passed`.
+- [x] Realtime convergence and restart durability verified against live `uvicorn` + PostgreSQL.
+- [x] Backup/restore drill verified on PostgreSQL (`pg_dump -Fc`, wipe, `pg_restore`, API integrity check).
+- [x] Operational scripts extended for the media volume with SHA-256 sidecar verification.
+- [x] Production web build and TypeScript typecheck pass; clean-database migration applies.
+- [x] Documentation synchronized (README, guides, API, database, testing, deployment, backup/restore, traceability).
+
+## Outstanding operator gates
+- [ ] Confirm GitHub Actions CI passes on the next push against its clean PostgreSQL service.
+- [ ] Run the clean start/stop/backup/restore drill on a Windows Docker Desktop host.

@@ -16,11 +16,22 @@
 ## Milestone Roadmap Summary
 - **M0**: Baseline & specifications (Completed / Frozen)
 - **M1**: Foundation (Architecture, Auth, Sessions, Health, CI, Docker Compose) — Validated
-- **M2**: Gestione mondi e permessi (Universes, Society, Roles, Memberships, Invitations, Audit)
-- **M3**: Entità e Knowledge Graph (Codex entities, Custom Fields, Relations, Nexus Graph API & UI)
-- **M4**: Editor Rich Text e cross-linking (Chronicle documents hierarchy, TipTap, WikiLinks, Comments, Revisions)
-- **M5**: Collaborazione realtime (Yjs / WebSocket collaboration tickets, durable sync, snapshots)
-- **M6**: Timeline e mappe (Atlas maps/markers/regions + Chronos custom calendars/eras/events)
-- **M7**: Full-text Search (Unified PostgreSQL/SQLite FTS, multi-resource search UI)
-- **M8**: Import/Export (Zip archive bundles, Markdown frontmatter WikiLinks, validator & execution)
-- **M9**: Release 1.0 (Hardening, full regression, backup/restore drills, documentation)
+- **M2**: Gestione mondi e permessi (Universes, Society, Roles, Memberships, Invitations, Audit) — COMPLETE
+- **M3**: Entità e Knowledge Graph (Codex entities, Custom Fields, Relations, Nexus Graph API & UI) — COMPLETE
+- **M4**: Editor Rich Text e cross-linking (Chronicle documents hierarchy, TipTap, WikiLinks, Comments, Revisions) — COMPLETE
+- **M5**: Collaborazione realtime (Yjs / WebSocket collaboration tickets, durable sync, snapshots) — COMPLETE
+- **M6**: Timeline e mappe (Atlas maps/markers/regions + Chronos custom calendars/eras/events) — COMPLETE
+- **M7**: Full-text Search (Unified PostgreSQL/SQLite FTS, multi-resource search UI) — COMPLETE
+- **M8**: Import/Export (Zip archive bundles, Markdown frontmatter WikiLinks, validator & execution) — COMPLETE
+- **M9**: Release 1.0 (Hardening, full regression, backup/restore drills, documentation) — COMPLETE (VERIFIED)
+
+## Verification Commands
+- Backend: `uv run --locked python -m pytest` (expect `115 passed`).
+- Frontend: `pnpm run typecheck` and `PORT=24452 BASE_PATH=/ pnpm --filter @workspace/worldweave run build`.
+- Compose: `POSTGRES_PASSWORD=validation-only docker compose config --quiet`.
+- PostgreSQL migration: `DATABASE_URL=... uv run --locked alembic -c backend/alembic.ini upgrade head`.
+- Operational drill: `pg_dump -Fc`, wipe, `pg_restore --exit-on-error`, then API verification. See `docs/BACKUP_RESTORE.md`.
+
+## Operational Limits
+- Run a single API worker: the rate limiter and the realtime room manager keep state in-process.
+- The default Compose configuration targets local loopback; harden TLS, exposure, and registration before public use.

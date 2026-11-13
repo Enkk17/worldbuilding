@@ -37,6 +37,7 @@ READ_ONLY_ACTIONS = frozenset(
         Action.MAP_READ,
         Action.TIMELINE_READ,
         Action.AUDIT_READ,
+        Action.EXPORT_CREATE,
     }
 )
 

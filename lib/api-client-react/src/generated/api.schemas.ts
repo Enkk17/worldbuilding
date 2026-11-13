@@ -1299,6 +1299,94 @@ export interface CommentListResponse {
   offset: number;
 }
 
+export interface ExportCounts {
+  entity_types?: number;
+  relation_types?: number;
+  entities?: number;
+  relations?: number;
+  documents?: number;
+  maps?: number;
+  calendars?: number;
+  timeline_events?: number;
+  assets?: number;
+}
+
+export interface ExportManifest {
+  format: string;
+  schema_version: number;
+  exporter_version: string;
+  universe_id: string;
+  universe_name: string;
+  universe_slug: string;
+  exported_at: string;
+  counts: ExportCounts;
+  warnings?: string[];
+}
+
+export type ImportReportItemAction = typeof ImportReportItemAction[keyof typeof ImportReportItemAction];
+
+
+export const ImportReportItemAction = {
+  create: 'create',
+  update: 'update',
+  skip: 'skip',
+  conflict: 'conflict',
+  error: 'error',
+} as const;
+
+export interface ImportReportItem {
+  kind: string;
+  /** @nullable */
+  id?: string | null;
+  label: string;
+  action: ImportReportItemAction;
+  /** @nullable */
+  message?: string | null;
+}
+
+export type ImportReportCounts = {[key: string]: {[key: string]: number}};
+
+export interface ImportReport {
+  counts: ImportReportCounts;
+  items: ImportReportItem[];
+  errors: number;
+  valid: boolean;
+}
+
+export interface ImportValidationResponse {
+  valid: boolean;
+  schema_version: number;
+  /** @nullable */
+  source_universe_id?: string | null;
+  /** @nullable */
+  source_universe_name?: string | null;
+  report: ImportReport;
+  warnings?: string[];
+}
+
+export type ImportJobResponseReportJson = { [key: string]: unknown };
+
+export interface ImportJobResponse {
+  id: string;
+  universe_id: string;
+  /** @nullable */
+  source_universe_id?: string | null;
+  schema_version: number;
+  status: string;
+  conflict_policy: string;
+  dry_run: boolean;
+  archive_checksum_sha256: string;
+  report_json: ImportJobResponseReportJson;
+  warnings_json: unknown[];
+  created_by: string;
+  created_at: string;
+}
+
+export interface ImportJobListResponse {
+  items: ImportJobResponse[];
+  total: number;
+}
+
 export type ListEntitiesParams = {
 type?: string;
 status?: string;
@@ -1452,6 +1540,36 @@ export const SearchUniverseTypesItem = {
   document: 'document',
   timeline_event: 'timeline_event',
 } as const;
+
+export type ValidateUniverseImportBody = {
+  file: Blob | File;
+};
+
+export type ExecuteUniverseImportParams = {
+conflict_policy?: ExecuteUniverseImportConflictPolicy;
+dry_run?: boolean;
+};
+
+export type ExecuteUniverseImportConflictPolicy = typeof ExecuteUniverseImportConflictPolicy[keyof typeof ExecuteUniverseImportConflictPolicy];
+
+
+export const ExecuteUniverseImportConflictPolicy = {
+  skip: 'skip',
+  overwrite: 'overwrite',
+  fail: 'fail',
+} as const;
+
+export type ExecuteUniverseImportBody = {
+  file: Blob | File;
+};
+
+export type ListImportJobsParams = {
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
 
 export type ListTimelineEventsParams = {
 calendar_id?: string;

@@ -4,6 +4,18 @@
 **Data del resoconto:** 12 novembre 2026  
 **Stato:** M6 implementata nel codice, ma gate database/deployment non verificato; M7 avviata e ancora incompleta. M8 e M9 non avviate.
 
+> **Aggiornamento successivo (13 novembre 2026): M6–M9 completate e verificate.**
+>
+> Il presente documento è mantenuto come cronaca storica del passaggio precedente. Gli esiti finali sono:
+>
+> - **M7** completata: migrazione `0006_search_m7` con indici GIN di espressione (`coalesce`/`||` su `::text`, immutabili) al posto di `concat_ws` (`STABLE`, non indicizzabile); query di servizio allineata all'indice e verificata con `EXPLAIN` (`ix_entities_search_fts`); UI command palette Ctrl/⌘K; `backend/tests/test_search.py` verde.
+> - **M8** completata: migrazione `0007_import_export_m8`; bundle ZIP portabili con `manifest.json`, `universe.json`, indici JSON, Markdown per record, asset e `checksums.sha256`; validazione (versione schema, checksum, sicurezza dei percorsi, integrità dei riferimenti) ed esecuzione con politica di conflitto; `backend/tests/test_import_export.py` verde.
+> - **M9** completata e verificata: `backend/tests/test_release_e2e.py` (dieci scenari) e `backend/tests/test_security_audit.py` (18 test) verdi; suite backend completa **115 passed**; convergenza realtime e durabilità al riavvio verificate su server `uvicorn` reale con PostgreSQL; drill backup/restore eseguito su PostgreSQL (`pg_dump -Fc`, azzeramento, `pg_restore --exit-on-error`, verifica integrità via API); script operativi estesi al volume media con sidecar SHA-256; build web di produzione e typecheck verdi; migrazione da database pulito con indici FTS presenti; documentazione sincronizzata.
+> - **Gate operativi residui:** conferma della CI GitHub Actions al prossimo push e drill clean start/stop/backup/restore su host Windows con Docker Desktop.
+>
+> Evidenze dettagliate in `docs/MILESTONE_ACCEPTANCE.md`; stato per modulo in `docs/IMPLEMENTATION_STATUS.md`.
+
+
 ## Richiesta e ambito
 
 La richiesta era completare M6, eseguire i test opportuni e poi procedere fino alla milestone 9. Il lavoro effettivamente svolto in questo passaggio ha completato funzionalità e verifiche automatiche M6, avviato una prima implementazione backend M7 e ripetuto la suite/typecheck/build. Non è corretto dichiarare concluse le milestone M6–M9: restano gate, implementazione e verifiche elencate sotto.

@@ -93,7 +93,7 @@ No mocks, no placeholders. Hard quality gates between milestones.
   - Conversion between calendar dates and continuous internal day index.
   - Timeline events CRUD with exact and approximate dates, links to entities/documents.
   - Frontend interactive Atlas viewer (pan/zoom, markers, popups) and Chronos timeline visualizer.
-- **Status**: **QUEUED**.
+- **Status**: **COMPLETE (VERIFIED)**. Migration `0005_atlas_chronos_m6`; asset upload with SHA-256 checksums, normalized [0,1] coordinates, markers and regions linked to Codex entities, custom calendar engine (variable months, leap rules, eras) with day-index conversion, and timeline events. Frontend Atlas viewer and Chronos timeline.
 
 ---
 
@@ -104,7 +104,7 @@ No mocks, no placeholders. Hard quality gates between milestones.
   - Unified search endpoint (`GET /universes/{id}/search?q=...&types=...`).
   - Highlighting / snippet extraction and permission filtering.
   - Frontend Command Palette (`Ctrl+K` / `Cmd+K`) and dedicated search page with type filters.
-- **Status**: **QUEUED**.
+- **Status**: **COMPLETE (VERIFIED)**. Migration `0006_search_m7`; GIN expression indexes built from immutable `coalesce`/`||` concatenations (the earlier `concat_ws` form was not `IMMUTABLE` and failed to apply), permission-filtered unified search across entities, documents, and events with snippet highlighting, and the Ctrl/⌘K palette in the Universe workspace. The query expression is aligned with the index so `ix_entities_search_fts` is used by `EXPLAIN`.
 
 ---
 
@@ -115,7 +115,7 @@ No mocks, no placeholders. Hard quality gates between milestones.
   - Import validation endpoint (`POST /imports/validate`) validating schema, version, reference integrity, and reporting conflicts.
   - Import execution endpoint (`POST /universes/{id}/imports`) restoring entities, relations, documents, maps, and calendars while preserving IDs.
   - Frontend Export modal and Import wizard with validation review.
-- **Status**: **QUEUED**.
+- **Status**: **COMPLETE (VERIFIED)**. Migration `0007_import_export_m8`; portable bundle with `entities/{type_key}/{slug}.md`, `documents/{document_type}/{slug}.md`, `assets/{asset_id}{suffix}`, JSON indexes, `manifest.json`, and `checksums.sha256`. Import validates schema version, checksums, archive path safety, and reference integrity, then restores entities, relations, documents, maps, markers, regions, and calendars with a configurable conflict policy. Import requires an elevated role.
 
 ---
 
@@ -126,4 +126,4 @@ No mocks, no placeholders. Hard quality gates between milestones.
   - Backup and restore drill verification.
   - Updated User Guide, Administrator Guide, and API documentation.
   - Production build verification and release package sign-off.
-- **Status**: **QUEUED**.
+- **Status**: **COMPLETE (VERIFIED)**. Release E2E suite (`backend/tests/test_release_e2e.py`, ten scenarios), security audit suite (`backend/tests/test_security_audit.py`), full backend suite green, production web build and TypeScript typecheck pass, clean-database migration applies with FTS indexes present, and a real `pg_dump`/`pg_restore` drill on PostgreSQL confirmed restored data. Operational scripts now back up and restore the media asset volume alongside the database. See `docs/MILESTONE_ACCEPTANCE.md` for the evidence log.

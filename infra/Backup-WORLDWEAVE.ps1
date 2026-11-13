@@ -28,3 +28,17 @@ $digest = (Get-FileHash -Path $backupPath -Algorithm SHA256).Hash
 Set-Content -Path "$backupPath.sha256" -Value "$digest  $(Split-Path -Leaf $backupPath)" -Encoding ASCII
 Write-Host "Database backup created: $backupPath"
 Write-Host "SHA-256: $digest"
+
+$mediaPath = Join-Path (Get-Location) "backups\worldweave-media-$stamp.tar"
+$mediaRoot = if ($values["MEDIA_ROOT"]) { $values["MEDIA_ROOT"] } else { "/var/lib/worldweave/media" }
+$mediaRootRelative = $mediaRoot.TrimStart("/")
+$mediaCommand = "docker compose exec -T api tar -C / -cf - $mediaRootRelative > `"$mediaPath`""
+& cmd.exe /d /c $mediaCommand
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path $mediaPath)) {
+    throw "The media asset backup failed. Check that WORLDWEAVE is running and review docker compose logs."
+}
+
+$mediaDigest = (Get-FileHash -Path $mediaPath -Algorithm SHA256).Hash
+Set-Content -Path "$mediaPath.sha256" -Value "$mediaDigest  $(Split-Path -Leaf $mediaPath)" -Encoding ASCII
+Write-Host "Media asset backup created: $mediaPath"
+Write-Host "SHA-256: $mediaDigest"

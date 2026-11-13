@@ -2435,6 +2435,118 @@ export const SearchUniverseResponse = zod.object({
 
 
 /**
+ * @summary Export a universe as a portable bundle
+ */
+export const ExportUniverseParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const ExportUniverseResponse = zod.unknown()
+
+
+/**
+ * @summary Validate an import archive without writing
+ */
+export const ValidateUniverseImportParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const ValidateUniverseImportBody = zod.object({
+  "file": zod.instanceof(Blob)
+})
+
+export const ValidateUniverseImportResponse = zod.object({
+  "valid": zod.boolean(),
+  "schema_version": zod.number().int(),
+  "source_universe_id": zod.string().uuid().nullish(),
+  "source_universe_name": zod.string().nullish(),
+  "report": zod.object({
+  "counts": zod.record(zod.string(), zod.record(zod.string(), zod.number().int())),
+  "items": zod.array(zod.object({
+  "kind": zod.string(),
+  "id": zod.string().uuid().nullish(),
+  "label": zod.string(),
+  "action": zod.enum(['create', 'update', 'skip', 'conflict', 'error']),
+  "message": zod.string().nullish()
+})),
+  "errors": zod.number().int(),
+  "valid": zod.boolean()
+}),
+  "warnings": zod.array(zod.string()).optional()
+})
+
+
+/**
+ * @summary Execute an import archive
+ */
+export const ExecuteUniverseImportParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const executeUniverseImportQueryConflictPolicyDefault = `skip`;
+export const executeUniverseImportQueryDryRunDefault = false;
+
+export const ExecuteUniverseImportQueryParams = zod.object({
+  "conflict_policy": zod.enum(['skip', 'overwrite', 'fail']).default(executeUniverseImportQueryConflictPolicyDefault),
+  "dry_run": zod.coerce.boolean().default(executeUniverseImportQueryDryRunDefault)
+})
+
+export const ExecuteUniverseImportBody = zod.object({
+  "file": zod.instanceof(Blob)
+})
+
+export const ExecuteUniverseImportResponse = zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "source_universe_id": zod.string().uuid().nullish(),
+  "schema_version": zod.number().int(),
+  "status": zod.string(),
+  "conflict_policy": zod.string(),
+  "dry_run": zod.boolean(),
+  "archive_checksum_sha256": zod.string(),
+  "report_json": zod.record(zod.string(), zod.unknown()),
+  "warnings_json": zod.array(zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "created_at": zod.coerce.date()
+})
+
+
+/**
+ * @summary List recorded import jobs
+ */
+export const ListImportJobsParams = zod.object({
+  "universe_id": zod.coerce.string().uuid()
+})
+
+export const listImportJobsQueryLimitDefault = 50;
+export const listImportJobsQueryLimitMax = 100;
+
+
+
+export const ListImportJobsQueryParams = zod.object({
+  "limit": zod.coerce.number().int().min(1).max(listImportJobsQueryLimitMax).default(listImportJobsQueryLimitDefault)
+})
+
+export const ListImportJobsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "universe_id": zod.string().uuid(),
+  "source_universe_id": zod.string().uuid().nullish(),
+  "schema_version": zod.number().int(),
+  "status": zod.string(),
+  "conflict_policy": zod.string(),
+  "dry_run": zod.boolean(),
+  "archive_checksum_sha256": zod.string(),
+  "report_json": zod.record(zod.string(), zod.unknown()),
+  "warnings_json": zod.array(zod.unknown()),
+  "created_by": zod.string().uuid(),
+  "created_at": zod.coerce.date()
+})),
+  "total": zod.number().int()
+})
+
+
+/**
  * @summary List events in day-index order
  */
 export const ListTimelineEventsParams = zod.object({

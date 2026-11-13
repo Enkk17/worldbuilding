@@ -12,4 +12,8 @@ export type {
   ListUniverseCalendarsParams,
   ListUniverseMapsParams,
   UploadUniverseAssetBody,
+  ValidateUniverseImportBody,
+  ExecuteUniverseImportParams,
+  ExecuteUniverseImportBody,
+  ListImportJobsParams,
 } from "./generated/api";

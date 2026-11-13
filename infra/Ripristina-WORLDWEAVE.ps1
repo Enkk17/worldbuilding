@@ -1,6 +1,8 @@
 param(
     [Parameter(Mandatory = $true, Position = 0)]
-    [string]$BackupFile
+    [string]$BackupFile,
+    [Parameter(Mandatory = $false, Position = 1)]
+    [string]$MediaFile
 )
 
 $ErrorActionPreference = "Stop"
@@ -21,6 +23,36 @@ foreach ($line in Get-Content ".env") {
 $database = if ($values["POSTGRES_DB"]) { $values["POSTGRES_DB"] } else { "worldweave" }
 $user = if ($values["POSTGRES_USER"]) { $values["POSTGRES_USER"] } else { "worldweave" }
 
+$backupSidecar = "$($resolvedBackup.Path).sha256"
+if (Test-Path $backupSidecar) {
+    $expected = ((Get-Content $backupSidecar -Raw).Trim() -split '\s+')[0]
+    $actual = (Get-FileHash -Path $resolvedBackup.Path -Algorithm SHA256).Hash
+    if ($expected -ne $actual) {
+        throw "The selected dump does not match its SHA-256 sidecar. Refusing to restore."
+    }
+    Write-Host "Backup checksum verified."
+} else {
+    Write-Warning "No SHA-256 sidecar found for the dump; continuing without checksum verification."
+}
+
+$resolvedMedia = $null
+if ($MediaFile) {
+    $resolvedMedia = Resolve-Path $MediaFile -ErrorAction Stop
+    $mediaSidecar = "$($resolvedMedia.Path).sha256"
+    if (Test-Path $mediaSidecar) {
+        $expectedMedia = ((Get-Content $mediaSidecar -Raw).Trim() -split '\s+')[0]
+        $actualMedia = (Get-FileHash -Path $resolvedMedia.Path -Algorithm SHA256).Hash
+        if ($expectedMedia -ne $actualMedia) {
+            throw "The selected media archive does not match its SHA-256 sidecar. Refusing to restore."
+        }
+        Write-Host "Media checksum verified."
+    } else {
+        Write-Warning "No SHA-256 sidecar found for the media archive; continuing without checksum verification."
+    }
+} else {
+    Write-Warning "No media archive supplied. User-uploaded assets will not be restored."
+}
+
 Write-Warning "This replaces the current WORLDWEAVE database with the selected backup."
 $confirmation = Read-Host "Type RESTORE WORLDWEAVE to continue"
 if ($confirmation -cne "RESTORE WORLDWEAVE") {
@@ -38,6 +70,17 @@ try {
     & cmd.exe /d /c $command
     if ($LASTEXITCODE -ne 0) {
         throw "The restore failed. Review the database logs before restarting the API."
+    }
+
+    if ($resolvedMedia) {
+        $mediaRoot = if ($values["MEDIA_ROOT"]) { $values["MEDIA_ROOT"] } else { "/var/lib/worldweave/media" }
+        $mediaRootRelative = $mediaRoot.TrimStart("/")
+        $mediaCommand = "docker compose exec -T api sh -c `"rm -rf /$mediaRootRelative && mkdir -p /$mediaRootRelative && tar -C / -xf -`" < `"$($resolvedMedia.Path)`""
+        & cmd.exe /d /c $mediaCommand
+        if ($LASTEXITCODE -ne 0) {
+            throw "The media asset restore failed. Review the API container before restarting it."
+        }
+        Write-Host "Media assets restored to $mediaRoot."
     }
 } finally {
     docker compose start api
